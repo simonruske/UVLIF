@@ -97,9 +97,9 @@ def load_filelist(cfg, directory, filename):
       raise ValueError("Unable to read file list, check the labels are "
                        "filled in correctly")
 
-    if label != '0':
+    if label.strip() != '0':
       files.append(file)
-      labels.append(int(label))
+      labels.append(label.strip())
 
   # Check the lists are not of length '0'
   if len(files) == 0 or len(labels) == 0:
