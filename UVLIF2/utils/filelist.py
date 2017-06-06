@@ -27,17 +27,6 @@ def create_filelist_laboratory(cfg, input_directory, output_directory):
     f.write(filename + '\n')
   f.close()
 
-def sort_filelist(dates, files):
-
-  '''
-  Function that sorts a list of dates
-  '''
-  idx = np.argsort(dates)
-  dates = np.array(dates)[idx]
-  files = np.array(files)[idx]
-
-  return dates, files
-
 def create_filelist_ambient(cfg, input_directory, output_directory):
 
   '''
@@ -65,3 +54,56 @@ def create_filelist_ambient(cfg, input_directory, output_directory):
     f.close()
 
   return sort_filelist(dates, filelist)
+
+def sort_filelist(dates, files):
+
+  '''
+  Function that sorts a list of dates
+  '''
+  idx = np.argsort(dates)
+  dates = np.array(dates)[idx]
+  files = np.array(files)[idx]
+
+  return dates, files
+
+def load_filelist(cfg, directory, filename):
+
+  '''
+  Function that loads a filelist created using the create_filelist_laboratory function
+
+  Parameters
+  ----------
+  directory : str 
+    The directory in which the filelist is stored
+
+  filename : str
+    The name of the filelist file
+  '''
+
+  #TODO THIS SHOULD BE PUT IN A FUNCTION!!
+  filelist_filename = os.path.join(cfg['main_directory'], directory, filename)
+  if not os.path.isfile(filelist_filename):
+    raise ValueError("The filelist could not be found")
+
+  f = load_file(cfg, directory, filename, 'r')
+  files = []
+  labels = []
+ 
+  # main loop
+  for line in f:
+    try: 
+      file, label = line.strip('\n').split(',')
+    except ValueError:
+      raise ValueError("Unable to read file list, check the labels are "
+                       "filled in correctly")
+
+    if label != '0':
+      files.append(file)
+      labels.append(int(label))
+
+  # Check the lists are not of length '0'
+  if len(files) == 0 or len(labels) == 0:
+    raise IOError("There are no files or labels to be read.")
+
+  f.close()
+  return files, labels
