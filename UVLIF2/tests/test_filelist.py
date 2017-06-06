@@ -57,8 +57,8 @@ class test_filelist(TestCase):
     files, labels = load_filelist(cfg, test_path, "filelist_1.txt")
     self.assertEqual(files[0], "file1.txt")
     self.assertEqual(files[1], "file2.txt")
-    self.assertEqual(labels[0], 1)
-    self.assertEqual(labels[1], 2)
+    self.assertEqual(labels[0], '1')
+    self.assertEqual(labels[1], '2')
     self.assertEqual(len(files), 2)
     self.assertEqual(len(labels), 2)
     
