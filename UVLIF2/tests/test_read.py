@@ -10,25 +10,27 @@ class test_read(TestCase):
     self.cfg = {}
     self.cfg['main_directory'] = os.path.split(os.path.abspath(UVLIF2.__file__))[0]
     self.input_dir = os.path.join("tests", "test_files") # input from testfiles
-    self.output_dir = os.path.join("tests", "temp") # set output to temp directory
-    if not os.path.exists(os.path.join(self.cfg['main_directory'], "temp")):
-      os.mkdir(os.path.join(self.cfg['main_directory'], "temp")) # create temp directory
+    self.output_dir = "tests" # set output to temp directory
+
 
     self.addCleanup(self.clean)
 
   def clean(self, *args, **kwargs):
-    super(test_read, self).__init__(*args, **kwargs)
-    os.rmdir(os.path.join(self.cfg['main_directory'], "temp")) # cleanup
+    full_output_dir = os.path.join(self.cfg['main_directory'], self.output_dir)
+    for filename in ['data.csv', 'FT.csv', 'labels.csv']:
+      full_filename = os.path.join(full_output_dir, filename)
+      if os.path.exists(full_filename):
+        os.remove(full_filename) 
 
 
   def test_prepare_laboratory_FT_only(self):
     files, labels, forced, g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
-                                                       'filelist_4.csv')
+                                                       'filelist_4.txt')
 
   def test_prepare_laboratory_data_only(self):
     files, labels, forced, g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
-                                                       'filelist_5.csv')    
+                                                       'filelist_5.txt')    
 
   def test_prerpare_laboratory_both(self):
     files, labels, forced, g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
-                                                       'filelist_6.csv')
+                                                       'filelist_6.txt')
