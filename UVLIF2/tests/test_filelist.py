@@ -62,10 +62,10 @@ class test_filelist(TestCase):
     self.assertEqual(len(files), 2)
     self.assertEqual(len(labels), 2)
     
-    with assertRaises(ValueError):
+    with self.assertRaises(ValueError):
       files, labels = load_filelist(cfg, test_path, "filelist_2.txt")
 
-    with assertRaises(IOError):
+    with self.assertRaises(IOError):
       files, labels = load_filelist(cfg, test_path, "filelist_3.txt") 
     
     
