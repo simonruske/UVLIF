@@ -41,6 +41,13 @@ class test_filelist(TestCase):
     self.assertEqual(files[1], 'f3.txt')
     self.assertEqual(files[2], 'f1.txt')
 
+  def test_load_filelist_not_found(self):
+    cfg = {}
+    cfg['main_directory'] = os.path.split(os.path.abspath(UVLIF2.__file__))[0]
+    test_path = os.path.join(cfg['main_directory'], "tests", "test_files")
+    with self.assertRaises(ValueError):
+      files, labels = load_filelist(cfg, test_path, "alien.txt")
+
   def test_load_filelist(self):
     
     cfg = {}
