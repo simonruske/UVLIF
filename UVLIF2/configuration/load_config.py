@@ -51,7 +51,7 @@ def convert_line(line):
     return name, str(value)
 
   elif var_type == 'char':
-    return name, value.decode('string_escape')
+    return name, bytes(value.encode()).decode('unicode_escape')
 
   elif var_type == 'bool':
     if value.lower() == 'true':
