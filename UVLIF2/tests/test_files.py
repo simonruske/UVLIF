@@ -58,7 +58,7 @@ class test_files(TestCase):
     cfg['main_directory'] = os.path.split(os.path.abspath(UVLIF2.__file__))[0]
     files = ["alien_1.txt", "alien_2.txt"]
     test = any_file_exists(cfg, os.path.join("tests", "test_files"), files)
-    self.assertEqual(test, True)
+    self.assertEqual(test, False)
   
     
 
