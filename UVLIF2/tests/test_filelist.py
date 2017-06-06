@@ -1,5 +1,6 @@
 from unittest import TestCase
-from UVLIF2.utils.filelist import create_filelist_laboratory, sort_filelist, create_filelist_ambient
+from UVLIF2.utils.filelist import create_filelist_laboratory, sort_filelist,\
+                                  create_filelist_ambient, load_filelist
 import UVLIF2
 import os
 from datetime import datetime
@@ -40,4 +41,25 @@ class test_filelist(TestCase):
     self.assertEqual(files[1], 'f3.txt')
     self.assertEqual(files[2], 'f1.txt')
 
+  def test_load_filelist(self):
+    
+    cfg = {}
+    cfg['main_directory'] = os.path.split(os.path.abspath(UVLIF2.__file__))[0]
+    test_path = os.path.join(cfg['main_directory'], "tests", "test_files")
+    
+    files, labels = load_filelist(cfg, test_path, "filelist_1.txt")
+    self.assertEqual(files[0], "file1.txt")
+    self.assertEqual(files[1], "file2.txt")
+    self.assertEqual(labels[0], 1)
+    self.assertEqual(labels[1], 2)
+    self.assertEqual(len(files), 2)
+    self.assertEqual(len(labels), 2)
+    
+    with assertRaises(ValueError):
+      files, labels = load_filelist(cfg, test_path, "filelist_2.txt")
+
+    with assertRaises(IOError):
+      files, labels = load_filelist(cfg, test_path, "filelist_3.txt") 
+    
+    
     
