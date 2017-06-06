@@ -131,3 +131,28 @@ def file_exists(cfg, directory, filename):
 
   else:
     return False
+
+def any_file_exists(cfg, directory, filelist):
+  
+  '''
+  Function that checks whether any file within a list exists
+
+  Parameters 
+  ----------
+  cfg['main_directory'] (str):
+    The main directory that stores all the folders
+
+  directory (str) : 
+    The directory within the main directory to search
+
+  filelist (list) :
+    A list of files to search for
+  '''
+
+  data_exists = False
+
+  for filename in filelist:
+    if file_exists(cfg, directory, filename):
+      data_exists = True
+
+  return data_exists
