@@ -108,3 +108,26 @@ def get_date(f):
   line = search_for_line(f, "Start Date/Time", 100)
   start = str2date(line, "Start Date/Time : ")
   return start
+
+def file_exists(cfg, directory, filename):
+
+  '''
+  Function that checks if a file exists in a particular directory
+
+  Parameters 
+  ----------
+  cfg['main_directory'] (str):
+    The main directory which contains the directory to be searched
+
+  directory (str) : 
+    The directory to search for the file in 
+
+  filename (str) : 
+    The name of the file to search for
+  '''
+
+  if os.path.exists(os.path.join(cfg['main_directory'], directory, filename)):
+    return True
+
+  else:
+    return False
