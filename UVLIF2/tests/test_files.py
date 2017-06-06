@@ -1,7 +1,7 @@
 from unittest import TestCase
 import os
 from UVLIF2.utils.files import load_file, search_for_line, str2date, get_date,\
-                               file_exists
+                               file_exists, any_file_exists
 import UVLIF2
 from datetime import datetime
 
@@ -46,6 +46,19 @@ class test_files(TestCase):
     test = file_exists(cfg, os.path.join("tests", "test_files"), "alien.txt")
     self.assertEqual(test, False)
 
+  def test_any_file_exists_true(self):
+    cfg = {}
+    cfg['main_directory'] = os.path.split(os.path.abspath(UVLIF2.__file__))[0]
+    files = ["file.txt", "alien.txt"]
+    test = any_file_exists(cfg, os.path.join("tests", "test_files"), files)
+    self.assertEqual(test, True)
+
+  def test_any_file_exists_false(self):
+    cfg = {}
+    cfg['main_directory'] = os.path.split(os.path.abspath(UVLIF2.__file__))[0]
+    files = ["alien_1.txt", "alien_2.txt"]
+    test = any_file_exists(cfg, os.path.join("tests", "test_files"), files)
+    self.assertEqual(test, True)
   
     
 
