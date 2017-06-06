@@ -1,7 +1,7 @@
 int my_integer : 1
 float my_float : 1.0
 string my_string : hello
-char deliter : \t
+char delimiter : \t
 bool remove_FL : True
 list(int) int_list : 1, 2, 3, 4, 5
 list(float) threshold : 1.0, 2.5, 3.5
