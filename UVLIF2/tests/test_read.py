@@ -1,5 +1,5 @@
 from unittest import TestCase
-from UVLIF2.read.read import prepare_laboratory
+from UVLIF2.read.read import prepare_laboratory, prepare_ambient
 import UVLIF2
 import os
 
@@ -17,7 +17,7 @@ class test_read(TestCase):
 
   def clean(self, *args, **kwargs):
     full_output_dir = os.path.join(self.cfg['main_directory'], self.output_dir)
-    for filename in ['data.csv', 'FT.csv', 'labels.csv']:
+    for filename in ['data.csv', 'FT.csv', 'labels.csv', 'times.csv']:
       full_filename = os.path.join(full_output_dir, filename)
       if os.path.exists(full_filename):
         os.remove(full_filename) 
@@ -50,6 +50,15 @@ class test_read(TestCase):
     self.assertNotEqual(forced, None)
     self.assertNotEqual(g, None)
     self.assertNotEqual(l, None)
+
+  def test_prepare_ambient_time_specified(self):
+    self.cfg['time_stamp_specified'] = True
+    self.input_dir = os.path.join("tests", "test_files_ambient")
+    files, forced, g, time_handle = prepare_ambient(self.cfg, self.input_dir, self.output_dir)
+    self.assertEqual(len(files), 2)
+    self.assertEqual(files[0], 'test_1.txt')
+    self.assertEqual(files[1], 'test_2.txt')
+    
 
 
   
