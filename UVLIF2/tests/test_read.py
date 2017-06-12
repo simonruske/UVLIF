@@ -1,5 +1,5 @@
 from unittest import TestCase
-from UVLIF2.read.read import prepare_laboratory, prepare_ambient, convert_info
+from UVLIF2.read.read import prepare_laboratory, prepare_ambient, convert_info, close_files
 import UVLIF2
 import os
 
@@ -100,6 +100,20 @@ class test_read(TestCase):
       file, is_FT = convert_info(cfg, info)
       self.assertEqual(file, files[i])
       self.assertEqual(is_FT, False)
+
+  def test_close_files(self):
+    g = open('data.csv', 'w')
+    forced = open('FT.csv', 'w')
+    l = None
+    close_files([g, l, forced])
+
+    self.assertTrue(g.closed)
+    self.assertTrue(forced.closed)
+    self.assertEqual(l, None)
+    for filename in ['data.csv', 'FT.csv']:
+      os.remove(filename)
+   
+
     
 
     
