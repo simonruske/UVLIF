@@ -26,11 +26,38 @@ class test_read(TestCase):
   def test_prepare_laboratory_FT_only(self):
     files, labels, forced, g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
                                                        'filelist_4.txt')
+    self.assertEqual(files, ['f1.txt', 'f2.txt'])
+    self.assertEqual(labels, ['F', 'F'])
+    self.assertNotEqual(forced, None)
+    self.assertEqual(g, None)
+    self.assertEqual(l, None)
 
   def test_prepare_laboratory_data_only(self):
     files, labels, forced, g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
-                                                       'filelist_5.txt')    
+                                                       'filelist_5.txt')
+    self.assertEqual(files, ['f1.txt', 'f2.txt', 'f3.txt'])
+    self.assertEqual(labels, ['1', '2', '3'])
+    self.assertEqual(forced, None)
+    self.assertNotEqual(g, None)
+    self.assertNotEqual(l, None)
+     
 
-  def test_prerpare_laboratory_both(self):
+  def test_prepare_laboratory_both(self):
     files, labels, forced, g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
                                                        'filelist_6.txt')
+    self.assertEqual(files, ['f1.txt', 'f2.txt'])
+    self.assertEqual(labels, ['F', '1'])
+    self.assertNotEqual(forced, None)
+    self.assertNotEqual(g, None)
+    self.assertNotEqual(l, None)
+
+
+  
+
+
+
+
+
+
+
+
