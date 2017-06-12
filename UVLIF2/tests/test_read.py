@@ -24,29 +24,41 @@ class test_read(TestCase):
 
 
   def test_prepare_laboratory_FT_only(self):
-    files, labels, forced, g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
+    file_info, forced, g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
                                                        'filelist_4.txt')
-    self.assertEqual(files, ['f1.txt', 'f2.txt'])
-    self.assertEqual(labels, ['F', 'F'])
+    correct_files = ['f1.txt', 'f2.txt']
+    correct_labels = ['F', 'F']
+    for i, (filename, label) in enumerate(file_info):
+      self.assertEqual(filename, correct_files[i])
+      self.assertEqual(label, correct_labels[i])
+
     self.assertNotEqual(forced, None)
     self.assertEqual(g, None)
     self.assertEqual(l, None)
 
   def test_prepare_laboratory_data_only(self):
-    files, labels, forced, g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
+    file_info, forced, g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
                                                        'filelist_5.txt')
-    self.assertEqual(files, ['f1.txt', 'f2.txt', 'f3.txt'])
-    self.assertEqual(labels, ['1', '2', '3'])
+    correct_files = ['f1.txt', 'f2.txt', 'f3.txt']
+    correct_labels = ['1', '2', '3']
+    for i, (filename, label) in enumerate(file_info):
+      self.assertEqual(filename, correct_files[i])
+      self.assertEqual(label, correct_labels[i])
     self.assertEqual(forced, None)
     self.assertNotEqual(g, None)
     self.assertNotEqual(l, None)
      
 
   def test_prepare_laboratory_both(self):
-    files, labels, forced, g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
+    file_info, forced,g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
                                                        'filelist_6.txt')
-    self.assertEqual(files, ['f1.txt', 'f2.txt'])
-    self.assertEqual(labels, ['F', '1'])
+    correct_files = ['f1.txt', 'f2.txt']
+    correct_labels = ['F', '1']
+    for i, (filename, label) in enumerate(file_info):
+      self.assertEqual(filename, correct_files[i])
+      self.assertEqual(label, correct_labels[i])
+
+
     self.assertNotEqual(forced, None)
     self.assertNotEqual(g, None)
     self.assertNotEqual(l, None)
@@ -54,7 +66,7 @@ class test_read(TestCase):
   def test_prepare_ambient_time_specified(self):
     self.cfg['time_stamp_specified'] = True
     self.input_dir = os.path.join("tests", "test_files_ambient")
-    files, forced, g, time_handle = prepare_ambient(self.cfg, self.input_dir, self.output_dir)
+    files, forced, g, time_handle, earliest_date, latest_date = prepare_ambient(self.cfg, self.input_dir, self.output_dir)
     self.assertEqual(len(files), 2)
     self.assertEqual(files[0], 'test_1.txt')
     self.assertEqual(files[1], 'test_2.txt')

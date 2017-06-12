@@ -3,6 +3,8 @@ from UVLIF2.utils.filelist import load_filelist, create_filelist_ambient
 from UVLIF2.utils.files import load_file
 from UVLIF2.utils.directories import list_directory
 import numpy as np
+from datetime import datetime
+
 
 def prepare_laboratory(cfg, input_directory, output_directory, filename):
 
@@ -22,7 +24,7 @@ def prepare_laboratory(cfg, input_directory, output_directory, filename):
     g = load_file(cfg, output_directory, "data.csv", 'w')
     l = load_file(cfg, output_directory, "labels.csv", 'w')
 
-  return files, labels, forced, g, l
+  return zip(files, labels), forced, g, l
 
 def prepare_ambient(cfg, input_directory, output_directory):
 
@@ -32,10 +34,16 @@ def prepare_ambient(cfg, input_directory, output_directory):
 
   # If time stamp is specified then create list in date order
   if cfg['time_stamp_specified']:
-    dates, files = create_filelist_ambient(cfg, input_directory, output_directory)
+    dates, file_info = create_filelist_ambient(cfg, input_directory, output_directory)
 
   else:
-    files = list_directory(cfg, directory)
+    file_info = list_directory(cfg, directory)
 
-  return files, forced, g, time_handle
+  # get the earliest and latest time 
+  earliest_date = datetime.min
+  latest_date = datetime.max
+
+  return file_info, forced, g, time_handle, earliest_date, latest_date
+
+
 
