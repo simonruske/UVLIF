@@ -1,5 +1,5 @@
 from unittest import TestCase
-from UVLIF2.read.read import prepare_laboratory, prepare_ambient
+from UVLIF2.read.read import prepare_laboratory, prepare_ambient, convert_info
 import UVLIF2
 import os
 
@@ -70,6 +70,38 @@ class test_read(TestCase):
     self.assertEqual(len(files), 2)
     self.assertEqual(files[0], 'test_1.txt')
     self.assertEqual(files[1], 'test_2.txt')
+
+  def test_convert_info_laboratory(self):
+    cfg = {}
+    cfg['ambient'] = False
+    files = ['f1.txt', 'f2.txt']
+    labels = ['1', '2']
+    for i, info in enumerate(zip(files, labels)):
+      file, label = convert_info(cfg, info)
+      self.assertEqual(file, files[i])
+      self.assertEqual(label, labels[i])
+    
+  def test_convert_info_ambient_FT(self):
+    cfg = {}
+    cfg['ambient'] = True
+    cfg['FT_char'] = 'FT'
+    files = ['FT1.txt', 'FT2.txt']
+    for i, info in enumerate(files):
+      file, is_FT = convert_info(cfg, info)
+      self.assertEqual(file, files[i])
+      self.assertEqual(is_FT, True)
+
+  def test_convert_info_ambient_data(self):
+    cfg = {}
+    cfg['ambient'] = True
+    cfg['FT_char'] = 'FT'
+    files = ['f1.txt', 'f2.txt']
+    for i, info in enumerate(files):
+      file, is_FT = convert_info(cfg, info)
+      self.assertEqual(file, files[i])
+      self.assertEqual(is_FT, False)
+    
+
     
 
 
