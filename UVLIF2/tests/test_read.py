@@ -1,5 +1,7 @@
 from unittest import TestCase
-from UVLIF2.read.read import prepare_laboratory, prepare_ambient, convert_info, close_files
+from UVLIF2.utils.files import file_exists
+from UVLIF2.read.read import prepare_laboratory, prepare_ambient, convert_info, close_files,\
+                             write_start_end_date
 import UVLIF2
 import os
 
@@ -17,7 +19,7 @@ class test_read(TestCase):
 
   def clean(self, *args, **kwargs):
     full_output_dir = os.path.join(self.cfg['main_directory'], self.output_dir)
-    for filename in ['data.csv', 'FT.csv', 'labels.csv', 'times.csv']:
+    for filename in ['data.csv', 'FT.csv', 'labels.csv', 'times.csv', 'startend.csv']:
       full_filename = os.path.join(full_output_dir, filename)
       if os.path.exists(full_filename):
         os.remove(full_filename) 
@@ -112,6 +114,13 @@ class test_read(TestCase):
     self.assertEqual(l, None)
     for filename in ['data.csv', 'FT.csv']:
       os.remove(filename)
+
+  def test_write_start_end_date(self):
+
+    write_start_end_date(self.cfg, self.output_dir, '05/01/2016', '05/02/2016')
+    self.assertTrue(file_exists(self.cfg, self.output_dir, "startend.csv"))
+
+
    
 
     

@@ -61,6 +61,7 @@ def prepare_ambient(cfg, input_directory, output_directory):
     The directory to store the output files
   '''
 
+  forced, g, l = None, None, None
   g = load_file(cfg, output_directory, 'data.csv', 'w')
   forced = load_file(cfg, output_directory, 'FT.csv', 'w')
   time_handle = load_file(cfg, output_directory, 'times.csv', 'w')
@@ -96,6 +97,70 @@ def convert_info(cfg, info):
     file, label = info
     return file, label
 
+def close_files(handles):
 
+  '''
+  Closes all the files which are open
+  '''
+
+  for handle in handles:
+    if handle != None:
+      handle.close()
+
+def write_start_end_date(cfg, output_directory, earliest_date, latest_date):
+
+  # NEEDS TEST
+
+  '''
+  Function that writes the start and end date to file
+  '''
+  start_end_handle = load_file(cfg, output_directory, 'startend.csv', 'w')
+  start_end_handle.write('Earliest_date, ' + str(earliest_date) + '\n')
+  start_end_handle.write('Latest_date, ' + str(latest_date) + '\n')
+  start_end_handle.close()
+
+
+def read_file(cfg):
+
+  # NEEDS TEST
+
+  return
+
+def read_files(cfg):
+
+  # NEEDS TEST
+
+  # If any data files exist write message suggesting deletion if user wishes to recreate them
+  if any_file_exists(cfg, 'output_directory', ['data.csv', 'FT.csv', 'times.csv']):
+    print("Data files have been found in the output directory, hence creation of the "
+          "data files has been skipped, if you wish to recreate them please run "
+          "'python UVLIF.py clean_data' before running again\n")
+    return
+
+  # if in ambient mode then prepare ambient otherwise prepare for laboratory
+  if cfg['ambient']:
+    file_info, forced, g, time_handle, earliest_date, latest_date = prepare_ambient(cfg, 'data', 'output')
+
+  else:
+    file_info, forced, g, l = prepare_laboratory(cfg, 'data', 'output', 'filelist.csv')
+
+  # =========================
+  # MAIN LOOP : Read in files
+  # =========================
+  particle = 0
+  for file_num, info in enumerate(file_info):
+    read_file(cfg)
+
+  # Save the earliest and latest date
+  if cfg['ambient'] and cfg['time_stamp_specified']:
+    write_start_end_date(cfg, 'output', earliest_date, latest_date)
+
+  close_files([g, l, forced])
+
+
+
+
+  
+  
 
 
