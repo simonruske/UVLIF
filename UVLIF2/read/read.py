@@ -287,7 +287,8 @@ def write_line_ambient(g, forced, output_str, is_FT, cur_time = None, time_handl
     time_handle.write(str(cur_time) + "\n")
 
 
-def read_file(cfg, info, time_handle = None):
+def read_file(cfg, info, g, forced, l = None, time_handle = None,\
+              earliest_date = None, latest_date = None):
   # NEEDS TEST
 
   # convert information
@@ -316,23 +317,25 @@ def read_file(cfg, info, time_handle = None):
   # Search for a time stamp
 
   if cfg['time_stamp_specified']:
-    start = get_date(cfg, f)
-    earliest_date = min(start, earliest_date)
+    start = get_date(f)
+    if not is_FT and cfg['ambient']:
+      earliest_date = min(start, earliest_date)
 
   header = f.readline()
 
-  for line in f:
+  for j, line in enumerate(f):
     # convert the line
     try:
       output_list = line2list(cfg, line)
-    except Exception:
+    except ValueError:
       warning = "There was a particle on line {} of file {} that had missing data "\
-                "so was skipped"
+                "so was skipped, {}"
       warnings.warn(warning.format(j, file), RuntimeWarning)
+      continue
 
     # Get current time
     if cfg['time_stamp_specified']:
-      cur_time = start + timedelta(milliesconds = int(line[0]))
+      cur_time = start + timedelta(milliseconds = int(line[0]))
 
     # check the output_list can be converted to floating point
     output_float = check_output_list(output_list)
@@ -340,8 +343,8 @@ def read_file(cfg, info, time_handle = None):
     # If we cannot convert the output to float then warn user and move onto the next line
     if not output_float:
       warnings.warn("We found a particle on line {} in {} that had measurements that could"\
-                  "not be converted to float. We have skipped this line.".format(j, file))
-      return
+                  "not be converted to float. We have skipped this line, {}.".format(j, file))
+      continue
 
     # Otherwise convert list to string
     else:
@@ -359,16 +362,6 @@ def read_file(cfg, info, time_handle = None):
     
   f.close()
 
-def check_config(cfg):
-
-  # needs a test
-  if 'ambient' not in cfg:
-    raise ValueError("Ambient or laboratory mode must be specified in the instrument "\
-                     "configuration file.")
-  if 'FT_char' not in cfg:
-    raise ValueError("You must specify the characters which are contained within the filename "\
-                     "for a forced trigger file.")
-  
 def read_files(cfg):
 
   check_config(cfg)

@@ -202,14 +202,29 @@ class test_read(TestCase):
     time_handle = open('times.csv')
     self.assertEqual(time_handle.readline(), str(cur_date) + '\n')
 
-  def test_read_file_ambient_FT(self):
+  def test_read_file_ambient_FT_1(self):
     cfg = {}
     cfg['ambient'] = True
     cfg['FT_char'] = 'FT'
     cfg['valid_ext'] = ['.txt', '.csv']
+    cfg['file_name_specified'] = True
+    cfg['time_stamp_specified'] = True
     cfg['main_directory'] = os.path.join(self.cfg['main_directory'], "tests")
-    info = 'FT_clear.txt'
-    read_file(cfg, info)
+    cfg['delimiter'] = ','
+    cfg['needed_cols'] = [7, 8, 10, 14, 15]
+    info = 'FT_clear.csv'
+    g = open('data.csv', 'w')
+    forced = open('FT.csv', 'w')
+    read_file(cfg, info, g, forced)
+    close_files([g, forced])
+    forced = open('FT.csv')
+    self.assertEqual(forced.readline(), '10,32,149,0.01968,-1\n')
+    self.assertEqual(forced.readline(), '18,24,190,0.01968,-1\n')
+    self.assertEqual(forced.readline(), '9,28,211,0.01968,-1\n')
+
+
+
+
     
 
   
