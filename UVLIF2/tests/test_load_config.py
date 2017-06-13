@@ -1,6 +1,6 @@
 from unittest import TestCase
 import os
-from UVLIF2.configuration.load_config import set_cfg, convert_line, load_config
+from UVLIF2.configuration.load_config import set_cfg, convert_line, load_config, load_config_files
 
 class test_read_config(TestCase):
 
@@ -68,4 +68,25 @@ class test_read_config(TestCase):
     dirname, _ = os.path.split(os.path.abspath(__file__))
     with self.assertRaises(ValueError):
       load_config(os.path.join(dirname,'test_files', 'test_error.proto'))
+
+  def test_load_config_files(self):
+    dirname, _ = os.path.split(os.path.abspath(__file__))
+    os.chdir(dirname)
+    f = open('main.proto', 'w')
+    i_file = os.path.join(dirname, "test_files", "i1.proto")
+    a_file = os.path.join(dirname, "test_files", "a1.proto")
+    f.write("string instrument_filename: {}\n".format(i_file))
+    f.write("string analysis_filename: {}\n".format(a_file))
+    f.close()
+    cfg = load_config_files()
+    self.assertIn("instrument_filename", cfg)
+    self.assertIn("analysis_filename", cfg)
+    self.assertIn("instrument_param", cfg)
+    self.assertIn("analysis_param", cfg)
+    os.remove("main.proto")
+    
+    
+    
+
+  
     
