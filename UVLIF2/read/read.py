@@ -71,13 +71,13 @@ def prepare_ambient(cfg, input_directory, output_directory):
   if cfg['time_stamp_specified']:
     dates, file_info = create_filelist_ambient(cfg, input_directory, output_directory)
     # get the earliest and latest time 
-    earliest_date = datetime.min
-    latest_date = datetime.max
+    cfg['earliest_date'] = datetime.min
+    cfg['latest_date'] = datetime.max
 
   else:
     file_info = list_directory(cfg, directory)
 
-  return file_info, forced, g, time_handle, earliest_date, latest_date
+  return file_info, forced, g, time_handle
 
 def convert_info(cfg, info):
 
@@ -126,7 +126,7 @@ def close_files(handles):
     if handle != None:
       handle.close()
 
-def write_start_end_date(cfg, output_directory, earliest_date, latest_date):
+def write_start_end_date(cfg, output_directory):
 
   '''
   Function that writes the start and end date to file
@@ -136,16 +136,16 @@ def write_start_end_date(cfg, output_directory, earliest_date, latest_date):
   output_directory : str
     Directory within the main directory where the output files should be saved
 
-  earliest_date : str 
+  cfg['earliest_date'] : str 
     The earliest date from the analysis 
 
-  latest_date : str 
+  cfg['latest_date'] : str 
     The latest date from the analysis
 
   '''
   start_end_handle = load_file(cfg, output_directory, 'startend.csv', 'w')
-  start_end_handle.write('Earliest_date, ' + str(earliest_date) + '\n')
-  start_end_handle.write('Latest_date, ' + str(latest_date) + '\n')
+  start_end_handle.write('Earliest_date, ' + str(cfg['earliest_date']) + '\n')
+  start_end_handle.write('Latest_date, ' + str(cfg['latest_date']) + '\n')
   start_end_handle.close()
 
 def line2list(cfg, line):
@@ -287,8 +287,7 @@ def write_line_ambient(g, forced, output_str, is_FT, cur_time = None, time_handl
     time_handle.write(str(cur_time) + "\n")
 
 
-def read_file(cfg, info, g, forced, l = None, time_handle = None,\
-              earliest_date = None, latest_date = None):
+def read_file(cfg, info, g, forced, l = None, time_handle = None):
   # NEEDS TEST
 
   # convert information
@@ -319,7 +318,7 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None,\
   if cfg['time_stamp_specified']:
     start = get_date(f)
     if not is_FT and cfg['ambient']:
-      earliest_date = min(start, earliest_date)
+      cfg['earliest_date'] = min(start, cfg['earliest_date'])
 
   header = f.readline()
 
@@ -377,7 +376,7 @@ def read_files(cfg):
 
   # if in ambient mode then prepare ambient otherwise prepare for laboratory
   if cfg['ambient']:
-    file_info, forced, g, time_handle, earliest_date, latest_date = prepare_ambient(cfg, 'data', 'output')
+    file_info, forced, g, time_handle= prepare_ambient(cfg, 'data', 'output')
 
   else:
     file_info, forced, g, l = prepare_laboratory(cfg, 'data', 'output', 'filelist.csv')
@@ -391,7 +390,7 @@ def read_files(cfg):
 
   # Save the earliest and latest date
   if cfg['ambient'] and cfg['time_stamp_specified']:
-    write_start_end_date(cfg, 'output', earliest_date, latest_date)
+    write_start_end_date(cfg, 'output')
 
   close_files([g, l, forced])
 

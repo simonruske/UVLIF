@@ -71,7 +71,7 @@ class test_read(TestCase):
   def test_prepare_ambient_time_specified(self):
     self.cfg['time_stamp_specified'] = True
     self.input_dir = os.path.join("tests", "test_files_ambient")
-    files, forced, g, time_handle, earliest_date, latest_date = prepare_ambient(self.cfg, self.input_dir, self.output_dir)
+    files, forced, g, time_handle = prepare_ambient(self.cfg, self.input_dir, self.output_dir)
     self.assertEqual(len(files), 2)
     self.assertEqual(files[0], 'test_1.txt')
     self.assertEqual(files[1], 'test_2.txt')
@@ -119,8 +119,11 @@ class test_read(TestCase):
       os.remove(filename)
 
   def test_write_start_end_date(self):
+    cfg = self.cfg
+    cfg['earliest_date'] = '05/01/2016'
+    cfg['latest_date'] = '05/02/2016'
 
-    write_start_end_date(self.cfg, self.output_dir, '05/01/2016', '05/02/2016')
+    write_start_end_date(self.cfg, self.output_dir)
     self.assertTrue(file_exists(self.cfg, self.output_dir, "startend.csv"))
 
   def test_line2list(self):
@@ -202,7 +205,8 @@ class test_read(TestCase):
     time_handle = open('times.csv')
     self.assertEqual(time_handle.readline(), str(cur_date) + '\n')
 
-  def test_read_file_ambient_FT_1(self):
+  def read_file_ambient_1_setup(self):
+
     cfg = {}
     cfg['ambient'] = True
     cfg['FT_char'] = 'FT'
@@ -212,6 +216,11 @@ class test_read(TestCase):
     cfg['main_directory'] = os.path.join(self.cfg['main_directory'], "tests")
     cfg['delimiter'] = ','
     cfg['needed_cols'] = [7, 8, 10, 14, 15]
+    return cfg
+
+  def test_read_file_ambient_FT_1(self):
+
+    cfg = self.read_file_ambient_1_setup()
     info = 'FT_clear.csv'
     g = open('data.csv', 'w')
     forced = open('FT.csv', 'w')
@@ -222,6 +231,22 @@ class test_read(TestCase):
     self.assertEqual(forced.readline(), '18,24,190,0.01968,-1\n')
     self.assertEqual(forced.readline(), '9,28,211,0.01968,-1\n')
 
+
+  def test_read_file_ambient_data_1(self):
+
+    # Set up configuration
+    cfg = self.read_file_ambient_1_setup()
+    cfg['earliest_date'] = datetime.min
+    cfg['latest_date'] = datetime.max
+    info = 'data_clear.csv'
+    g = open('data.csv', 'w')
+    forced = open('FT.csv', 'w')
+    read_file(cfg, info, g, forced)
+    close_files([g, forced])
+    g = open('data.csv')
+    self.assertEqual(g.readline(), '11,33,211,0.5256,8.381\n')
+    self.assertEqual(g.readline(), '25,51,184,0.7496,8.42\n')
+    self.assertEqual(g.readline(), '26,58,219,0.6367,7.684\n')
 
 
 
