@@ -1,6 +1,6 @@
 from collections import Counter
 from UVLIF2.utils.filelist import load_filelist, create_filelist_ambient
-from UVLIF2.utils.files import load_file, get_date, search_for_line
+from UVLIF2.utils.files import load_file, get_date, search_for_line, any_file_exists
 from UVLIF2.utils.directories import list_directory
 import numpy as np
 from datetime import datetime, timedelta
@@ -363,12 +363,8 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
 
 def read_files(cfg):
 
-  check_config(cfg)
-
-  # NEEDS TEST
-
   # If any data files exist write message suggesting deletion if user wishes to recreate them
-  if any_file_exists(cfg, 'output_directory', ['data.csv', 'FT.csv', 'times.csv']):
+  if any_file_exists(cfg, 'output', ['data.csv', 'FT.csv', 'times.csv']):
     print("Data files have been found in the output directory, hence creation of the "
           "data files has been skipped, if you wish to recreate them please run "
           "'python UVLIF.py clean_data' before running again\n")

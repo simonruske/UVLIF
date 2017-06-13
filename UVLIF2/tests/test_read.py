@@ -2,7 +2,7 @@ from unittest import TestCase
 from UVLIF2.utils.files import file_exists
 from UVLIF2.read.read import prepare_laboratory, prepare_ambient, convert_info, close_files,\
                              write_start_end_date, line2list, check_output_list, output_list2str,\
-                             write_line_laboratory, write_line_ambient, read_file
+                             write_line_laboratory, write_line_ambient, read_file, read_files
 import UVLIF2
 import os
 from datetime import datetime
@@ -247,6 +247,13 @@ class test_read(TestCase):
     self.assertEqual(g.readline(), '11,33,211,0.5256,8.381\n')
     self.assertEqual(g.readline(), '25,51,184,0.7496,8.42\n')
     self.assertEqual(g.readline(), '26,58,219,0.6367,7.684\n')
+
+  def test_read_files_ambient(self):
+    cfg = self.read_file_ambient_1_setup()
+    cfg['main_directory'] = os.curdir
+    read_files(cfg)
+
+
 
 
 
