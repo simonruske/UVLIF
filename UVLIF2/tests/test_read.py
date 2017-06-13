@@ -1,9 +1,11 @@
 from unittest import TestCase
 from UVLIF2.utils.files import file_exists
 from UVLIF2.read.read import prepare_laboratory, prepare_ambient, convert_info, close_files,\
-                             write_start_end_date
+                             write_start_end_date, line2list, check_output_list, output_list2str,\
+                             write_line_laboratory, write_line_ambient, read_file
 import UVLIF2
 import os
+from datetime import datetime
 
 class test_read(TestCase):
 
@@ -16,6 +18,7 @@ class test_read(TestCase):
 
 
     self.addCleanup(self.clean)
+    self.addCleanup(self.clean_write_line_test)
 
   def clean(self, *args, **kwargs):
     full_output_dir = os.path.join(self.cfg['main_directory'], self.output_dir)
@@ -119,6 +122,98 @@ class test_read(TestCase):
 
     write_start_end_date(self.cfg, self.output_dir, '05/01/2016', '05/02/2016')
     self.assertTrue(file_exists(self.cfg, self.output_dir, "startend.csv"))
+
+  def test_line2list(self):
+
+    line = '1.0,2.0,3.0,4.0\n'
+    cfg = {}
+    cfg['delimiter'] = ','
+    cfg['needed_cols'] = [0, 2]
+    output_list = ['1.0', '3.0']
+    self.assertEqual(line2list(cfg, line), output_list)
+
+  def test_check_output_list_correct(self):
+    output_list = ['1.0', '3.0']
+    self.assertTrue(check_output_list(output_list))
+    
+  def test_check_output_list_incorrect(self):
+    output_list = ['1.0', 'G.0']
+    self.assertFalse(check_output_list(output_list))
+
+  def test_output_list2str(self):
+    output_list = ['1.0', '3.0']
+    output_str = '1.0,3.0\n'
+    self.assertEqual(output_list2str(output_list), output_str)
+
+  def prepare_write_line_test(self):
+    g = open('data.csv', 'w')
+    l = open('labels.csv', 'w')
+    forced = open('FT.csv', 'w')
+    return g, l, forced
+
+  def clean_write_line_test(self):
+    for filename in ['data.csv', 'labels.csv', 'FT.csv', 'times.csv']:
+      if os.path.exists(filename):
+        os.remove(filename)
+
+  def test_write_line_laboratory_forced(self):
+    g, l, forced = self.prepare_write_line_test()
+    write_line_laboratory(g, l, forced, 'hello\n', 'F')
+    close_files([g, l, forced])
+    forced = open('FT.csv')
+    self.assertEqual(forced.readline(), 'hello\n')
+    forced.close()
+
+  def test_write_line_laboratory_data(self):
+    g, l, forced = self.prepare_write_line_test()
+    write_line_laboratory(g, l, forced, 'hello\n', '1')
+    close_files([g, l, forced])
+    g = open('data.csv')
+    l = open('labels.csv')
+    self.assertEqual(g.readline(), 'hello\n')
+    self.assertEqual(l.readline(), '1\n')
+    close_files([g, l])
+
+  def test_write_line_ambient_forced(self):
+    g = open('data.csv', 'w')
+    forced = open('FT.csv', 'w')
+    write_line_ambient(g, forced, 'hello\n', True)
+    close_files([g, forced])
+    forced = open('FT.csv')
+    self.assertEqual(forced.readline(), 'hello\n')
+    forced.close()
+
+  def test_write_line_ambient_data(self):
+    g = open('data.csv', 'w')
+    forced = open('FT.csv', 'w')
+    write_line_ambient(g, forced, 'hello\n', False)
+    close_files([g, forced])
+    g = open('data.csv')
+    self.assertEqual(g.readline(), 'hello\n')
+    g.close()
+
+  def test_write_line_ambient_time(self):
+    g = open('data.csv', 'w')
+    forced = open('FT.csv', 'w')
+    time_handle = open('times.csv', 'w')
+    cur_date = datetime(year=2016, month=12, day = 1)
+    write_line_ambient(g, forced, 'hello\n', False, cur_date, time_handle)
+    close_files([g, forced, time_handle])
+    time_handle = open('times.csv')
+    self.assertEqual(time_handle.readline(), str(cur_date) + '\n')
+
+  def test_read_file_ambient_FT(self):
+    cfg = {}
+    cfg['ambient'] = True
+    cfg['FT_char'] = 'FT'
+    cfg['valid_ext'] = ['.txt', '.csv']
+    cfg['main_directory'] = os.path.join(self.cfg['main_directory'], "tests")
+    info = 'FT_clear.txt'
+    read_file(cfg, info)
+    
+
+  
+    
 
 
    
