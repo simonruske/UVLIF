@@ -2,6 +2,8 @@
 A set of functions that can be used to load configuration files
 '''
 
+import os
+
 def set_cfg(cfg, name, value):
   '''
   Function that sets a variable to the configuration dictionary
@@ -148,10 +150,24 @@ def load_config(filename):
 
   return(cfg)
 
+def load_config_files():
 
+  '''
+  Function that loads the main, analysis and instrument configuration files
 
+  Returns 
+  -------
+  cfg : dict
+    Configuration dictionary created from the configuration files.
+  '''
 
+  if os.path.exists("main.proto"):
+    cfg = load_config("main.proto")
+  else:
+    raise IOError("You need to create a main.proto file in the current directory.")
 
+  cfg.update(load_config(cfg['instrument_filename']))
+  cfg.update(load_config(cfg['analysis_filename']))
 
-
+  return(cfg)
 
