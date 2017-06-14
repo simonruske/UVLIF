@@ -23,5 +23,5 @@ class test_cleaner(TestCase):
 
   def test_clean_all(self):
     cfg = self.prepare()
-    clean(cfg, 'all')
+    clean(cfg, ['all'])
     self.assertEqual(len(os.listdir(os.path.join(cfg['main_directory'], 'output'))), 0)

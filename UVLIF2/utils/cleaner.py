@@ -16,7 +16,7 @@ def clean(cfg, filenames):
     the output directory
   '''
 
-  if filenames == 'all':
+  if filenames[0] == 'all':
     filenames = os.listdir(os.path.join(cfg['main_directory'], 'output'))
 
   for filename in filenames:
