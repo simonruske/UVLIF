@@ -1,5 +1,3 @@
 *.pyc
 .eggs
-UVLIF2.egg-info/
-UVLIF2/tests/output/data.csv
-
+UVLIF2/tests/output/**
