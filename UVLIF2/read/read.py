@@ -6,6 +6,7 @@ import numpy as np
 from datetime import datetime, timedelta
 import warnings
 import os
+import sys
 
 def prepare_laboratory(cfg, input_directory, output_directory, filename):
 
@@ -288,7 +289,8 @@ def write_line_ambient(g, forced, output_str, is_FT, cur_time = None, time_handl
 
 
 def read_file(cfg, info, g, forced, l = None, time_handle = None):
-  # NEEDS TEST
+
+  # Needs documentation
 
   # convert information
   if cfg['ambient']:
@@ -326,9 +328,9 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
     # convert the line
     try:
       output_list = line2list(cfg, line)
-    except ValueError:
+    except IndexError:
       warning = "There was a particle on line {} of file {} that had missing data "\
-                "so was skipped, {}"
+                "so was skipped"
       warnings.warn(warning.format(j, file), RuntimeWarning)
       continue
 
@@ -372,7 +374,7 @@ def read_files(cfg):
 
   # if in ambient mode then prepare ambient otherwise prepare for laboratory
   if cfg['ambient']:
-    file_info, forced, g, time_handle= prepare_ambient(cfg, 'data', 'output')
+    file_info, forced, g, time_handle = prepare_ambient(cfg, 'data', 'output')
 
   else:
     file_info, forced, g, l = prepare_laboratory(cfg, 'data', 'output', 'filelist.csv')
@@ -380,13 +382,16 @@ def read_files(cfg):
   # =========================
   # MAIN LOOP : Read in files
   # =========================
+
   particle = 0
   for file_num, info in enumerate(file_info):
-    read_file(cfg, info, time_handle)
+    read_file(cfg, info, g, forced, time_handle)
 
   # Save the earliest and latest date
   if cfg['ambient'] and cfg['time_stamp_specified']:
     write_start_end_date(cfg, 'output')
+    time_handle.close()
 
-  close_files([g, l, forced])
+  if cfg['ambient']:
+    close_files([g, forced])
 
