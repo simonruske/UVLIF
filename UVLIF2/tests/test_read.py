@@ -6,6 +6,7 @@ from UVLIF2.read.read import prepare_laboratory, prepare_ambient, convert_info, 
 import UVLIF2
 import os
 from datetime import datetime
+import shutil
 
 class test_read(TestCase):
 
@@ -252,6 +253,20 @@ class test_read(TestCase):
     cfg = self.read_file_ambient_1_setup()
     cfg['main_directory'] = os.curdir
     read_files(cfg)
+
+  def test_read_files_missing_data_directory(self):
+    cfg = self.read_file_ambient_1_setup()
+    cfg['main_directory'] = os.path.join(os.curdir, "test_directory", "data_missing")
+    with self.assertRaises(IOError):
+      read_files(cfg)
+
+  def test_read_files_missing_output_directory(self):
+    cfg = self.read_file_ambient_1_setup()
+    main = os.path.join(os.curdir, "test_directory", "output_missing")
+    cfg['main_directory'] = main
+    read_files(cfg)
+    shutil.rmtree(os.path.join(main, "output"))
+
 
 
 

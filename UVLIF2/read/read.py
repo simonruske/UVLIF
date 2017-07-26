@@ -372,6 +372,14 @@ def read_files(cfg):
           "'python UVLIF.py clean_data' before running again\n")
     return
 
+  # check that data and output directories exist
+  if not os.path.exists(os.path.join(cfg['main_directory'], "data")):
+    raise IOError("Missing data directory, please create one in the project folder and then"
+                   "put your data in it")
+
+  if not os.path.exists(os.path.join(cfg['main_directory'], "output")):
+    os.mkdir(os.path.join(cfg['main_directory'], "output"))
+
   # if in ambient mode then prepare ambient otherwise prepare for laboratory
   if cfg['ambient']:
     file_info, forced, g, time_handle = prepare_ambient(cfg, 'data', 'output')
