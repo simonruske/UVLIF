@@ -100,13 +100,40 @@ def read_list(value, var_type):
     item = item.replace(" ", "")
 
     if var_type == 'int':
-      l.append(int(item))
+      l = load_integer_list(item, l)
 
     elif var_type == 'float':
       l.append(float(item))
 
     elif var_type == 'string':
       l.append(str(item))
+
+  return l
+
+
+def load_integer_list(item, l):
+
+  '''
+  Function that converts a string of an integer list to
+  the said list. The list may contain "1:20" which is 
+  shorthand for 1, 2, ..., 20
+
+  Parameters 
+  ----------
+  item : string
+    e.g. 1 or 1:20
+  l : list
+    list to append the item/items to
+  '''
+
+  if '-' in item:
+    start, end = item.split('-')
+    start, end = int(start), int(end)
+    for i in range(start, end):
+      l.append(i)
+
+  else:
+    l.append(int(item))
 
   return l
 

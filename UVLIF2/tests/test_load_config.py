@@ -41,6 +41,11 @@ class test_read_config(TestCase):
     self.assertEqual(name, 'int_list')
     self.assertEqual(value, [1, 2, 3, 4, 5])
 
+  def test_convert_line_list_int_shorthand(self):
+    name, value = convert_line('list(int) int_list : 1, 2, 10-12')
+    self.assertEqual(name, 'int_list')
+    self.assertEqual(value, [1, 2, 10, 11])
+
   def test_convert_line_list_float(self):
     name, value = convert_line('list(float) threshold : 1.0, 2.5, 3.5')
     self.assertEqual(name, 'threshold')
