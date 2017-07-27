@@ -319,7 +319,7 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
 
   if cfg['time_stamp_specified']:
     start = get_date(f)
-    if not is_FT and cfg['ambient']:
+    if cfg['ambient'] and not is_FT:
       cfg['earliest_date'] = min(start, cfg['earliest_date'])
 
   header = f.readline()
@@ -393,7 +393,11 @@ def read_files(cfg):
 
   particle = 0
   for file_num, info in enumerate(file_info):
-    read_file(cfg, info, g, forced, time_handle)
+    if cfg['ambient']:
+      read_file(cfg, info, g, forced, time_handle = time_handle)
+    else:
+      read_file(cfg, info, g, forced, l = l)
+    
 
   # Save the earliest and latest date
   if cfg['ambient'] and cfg['time_stamp_specified']:
