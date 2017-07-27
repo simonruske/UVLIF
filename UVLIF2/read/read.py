@@ -30,7 +30,7 @@ def prepare_laboratory(cfg, input_directory, output_directory, filename):
 
   forced, g, l = None, None, None
 
-  files, labels = load_filelist(cfg, input_directory, filename)
+  files, labels = load_filelist(cfg, output_directory, filename)
 
   file_types = Counter(labels)
 

@@ -15,7 +15,7 @@ class test_read(TestCase):
     self.cfg = {}
     self.cfg['main_directory'] = os.path.split(os.path.abspath(UVLIF2.__file__))[0]
     self.input_dir = os.path.join("tests", "test_files") # input from testfiles
-    self.output_dir = "tests" # set output to temp directory
+    self.output_dir = os.path.join("tests", "test_files")
 
 
     self.addCleanup(self.clean)
