@@ -19,6 +19,9 @@ def clean(cfg, filenames):
   if filenames[0] == 'all':
     filenames = os.listdir(os.path.join(cfg['main_directory'], 'output'))
 
+  if filenames[0] == 'data':
+    filenames = ['data.csv', 'filelist.csv', 'FT.csv', 'startend.csv', 'times.csv']
+
   for filename in filenames:
     full_filename = os.path.join(cfg['main_directory'], 'output', filename)
     if os.path.exists(full_filename):

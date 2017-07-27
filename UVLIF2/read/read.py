@@ -369,7 +369,7 @@ def read_files(cfg):
   if any_file_exists(cfg, 'output', ['data.csv', 'FT.csv', 'times.csv']):
     print("Data files have been found in the output directory, hence creation of the "
           "data files has been skipped, if you wish to recreate them please run "
-          "'python UVLIF.py clean_data' before running again\n")
+          "'python UVLIF.py clean data' before running again\n")
     return
 
   # check that data and output directories exist
