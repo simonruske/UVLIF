@@ -2,7 +2,8 @@ from unittest import TestCase
 from UVLIF2.utils.files import file_exists
 from UVLIF2.read.read import prepare_laboratory, prepare_ambient, convert_info, close_files,\
                              write_start_end_date, line2list, check_output_list, output_list2str,\
-                             write_line_laboratory, write_line_ambient, read_file, read_files
+                             write_line_laboratory, write_line_ambient, read_file, read_files,\
+                             line2list_FT
 import UVLIF2
 import os
 from datetime import datetime
@@ -128,13 +129,24 @@ class test_read(TestCase):
     self.assertTrue(file_exists(self.cfg, self.output_dir, "startend.csv"))
 
   def test_line2list(self):
-
     line = '1.0,2.0,3.0,4.0\n'
     cfg = {}
     cfg['delimiter'] = ','
     cfg['needed_cols'] = [0, 2]
     output_list = ['1.0', '3.0']
     self.assertEqual(line2list(cfg, line), output_list)
+
+  def test_line2list_FT(self):
+    line = '1.0,2.0,3.0,4.0,1.0\n'
+    cfg = {}
+    cfg['delimiter'] = ','
+    cfg['needed_cols'] = [0, 2]
+    cfg['FT_idx'] = -1
+    correct_output_list = ['1.0', '3.0']
+    correct_FT = 1
+    output_list, FT = line2list_FT(cfg, line)
+    self.assertEqual(correct_output_list, output_list)
+    self.assertEqual(correct_FT, FT)
 
   def test_check_output_list_correct(self):
     output_list = ['1.0', '3.0']

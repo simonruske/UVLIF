@@ -177,6 +177,34 @@ def line2list(cfg, line):
 
   return output_list
 
+def line2list_FT(cfg, line):
+
+  '''
+  Does the same as line2list but also outputs the FT number for the particle
+
+  Parameters 
+  ----------
+  see line2list
+
+  Returns
+  -------
+  output_list:
+    see line2list
+
+  FT : int
+    A number to identify whether or not the particle is FT (instrument dependent)
+  '''
+
+  line = line.strip('\n').split(cfg['delimiter'])
+  output_list = []
+  for i in cfg['needed_cols']:
+    output_list.append(line[i])
+  FT = int(float(line[cfg['FT_idx']]))
+
+  return output_list, FT
+   
+
+
 def check_output_list(output_list):
 
   '''
@@ -315,6 +343,8 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
                     "the next file.".format(file))
       return
 
+
+
   # Search for a time stamp
 
   if cfg['time_stamp_specified']:
@@ -325,7 +355,7 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
   header = f.readline()
 
   for j, line in enumerate(f):
-    # convert the line
+    #convert line
     try:
       output_list = line2list(cfg, line)
     except IndexError:
@@ -333,6 +363,7 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
                 "so was skipped"
       warnings.warn(warning.format(j, file), RuntimeWarning)
       continue
+
 
     # Get current time
     if cfg['time_stamp_specified']:
