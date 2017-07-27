@@ -115,7 +115,7 @@ def load_integer_list(item, l):
 
   '''
   Function that converts a string of an integer list to
-  the said list. The list may contain "1:20" which is 
+  the said list. The list may contain "1-20" which is 
   shorthand for 1, 2, ..., 20
 
   Parameters 
