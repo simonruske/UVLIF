@@ -315,6 +315,29 @@ def write_line_ambient(g, forced, output_str, is_FT, cur_time = None, time_handl
   if time_handle and not is_FT:
     time_handle.write(str(cur_time) + "\n")
 
+def convert_line(cfg, line):
+
+  '''
+  Function that calls either line2list_FT or line2list
+  depending on whether the FT column index is specified 
+  in the instrument configuration. If the FT_idx is 
+  specified any line which is FT 
+  '''  
+
+  # If FT column specified get the info from it
+  if 'FT_idx' in cfg:
+    output_list, FT = line2list_FT(cfg, line)
+
+    # if column is forced trigger return -1
+    if FT == 1:
+      return -1
+    else:
+      return output_list
+
+  else:
+    output_list = line2list(cfg, line)
+    return output_list
+
 
 def read_file(cfg, info, g, forced, l = None, time_handle = None):
 
@@ -343,6 +366,7 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
                     "the next file.".format(file))
       return
 
+  # get the output_list
 
 
   # Search for a time stamp
@@ -354,10 +378,13 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
 
   header = f.readline()
 
+  FT_prev = None
+
   for j, line in enumerate(f):
     #convert line
     try:
-      output_list = line2list(cfg, line)
+      output_list = convert_line(cfg, line)
+
     except IndexError:
       warning = "There was a particle on line {} of file {} that had missing data "\
                 "so was skipped"
@@ -392,6 +419,10 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
     else:
       write_line_ambient(g, forced, output_str, is_FT)
     
+    #If FT_idx specified update record for the previous FT particle
+    if 'FT_idx' in cfg:
+      FT_prev = FT    
+
   f.close()
 
 def read_files(cfg):
