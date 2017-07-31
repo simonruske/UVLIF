@@ -1,0 +1,27 @@
+// Set the filename of the instrument configuration and analysis configuration
+
+// (a) directory that contains a directory data with the data in it
+string main_directory: /home/simon/Documents/LAB
+
+// (b) location of instrument configuration file
+string instrument_filename: /home/simon/UVLIF2/UVLIF2/configuration/instrument/mbs.proto
+
+// (c) location of the analysis configuration file
+string analysis_filename: /home/simon/UVLIF2/UVLIF2/configuration/analysis/analysis.proto
+
+// Please set ambient to true for analysis of ambient data, and to false for analysis of laboratory
+// data
+bool ambient : False
+
+// If using ambient mode please specfify
+// e.g. if each of the files that are forced trigger files contain the characters 'FT'
+// and all the files that are NOT forced trigger files do NOT contain the characters 'FT'
+// then set to FT
+
+string FT_char : FT
+
+// Plotting is not currently available
+list(string) plot_list : ['plot_fractions']
+
+
+int FT_idx : 1039
