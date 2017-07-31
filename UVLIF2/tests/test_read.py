@@ -148,6 +148,8 @@ class test_read(TestCase):
     self.assertEqual(correct_output_list, output_list)
     self.assertEqual(correct_FT, FT)
 
+    
+
   def test_check_output_list_correct(self):
     output_list = ['1.0', '3.0']
     self.assertTrue(check_output_list(output_list))
@@ -279,6 +281,8 @@ class test_read(TestCase):
     read_files(cfg)
     shutil.rmtree(os.path.join(main, "output"))
 
+  
+  
 
 
 

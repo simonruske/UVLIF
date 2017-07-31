@@ -6,6 +6,7 @@ import numpy as np
 from datetime import datetime, timedelta
 import warnings
 import os
+from copy import copy
 import sys
 
 def prepare_laboratory(cfg, input_directory, output_directory, filename):
@@ -327,9 +328,11 @@ def convert_line(cfg, line):
   # If FT column specified get the info from it
   if 'FT_idx' in cfg:
     output_list, FT = line2list_FT(cfg, line)
+    cfg['FT'] = FT
 
     # if column is forced trigger return -1
     if FT == 1:
+      cfg['cur_FT_data'].append(output_list)
       return -1
     else:
       return output_list
@@ -338,6 +341,26 @@ def convert_line(cfg, line):
     output_list = line2list(cfg, line)
     return output_list
 
+def reset_threshold(cfg):
+  cfg['cur_FT_data'] = []
+
+def average_FT(cfg):
+  cur_FT = np.array(cfg['cur_FT_data'], 'float')
+  cfg['cur_FT_mean'] = np.mean(cur_FT, 0)
+  cfg['cur_FT_std'] = np.std(cur_FT, 0)
+
+
+def update_FT(cfg):
+
+    # Check if the instrument files are written in blocks
+    if cfg['FT_blocks'] == True and cfg['FT'] != cfg['FT_prev']:
+      if cfg['FT'] == 1:
+        reset_threshold(cfg)
+      else:
+        average_FT(cfg)
+
+    if 'FT_idx' in cfg:
+      cfg['FT_prev'] = copy(cfg['FT'])
 
 def read_file(cfg, info, g, forced, l = None, time_handle = None):
 
@@ -346,6 +369,7 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
   # convert information
   if cfg['ambient']:
     file, is_FT = convert_info(cfg, info)
+
 
   else:
     file, label = convert_info(cfg, info)
@@ -378,18 +402,27 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
 
   header = f.readline()
 
-  FT_prev = None
+
 
   for j, line in enumerate(f):
+
+
+
     #convert line
     try:
       output_list = convert_line(cfg, line)
+      update_FT(cfg)
+      if output_list == -1:
+        continue
 
     except IndexError:
       warning = "There was a particle on line {} of file {} that had missing data "\
                 "so was skipped"
       warnings.warn(warning.format(j, file), RuntimeWarning)
       continue
+
+
+      
 
 
     # Get current time
@@ -418,10 +451,10 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
 
     else:
       write_line_ambient(g, forced, output_str, is_FT)
-    
-    #If FT_idx specified update record for the previous FT particle
-    if 'FT_idx' in cfg:
-      FT_prev = FT    
+  
+  
+
+
 
   f.close()
 
@@ -454,6 +487,9 @@ def read_files(cfg):
   # =========================
 
   particle = 0
+  cfg['FT_prev'] = None
+  cfg['FT'] = None
+  cfg['cur_FT_data'] = []
   for file_num, info in enumerate(file_info):
     if cfg['ambient']:
       read_file(cfg, info, g, forced, time_handle = time_handle)
