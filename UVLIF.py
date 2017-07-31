@@ -4,10 +4,12 @@ from UVLIF2.read.read import read_files
 from UVLIF2.plot.plot import plot
 from UVLIF2.utils.cleaner import clean
 from UVLIF2.utils.filelist import create_filelist_laboratory
+from UVLIF2.analysis.analysis import analyse
 
 cfg = load_config_files()
 if len(sys.argv) == 1:
   read_files(cfg)
+  analyse(cfg)
   plot(cfg)
 
 elif sys.argv[1] == 'clean':
