@@ -6,12 +6,15 @@ import numpy as np
 
 
 def analyse(cfg):
+  if 'analysis' not in cfg:
+    print("Analysis was not requested, so was skipped")
+    return
+
   print("Analysing ...")
   data, labels = load_data(cfg)
   for method in cfg['analysis']:
     if method in ['LDA']:
       basic_analysis(cfg, method, data, labels)
-  
   return
 
 def load_data(cfg):
