@@ -1,10 +1,10 @@
 // Set the filename of the instrument configuration and analysis configuration
 
 // (a) directory that contains a directory data with the data in it
-string main_directory: /home/simon/Documents/LAB
+string main_directory: /home/simon/Documents/PSL_raw
 
 // (b) location of instrument configuration file
-string instrument_filename: /home/simon/UVLIF2/UVLIF2/configuration/instrument/mbs.proto
+string instrument_filename: /home/simon/UVLIF2/UVLIF2/configuration/instrument/instrument_2.proto
 
 // (c) location of the analysis configuration file
 string analysis_filename: /home/simon/UVLIF2/UVLIF2/configuration/analysis/analysis.proto
@@ -21,4 +21,5 @@ bool ambient : False
 string FT_char : FT
 
 // Plotting is not currently available
-list(string) plot_list : ['plot_fractions']
+//list(string) plot_list : ['plot_fractions']
+
