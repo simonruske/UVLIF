@@ -14,6 +14,7 @@ class test_read(TestCase):
   def __init__(self, *args, **kwargs):
     super(test_read, self).__init__(*args, **kwargs)
     self.cfg = {}
+    self.cfg['FT_blocks'] = False
     self.cfg['main_directory'] = os.path.split(os.path.abspath(UVLIF2.__file__))[0]
     self.input_dir = os.path.join("tests", "test_files") # input from testfiles
     self.output_dir = os.path.join("tests", "test_files")
@@ -148,12 +149,10 @@ class test_read(TestCase):
     self.assertEqual(correct_output_list, output_list)
     self.assertEqual(correct_FT, FT)
 
-    
-
   def test_check_output_list_correct(self):
     output_list = ['1.0', '3.0']
     self.assertTrue(check_output_list(output_list))
-    
+
   def test_check_output_list_incorrect(self):
     output_list = ['1.0', 'G.0']
     self.assertFalse(check_output_list(output_list))
@@ -222,7 +221,7 @@ class test_read(TestCase):
 
   def read_file_ambient_1_setup(self):
 
-    cfg = {}
+    cfg = self.cfg
     cfg['ambient'] = True
     cfg['FT_char'] = 'FT'
     cfg['valid_ext'] = ['.txt', '.csv']
@@ -266,6 +265,7 @@ class test_read(TestCase):
   def test_read_files_ambient(self):
     cfg = self.read_file_ambient_1_setup()
     cfg['main_directory'] = os.curdir
+    cfg['FT_blocks'] = False
     read_files(cfg)
 
   def test_read_files_missing_data_directory(self):
