@@ -6,4 +6,5 @@ list(int) needed_cols : 1-1025, 1026-1034, 1036
 bool file_name_specified : True
 bool time_stamp_specified : True
 bool FT_blocks : True
-
+bool readd_background : True
+float size_threshold : 0.8
