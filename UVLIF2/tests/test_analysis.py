@@ -13,8 +13,8 @@ class test_analysis(TestCase):
   def prepare(self):
 
     # Create the test data
-    data = np.random.rand(1000, 5)
-    labels = np.random.randint(2, size = 1000)
+    data = np.random.rand(50, 5)
+    labels = np.random.randint(2, size = 50)
 
     # create directories
     main_directory = os.path.join(os.curdir, "test_analysis")
@@ -43,7 +43,7 @@ class test_analysis(TestCase):
 
     cfg, data, labels = self.prepare()
 
-    cfg['analysis'] = ['LDA', 'QDA', 'GNB', 'RF', 'GB', 'AB', 'KNN', 'SVC', 'LSVC']
+    cfg['analysis'] = ['LDA', 'QDA', 'GNB', 'RF', 'GB', 'AB', 'KNN']
     analyse(cfg)
 
 
