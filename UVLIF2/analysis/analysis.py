@@ -6,6 +6,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC, LinearSVC
 from sklearn.model_selection import GridSearchCV
+from sklearn.neural_network import MLPClassifier
 from UVLIF2.analysis.clustering.cluster_utils import standardise
 import os
 import numpy as np
@@ -19,6 +20,7 @@ def analyse(cfg):
 
   print("Analysing ...")
   data, labels = load_data(cfg)
+  print("Classifying ...")
   for method in cfg['analysis']:
 
     # Do basic analysis for everything apart from support vector machines and neural networks 
@@ -98,6 +100,24 @@ def support_vector_machine_analysis(cfg, method, data, labels):
 
 
 def neural_network_analysis(cfg, data, labels):
-  print("Neural Networks not yet implemented.")
+
+  data = standardise(data, 'zscore')
+
+  # split into training and testing data
+  train_data, test_data, train_labels, test_labels = train_test_split(data, labels,\
+                                                                      test_size = 0.5)
+
+  clf = MLPClassifier(max_iter = 1000)
+  # set the grid space to search
+  parameters = {'solver':['lbfgs', 'sgd', 'adam'], 'activation':['logistic', 'tanh', 'relu'],\
+                'hidden_layer_sizes':[(300), (500, 10)]}
+
+  # test the space
+  mlp_classifier = MLPClassifier()
+  clf = GridSearchCV(mlp_classifier, parameters)
+  clf.fit(train_data, train_labels)
+  scr = clf.score(test_data, test_labels)
+  print(clf.best_params_)
+  print(scr)
   return
   

@@ -37,7 +37,7 @@ string FT_char : FT
 // NN : Neural Network
 // KNN : K-Nearest-Neighbours
 
-list(string) analysis : SVC, LSVC
+list(string) analysis : NN
 
 
 // =====
