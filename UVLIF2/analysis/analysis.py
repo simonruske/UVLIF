@@ -52,7 +52,7 @@ def basic_analysis(cfg, method, data, labels):
   train_data, test_data, train_labels, test_labels = train_test_split(data, labels, test_size=0.5)
   clf.fit(train_data, train_labels)
   scr = clf.score(test_data, test_labels)
-  print(str(method) + ": " + str(scr))
+  print(method, scr)
 
 def support_vector_machine_analysis(cfg, method, data, labels):
 
@@ -119,5 +119,4 @@ def neural_network_analysis(cfg, data, labels):
   scr = clf.score(test_data, test_labels)
   print(clf.best_params_)
   print(scr)
-  return
   
