@@ -20,8 +20,29 @@ bool ambient : False
 
 string FT_char : FT
 
-// type of analysis
-list(string) analysis : LDA
+// ========
+// Analysis
+// ========
+
+// types of analysis available : 
+// LDA : Linear Discriminant Analysis
+// QDA : Quadratic Discriminant Analysis
+// GNB : Gaussian Naive Bayesian
+// DT : Decision Tree
+// RF : Random Forest
+// GB : Gradient Boosting
+// AB : AdaBoost
+// SVC : Support Vector Machine
+// LSVC : Linear Support Vector Machine
+// NN : Neural Network
+// KNN : K-Nearest-Neighbours
+
+list(string) analysis : SVC, LSVC
+
+
+// =====
+// Plots
+// =====
 
 // Plotting is not currently available
 list(string) plot_list : ['plot_fractions']
