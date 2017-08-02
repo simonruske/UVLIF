@@ -19,7 +19,7 @@ def clean(cfg, filenames):
   if filenames[0] == 'all':
     filenames = os.listdir(os.path.join(cfg['main_directory'], 'output'))
 
-  if filenames[0] == 'data':
+  elif filenames[0] == 'data':
     filenames = ['data.csv', 'labels.csv', 'FT.csv', 'startend.csv', 'times.csv']
 
   for filename in filenames:
