@@ -348,7 +348,6 @@ def reset_threshold(cfg):
 def average_FT(cfg):
   cur_FT = np.array(cfg['cur_FT_data'], 'float')
   cfg['cur_FT_mean'] = np.mean(cur_FT, 0)
-  np.savetxt('mean.csv', cfg['cur_FT_mean'], delimiter=',')
   cfg['cur_FT_std'] = np.std(cur_FT, 0)
 
 
