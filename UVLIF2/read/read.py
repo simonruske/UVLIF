@@ -329,6 +329,7 @@ def convert_line(cfg, line):
   if 'FT_idx' in cfg:
     output_list, FT = line2list_FT(cfg, line)
     cfg['FT'] = FT
+    update_FT(cfg)
 
     # if column is forced trigger return -1
     if FT == 1:
@@ -347,6 +348,7 @@ def reset_threshold(cfg):
 def average_FT(cfg):
   cur_FT = np.array(cfg['cur_FT_data'], 'float')
   cfg['cur_FT_mean'] = np.mean(cur_FT, 0)
+  np.savetxt('mean.csv', cfg['cur_FT_mean'], delimiter=',')
   cfg['cur_FT_std'] = np.std(cur_FT, 0)
 
 
@@ -361,6 +363,12 @@ def update_FT(cfg):
 
     if 'FT_idx' in cfg:
       cfg['FT_prev'] = copy(cfg['FT'])
+
+def readd_background(cfg, output_list):
+
+  output_array = np.array(output_list, float)
+  output_array[:1024] = output_array[:1024] + np.floor(cfg['cur_FT_mean'][:1024])
+  return list(np.array(output_array, 'string'))
 
 def read_file(cfg, info, g, forced, l = None, time_handle = None):
 
@@ -390,9 +398,6 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
                     "the next file.".format(file))
       return
 
-  # get the output_list
-
-
   # Search for a time stamp
 
   if cfg['time_stamp_specified']:
@@ -411,7 +416,7 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
     #convert line
     try:
       output_list = convert_line(cfg, line)
-      update_FT(cfg)
+
       if output_list == -1:
         continue
 
@@ -421,16 +426,22 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
       warnings.warn(warning.format(j, file), RuntimeWarning)
       continue
 
-
-      
-
-
     # Get current time
     if cfg['time_stamp_specified']:
       cur_time = start + timedelta(milliseconds = int(line[0]))
 
     # check the output_list can be converted to floating point
     output_float = check_output_list(output_list)
+
+    # If we are using the MBS we need to add the background back in (especially for 
+    # supervised analysis)
+    if 'readd_background' in cfg and cfg['readd_background'] == True:
+      output_list = readd_background(cfg, output_list)
+
+    # remove particles that are too small
+    if 'size_threshold' in cfg and float(output_list[-1]) < cfg['size_threshold']:
+      continue
+      
 
     # If we cannot convert the output to float then warn user and move onto the next line
     if not output_float:
