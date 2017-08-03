@@ -8,6 +8,7 @@ from sklearn.svm import SVC, LinearSVC
 from sklearn.model_selection import GridSearchCV
 from sklearn.neural_network import MLPClassifier
 from UVLIF2.analysis.clustering.cluster_utils import standardise
+from UVLIF2.utils.directories import create_directory
 import os
 import numpy as np
 
@@ -18,11 +19,15 @@ def analyse(cfg):
     print("Analysis was not requested, so was skipped")
     return
 
+  if os.path.isfile(os.path.join(cfg['main_directory'], "output", "results", "results.csv")):
+    print("Analysis already complete")
+    return
+
   print("Analysing ...")
   data, labels = load_data(cfg)
   print("Classifying ...")
   for method in cfg['analysis']:
-
+    print(method + " ...")
     # Do basic analysis for everything apart from support vector machines and neural networks 
     # as they require some parameters modifying.
 
@@ -36,9 +41,19 @@ def analyse(cfg):
       neural_network_analysis_non_default(cfg, data, labels)
 
     else:
-      basic_analysis(cfg, method, data, labels)
+      clf, scr = basic_analysis(cfg, method, data, labels)
     
-  return
+    # save everything
+    create_directory(cfg, os.path.join("output", "results"))
+    create_directory(cfg, os.path.join("output", "classifiers"))
+    save_results(cfg, method, scr)
+    
+def save_results(cfg, method, scr):
+  results_directory = os.path.join(cfg['main_directory'], "output", "results")
+  f = open(os.path.join(results_directory, "results.csv"), "a+")
+  f.write("{},{}\n".format(method, scr))
+  f.close()
+    
 
 def load_data(cfg):
   print("Reading in the data ...")
@@ -57,7 +72,8 @@ def basic_analysis(cfg, method, data, labels):
   train_data, test_data, train_labels, test_labels = train_test_split(data, labels, test_size=0.5)
   clf.fit(train_data, train_labels)
   scr = clf.score(test_data, test_labels)
-  print(method, scr)
+  
+  return cfg, scr
 
 def support_vector_machine_analysis(cfg, method, data, labels):
 

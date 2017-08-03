@@ -3,6 +3,7 @@ import numpy as np
 from UVLIF2.analysis.analysis import analyse, load_params
 import atexit
 import os
+import shutil
 
 class test_analysis(TestCase):
 
@@ -20,14 +21,8 @@ class test_analysis(TestCase):
 
   @classmethod
   def tearDownClass(cls):
-    data_file = os.path.join(os.curdir, "test_analysis", "output", "data.csv")
-    labels_file = os.path.join(os.curdir, "test_analysis", "output", "labels.csv")
-    if os.path.isfile(data_file):
-      os.remove(data_file)
-    if os.path.isfile(labels_file):
-      os.remove(labels_file)
-    os.rmdir(os.path.join(os.curdir, "test_analysis", "output"))
-    os.rmdir(os.path.join(os.curdir, "test_analysis"))
+    shutil.rmtree(os.path.join(os.curdir, "test_analysis"))
+
 
   def prepare(self):
 
