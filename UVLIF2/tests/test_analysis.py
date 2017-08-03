@@ -1,6 +1,7 @@
 from unittest import TestCase
 import numpy as np
-from UVLIF2.analysis.analysis import analyse
+from UVLIF2.analysis.analysis import analyse, load_params
+import atexit
 import os
 
 class test_analysis(TestCase):
@@ -10,6 +11,24 @@ class test_analysis(TestCase):
   so within this test we are focussing primarily that everything is able to run
   '''
 
+  @classmethod
+  def setUpClass(cls):
+    main_directory = os.path.join(os.curdir, "test_analysis")
+    os.mkdir(main_directory)
+    os.mkdir(os.path.join(main_directory, "output"))
+
+
+  @classmethod
+  def tearDownClass(cls):
+    data_file = os.path.join(os.curdir, "test_analysis", "output", "data.csv")
+    labels_file = os.path.join(os.curdir, "test_analysis", "output", "labels.csv")
+    if os.path.isfile(data_file):
+      os.remove(data_file)
+    if os.path.isfile(labels_file):
+      os.remove(labels_file)
+    os.rmdir(os.path.join(os.curdir, "test_analysis", "output"))
+    os.rmdir(os.path.join(os.curdir, "test_analysis"))
+
   def prepare(self):
 
     # Create the test data
@@ -18,8 +37,6 @@ class test_analysis(TestCase):
 
     # create directories
     main_directory = os.path.join(os.curdir, "test_analysis")
-    os.mkdir(main_directory)
-    os.mkdir(os.path.join(main_directory, "output"))
 
     # set up config 
     cfg = {}
@@ -31,19 +48,18 @@ class test_analysis(TestCase):
 
     return cfg, data, labels
 
-  @classmethod
-  def tearDownClass(cls):
-    os.remove(os.path.join(os.curdir, "test_analysis", "output", 'data.csv'))
-    os.remove(os.path.join(os.curdir, "test_analysis", "output", 'labels.csv'))
-    os.rmdir(os.path.join(os.curdir, "test_analysis", "output"))
-    os.rmdir(os.path.join(os.curdir, "test_analysis"))
-
   def test_analysis(self):
-
-
     cfg, data, labels = self.prepare()
-
     cfg['analysis'] = ['LDA', 'QDA', 'GNB', 'RF', 'GB', 'AB', 'KNN']
     analyse(cfg)
 
+  def test_neural_network_analysis_non_default(self):
+    cfg, data, labels = self.prepare()
+    cfg['analysis'] = ['NN']
+    cfg['NN_default_param'] = False
+    analyse(cfg)
 
+  def test_load_params(self):
+    cfg = {'NN.activation':'relu', 'other_param':'junk'}
+    params = load_params(cfg, 'NN.')
+    self.assertEqual(params, {'activation':'relu'})

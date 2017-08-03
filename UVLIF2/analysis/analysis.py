@@ -25,14 +25,18 @@ def analyse(cfg):
 
     # Do basic analysis for everything apart from support vector machines and neural networks 
     # as they require some parameters modifying.
-    if method in ['LDA', 'QDA', 'GNB', 'DT', 'RF', 'GB', 'AB', 'KNN']:
-      basic_analysis(cfg, method, data, labels)
 
-    elif method in ['SVC', 'LSVC']:
+    if method in ['SVC', 'LSVC']:
       support_vector_machine_analysis(cfg, method, data, labels)
 
-    elif method == 'NN':
-      neural_network_analysis(cfg, data, labels)
+    elif method == 'NN' and 'NN_grid_search' in cfg and cfg['NN_grid_search'] == True:
+      neural_network_analysis_grid_search(cfg, data, labels)
+
+    elif method == 'NN' and 'NN_default_param' in cfg and cfg['NN_default_param'] == False:
+      neural_network_analysis_non_default(cfg, data, labels)
+
+    else:
+      basic_analysis(cfg, method, data, labels)
     
   return
 
@@ -47,7 +51,8 @@ def basic_analysis(cfg, method, data, labels):
   classifiers = {'LDA':LinearDiscriminantAnalysis(), 'QDA':QuadraticDiscriminantAnalysis(),\
                  'DT':DecisionTreeClassifier(), 'RF':RandomForestClassifier(),\
                  'GB':GradientBoostingClassifier(), 'AB':AdaBoostClassifier(),\
-                 'GNB':GaussianNB(), 'KNN':KNeighborsClassifier()}
+                 'GNB':GaussianNB(), 'KNN':KNeighborsClassifier(), \
+                 'NN':MLPClassifier()}
   clf = classifiers[method]
   train_data, test_data, train_labels, test_labels = train_test_split(data, labels, test_size=0.5)
   clf.fit(train_data, train_labels)
@@ -98,8 +103,7 @@ def support_vector_machine_analysis(cfg, method, data, labels):
   scr = clf.score(test_data, test_labels)
   print(scr)
 
-
-def neural_network_analysis(cfg, data, labels):
+def neural_network_analysis_grid_search(cfg, data, labels):
 
   data = standardise(data, 'zscore')
 
@@ -113,10 +117,36 @@ def neural_network_analysis(cfg, data, labels):
                 'hidden_layer_sizes':[(300), (500, 10)]}
 
   # test the space
-  mlp_classifier = MLPClassifier()
+  mlp_classifier = MLPClassifier(max_iter=1000)
   clf = GridSearchCV(mlp_classifier, parameters)
   clf.fit(train_data, train_labels)
   scr = clf.score(test_data, test_labels)
   print(clf.best_params_)
   print(scr)
+
+def neural_network_analysis_non_default(cfg, data, labels):
+  data = standardise(data, 'zscore')
+  # split into training and testing data
+  train_data, test_data, train_labels, test_labels = train_test_split(data, labels,\
+                                                                      test_size = 0.5)
+  params = load_params(cfg, 'NN.')
+  clf = MLPClassifier(**params)
+  print(clf)
+  clf.fit(train_data, train_labels)
+  scr = clf.score(test_data, test_labels)
+  print(scr)
+
+'''
+This definitely needs to be moved to utils
+'''
+
+def load_params(cfg, root):
+  params = {}
+  for item, value in cfg.items():
+    if root in item:
+      params[item.strip(root)] = value
+  return params
+
+
+
   

@@ -37,7 +37,12 @@ string FT_char : FT
 // NN : Neural Network
 // KNN : K-Nearest-Neighbours
 
-list(string) analysis : NN
+list(string) analysis : GB
+//bool NN_default_param : False
+//string NN.activation : logistic
+//string NN.solver : adam
+//int NN.max_iter : 1000
+//list(int) NN.hidden_layer_sizes : 500, 10
 
 
 // =====
@@ -46,5 +51,6 @@ list(string) analysis : NN
 
 // Plotting is not currently available
 list(string) plot_list : ['plot_fractions']
+
 
 int FT_idx : 1039
