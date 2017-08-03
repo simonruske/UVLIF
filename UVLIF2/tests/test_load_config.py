@@ -31,10 +31,20 @@ class test_read_config(TestCase):
     self.assertEqual(name, 'delimiter')
     self.assertEqual(value, '\t')
 
-  def test_convert_line_bool(self):
+  def test_convert_line_bool_true(self):
     name, value = convert_line('bool remove_FL : True')
     self.assertEqual(name, 'remove_FL')
     self.assertEqual(value, True)
+
+  def test_convert_line_bool_false(self):
+    name, value = convert_line('bool remove_FL : False')
+    self.assertEqual(name, 'remove_FL')
+    self.assertEqual(value, False)
+
+  def test_convert_line_bool_neither(self):
+    with self.assertRaises(ValueError):
+      name, value = convert_line('bool remove_FL : junk')
+
 
   def test_convert_line_list_int(self):
     name, value = convert_line('list(int) int_list : 1, 2, 3, 4, 5')
@@ -77,6 +87,11 @@ class test_read_config(TestCase):
   def test_load_config_files(self):
     dirname, _ = os.path.split(os.path.abspath(__file__))
     os.chdir(dirname)
+    
+    # test that we get IO error if we try reading in before the file is created
+    with self.assertRaises(IOError):
+      cfg = load_config_files()
+
     f = open('main.proto', 'w')
     i_file = os.path.join(dirname, "test_files", "i1.proto")
     a_file = os.path.join(dirname, "test_files", "a1.proto")
