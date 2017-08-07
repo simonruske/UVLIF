@@ -1,4 +1,5 @@
 import os
+import shutil
 
 def clean(cfg, filenames):
 
@@ -30,5 +31,7 @@ def clean(cfg, filenames):
 
   for filename in filenames:
     full_filename = os.path.join(directory, filename)
-    if os.path.exists(full_filename):
+    if os.path.isfile(full_filename):
       os.remove(full_filename)
+    elif os.path.isdir(full_filename):
+      shutil.rmtree(full_filename)
