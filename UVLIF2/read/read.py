@@ -249,7 +249,7 @@ def output_list2str(output_list):
   output_str = ','.join(output_list) + '\n'
   return output_str
 
-def write_line_laboratory(g, l, forced, output_str, label):
+def write_line_laboratory(g, l, file_l, forced, output_str, label, file_label):
 
   '''
   Write a particular line to file if in laboratory mode.
@@ -279,6 +279,7 @@ def write_line_laboratory(g, l, forced, output_str, label):
   else:
     g.write(output_str)
     l.write(label + '\n')
+    file_l.write(str(file_label) + '\n')
 
 def write_line_ambient(g, forced, output_str, is_FT, cur_time = None, time_handle = None):
 
@@ -370,7 +371,7 @@ def readd_background(cfg, output_list):
   output_array[:1024] = output_array[:1024] + np.floor(cfg['cur_FT_mean'][:1024])
   return list(np.array(output_array, 'string'))
 
-def read_file(cfg, info, g, forced, l = None, time_handle = None):
+def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, time_handle = None):
 
   # Needs documentation
 
@@ -455,7 +456,7 @@ def read_file(cfg, info, g, forced, l = None, time_handle = None):
 
     # Write the line
     if not cfg['ambient']:
-      write_line_laboratory(g, l, forced, output_str, label)
+      write_line_laboratory(g, l, file_l, forced, output_str, label, file_label)
 
     elif cfg['ambient'] and cfg['time_stamp_specified']: 
       write_line_ambient(g, forced, output_str, is_FT, cur_time = cur_time, time_handle = time_handle)
@@ -505,7 +506,7 @@ def read_files(cfg):
     if cfg['ambient']:
       read_file(cfg, info, g, forced, time_handle = time_handle)
     else:
-      read_file(cfg, info, g, forced, l = l)
+      read_file(cfg, info, g, forced, l = l, file_label = file_num, file_l = file_l)
     
 
   # Save the earliest and latest date

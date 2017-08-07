@@ -165,8 +165,9 @@ class test_read(TestCase):
   def prepare_write_line_test(self):
     g = open('data.csv', 'w')
     l = open('labels.csv', 'w')
+    file_l = open('file_labels.csv', 'w')
     forced = open('FT.csv', 'w')
-    return g, l, forced
+    return g, l, forced, file_l
 
   def clean_write_line_test(self):
     for filename in ['data.csv', 'labels.csv', 'FT.csv', 'times.csv']:
@@ -174,21 +175,23 @@ class test_read(TestCase):
         os.remove(filename)
 
   def test_write_line_laboratory_forced(self):
-    g, l, forced = self.prepare_write_line_test()
-    write_line_laboratory(g, l, forced, 'hello\n', 'F')
+    g, l, forced, file_l = self.prepare_write_line_test()
+    write_line_laboratory(g, l, file_l, forced, 'hello\n', 'F', 0)
     close_files([g, l, forced])
     forced = open('FT.csv')
     self.assertEqual(forced.readline(), 'hello\n')
     forced.close()
 
   def test_write_line_laboratory_data(self):
-    g, l, forced = self.prepare_write_line_test()
-    write_line_laboratory(g, l, forced, 'hello\n', '1')
+    g, l, forced, file_l = self.prepare_write_line_test()
+    write_line_laboratory(g, l, file_l, forced, 'hello\n', '1', 0)
     close_files([g, l, forced])
     g = open('data.csv')
     l = open('labels.csv')
+    file_l = open('file_labels.csv')
     self.assertEqual(g.readline(), 'hello\n')
     self.assertEqual(l.readline(), '1\n')
+    self.assertEqual(file_l.readline(), '0\n')
     close_files([g, l])
 
   def test_write_line_ambient_forced(self):
