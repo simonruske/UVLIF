@@ -104,9 +104,3 @@ class test_read_config(TestCase):
     self.assertIn("instrument_param", cfg)
     self.assertIn("analysis_param", cfg)
     os.remove("main.proto")
-    
-    
-    
-
-  
-    

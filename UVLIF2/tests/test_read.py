@@ -268,6 +268,7 @@ class test_read(TestCase):
     cfg['FT_blocks'] = False
     read_files(cfg)
 
+
   def test_read_files_missing_data_directory(self):
     cfg = self.read_file_ambient_1_setup()
     cfg['main_directory'] = os.path.join(os.curdir, "test_directory", "data_missing")
@@ -280,7 +281,6 @@ class test_read(TestCase):
     cfg['main_directory'] = main
     read_files(cfg)
     shutil.rmtree(os.path.join(main, "output"))
-
   
   
 
