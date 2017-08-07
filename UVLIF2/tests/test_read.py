@@ -32,8 +32,8 @@ class test_read(TestCase):
 
 
   def test_prepare_laboratory_FT_only(self):
-    file_info, forced, g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
-                                                       'filelist_4.txt')
+    file_info, forced, g, l, file_l = prepare_laboratory(self.cfg, self.input_dir,\
+                                                         self.output_dir, 'filelist_4.txt')
     correct_files = ['f1.txt', 'f2.txt']
     correct_labels = ['F', 'F']
     for i, (filename, label) in enumerate(file_info):
@@ -45,8 +45,8 @@ class test_read(TestCase):
     self.assertEqual(l, None)
 
   def test_prepare_laboratory_data_only(self):
-    file_info, forced, g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
-                                                       'filelist_5.txt')
+    file_info, forced, g, l, file_l = prepare_laboratory(self.cfg, self.input_dir,\
+                                                         self.output_dir, 'filelist_5.txt')
     correct_files = ['f1.txt', 'f2.txt', 'f3.txt']
     correct_labels = ['1', '2', '3']
     for i, (filename, label) in enumerate(file_info):
@@ -58,8 +58,8 @@ class test_read(TestCase):
      
 
   def test_prepare_laboratory_both(self):
-    file_info, forced,g, l = prepare_laboratory(self.cfg, self.input_dir, self.output_dir,\
-                                                       'filelist_6.txt')
+    file_info, forced,g, l, file_l = prepare_laboratory(self.cfg, self.input_dir,\
+                                                        self.output_dir, 'filelist_6.txt')
     correct_files = ['f1.txt', 'f2.txt']
     correct_labels = ['F', '1']
     for i, (filename, label) in enumerate(file_info):

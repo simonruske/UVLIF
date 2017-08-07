@@ -29,7 +29,7 @@ def prepare_laboratory(cfg, input_directory, output_directory, filename):
     The filename of the filelist
   '''
 
-  forced, g, l = None, None, None
+  forced, g, l, file_l = None, None, None, None
 
   files, labels = load_filelist(cfg, output_directory, filename)
 
@@ -44,8 +44,9 @@ def prepare_laboratory(cfg, input_directory, output_directory, filename):
   if sum(np.unique(labels) != 'F') != 0:
     g = load_file(cfg, output_directory, "data.csv", 'w')
     l = load_file(cfg, output_directory, "labels.csv", 'w')
+    file_l = load_file(cfg, output_directory, "file_labels.csv", 'w') 
 
-  return zip(files, labels), forced, g, l
+  return zip(files, labels), forced, g, l, file_l
 
 def prepare_ambient(cfg, input_directory, output_directory):
 
@@ -490,7 +491,7 @@ def read_files(cfg):
     file_info, forced, g, time_handle = prepare_ambient(cfg, 'data', 'output')
 
   else:
-    file_info, forced, g, l = prepare_laboratory(cfg, 'data', 'output', 'filelist.csv')
+    file_info, forced, g, l, file_l = prepare_laboratory(cfg, 'data', 'output', 'filelist.csv')
 
   # =========================
   # MAIN LOOP : Read in files
