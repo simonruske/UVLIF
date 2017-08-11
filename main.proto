@@ -49,8 +49,8 @@ list(int) NN.hidden_layer_sizes : 500, 10
 // Plots
 // =====
 
-// Plotting is not currently available
-list(string) plot_list : plot_classifier_accuracy
 
-
+// plotting average fluorescence and size for laboratory data using the MBS
+list(string) plot_list : plot_mbs_summary
+list(int) plot_mbs_summary.groups : 4, 7, 4, 1, 3, 5, 2, 0, 4, 6, 2, 4, 2 // 0 for skip
 int FT_idx : 1039

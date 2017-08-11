@@ -387,6 +387,7 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
   if os.path.splitext(file)[1] not in cfg['valid_ext']:
     return
 
+  print(file)
   # open file
   f = load_file(cfg, "data", file, 'r')
 
