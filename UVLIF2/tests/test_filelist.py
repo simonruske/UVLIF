@@ -20,7 +20,7 @@ class test_filelist(TestCase):
   def test_create_filelist_ambient(self):    
 
     cfg = {}
-    cfg['date_format'] = "%d/%m/%Y %H:%M:%S"
+    cfg['date_format'] = "%d/%m/%Y%H:%M:%S"
     cfg['main_directory'] = os.path.split(os.path.abspath(UVLIF2.__file__))[0] 
     dates, files = create_filelist_ambient(cfg, os.path.join("tests", "test_directory"), "tests")
 
