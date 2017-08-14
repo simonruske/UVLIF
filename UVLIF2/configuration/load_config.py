@@ -37,7 +37,7 @@ def convert_line(line):
       will return either string, int, float or list depending on the line
   '''
   # Parse the line into var_type, name, var_type
-  rest, value = line.strip('\n').split(':')
+  rest, value = line.strip('\n').split('::')
   var_type, name = rest.split(' ')[:2]
   
   name = str(name.replace(' ', '')) 

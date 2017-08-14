@@ -1,7 +1,8 @@
 // comma delimited, file name and time stamp specified
-list(string) valid_ext : .txt, .csv
-char delimiter : , 
-list(int) needed_cols : 7, 8, 10, 14, 15
-bool file_name_specified : True
-bool time_stamp_specified : True
-bool FT_blocks : False
+list(string) valid_ext :: .txt, .csv
+char delimiter :: , 
+list(int) needed_cols :: 7, 8, 10, 14, 15
+bool file_name_specified :: True
+bool time_stamp_specified :: True
+bool FT_blocks :: False
+string date_format :: %d/%m/%Y %H:%M:%S
