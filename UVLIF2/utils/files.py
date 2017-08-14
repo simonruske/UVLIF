@@ -62,7 +62,7 @@ def search_for_line(f, search_term, limit):
 
   return line.strip('\n')
 
-def str2date(string, strip):
+def str2date(cfg, string, strip):
 
   '''
   Function that converts a string into a 
@@ -70,6 +70,9 @@ def str2date(string, strip):
   
   Parameters 
   ----------
+  cfg : dict
+    dictionary of configuration, here we use it to specify the date format
+
   string : str 
     string to be converted to date time object
 
@@ -82,13 +85,13 @@ def str2date(string, strip):
     converted line
 
   '''
-
-  date = string.strip(strip).strip('\n')
-  date = datetime.strptime(date[:19], "%d/%m/%Y %H:%M:%S")
+  date_format = cfg['date_format']
+  date = string.strip(strip).strip('\n').strip(',')
+  date = datetime.strptime(date[:19], date_format)
   return date
   
 
-def get_date(f):
+def get_date(cfg, f):
 
   '''
   Function that gets the date from a particular file 
@@ -106,7 +109,7 @@ def get_date(f):
   '''
 
   line = search_for_line(f, "Start Date/Time", 100)
-  start = str2date(line, "Start Date/Time : ")
+  start = str2date(cfg, line, "Start Date/Time : ")
   return start
 
 def file_exists(cfg, directory, filename):

@@ -49,7 +49,7 @@ def create_filelist_ambient(cfg, input_directory, output_directory):
 
   for filename in files:
     f = load_file(cfg, input_directory, filename, 'r')
-    dates.append(get_date(f))
+    dates.append(get_date(cfg, f))
     filelist.append(filename)
     f.close()
 

@@ -403,7 +403,7 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
   # Search for a time stamp
 
   if cfg['time_stamp_specified']:
-    start = get_date(f)
+    start = get_date(cfg, f)
     if cfg['ambient'] and not is_FT:
       cfg['earliest_date'] = min(start, cfg['earliest_date'])
 

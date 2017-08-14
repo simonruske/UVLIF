@@ -25,14 +25,34 @@ class test_files(TestCase):
       line = search_for_line(f, "alien", 5)
 
   def test_str2date(self):
+    cfg = {}
+    cfg['date_format'] = "%d/%m/%Y %H:%M:%S"
     correct_date = datetime(day = 5, month = 6, year = 2016, hour = 15, minute = 20, second=30)
-    self.assertEqual(str2date("Date : 05/06/2016 15:20:30", "Date : "), correct_date)
+    self.assertEqual(str2date(cfg, "Date : 05/06/2016 15:20:30", "Date : "), correct_date)
 
   def test_get_date(self):
+    cfg = {}
+    cfg['date_format'] = "%d/%m/%Y %H:%M:%S"
     main_path = os.path.split(os.path.abspath(UVLIF2.__file__))[0]
     f = open(os.path.join(main_path, "tests", "test_files", "test_date.txt"))
     correct_date = datetime(day = 5, month = 6, year = 2016, hour = 15, minute = 20, second=30)
-    self.assertEqual(get_date(f), correct_date)
+    self.assertEqual(get_date(cfg, f), correct_date)
+
+  def test_get_date2(self):
+    cfg = {}
+    cfg['date_format'] = "%m/%d/%Y %H:%M:%S"
+    main_path = os.path.split(os.path.abspath(UVLIF2.__file__))[0]
+    f = open(os.path.join(main_path, "tests", "test_files", "test_date2.txt"))
+    correct_date = datetime(day = 4, month = 1, year = 2013, hour = 9, minute = 23, second=17)
+    self.assertEqual(get_date(cfg, f), correct_date)
+
+  def test_get_date3(self):
+    cfg = {}
+    cfg['date_format'] = "%m/%d/%Y %H:%M:%S"
+    main_path = os.path.split(os.path.abspath(UVLIF2.__file__))[0]
+    f = open(os.path.join(main_path, "tests", "test_files", "test_date3.txt"))
+    correct_date = datetime(day = 21, month = 1, year = 2013, hour = 9, minute = 23, second=17)
+    self.assertEqual(get_date(cfg, f), correct_date)
 
   def test_file_exists_true(self):
     cfg = {}

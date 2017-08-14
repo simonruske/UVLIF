@@ -73,6 +73,7 @@ class test_read(TestCase):
 
   def test_prepare_ambient_time_specified(self):
     self.cfg['time_stamp_specified'] = True
+    self.cfg['date_format'] = "%d/%m/%Y %H:%M:%S"
     self.input_dir = os.path.join("tests", "test_files_ambient")
     files, forced, g, time_handle = prepare_ambient(self.cfg, self.input_dir, self.output_dir)
     self.assertEqual(len(files), 2)
@@ -225,6 +226,7 @@ class test_read(TestCase):
   def read_file_ambient_1_setup(self):
 
     cfg = self.cfg
+    cfg['date_format'] = "%d/%m/%Y %H:%M:%S"
     cfg['ambient'] = True
     cfg['FT_char'] = 'FT'
     cfg['valid_ext'] = ['.txt', '.csv']
