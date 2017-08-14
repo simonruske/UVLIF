@@ -86,9 +86,20 @@ def str2date(cfg, string, strip):
 
   '''
   date_format = cfg['date_format']
-  date = string.strip(strip).strip('\n').strip(',')
-  date = datetime.strptime(date[:19], date_format)
-  return date
+  date = string.strip(strip).strip('\n').strip(',').replace(' ', '')
+
+  # The length of the date may be 18, 17 or 16 characters, try each
+  for i in [18, 17, 16]:
+    try:  
+      date_output = datetime.strptime(date[:i], date_format)
+      break
+      
+    except Exception:
+      continue
+  else:
+    raise ValueError("Could not recognise date")
+
+  return date_output
   
 
 def get_date(cfg, f):
