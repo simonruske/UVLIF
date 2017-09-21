@@ -2,6 +2,20 @@ import os
 import warnings
 from datetime import datetime
 
+def check(cfg):
+
+  # check that the main directory exists
+  if not os.path.exists(cfg['main_directory']):
+    raise IOError("Missing main directory {}".format(cfg['main_directory']))
+
+  # check that data and output directories exist
+  if not os.path.exists(os.path.join(cfg['main_directory'], "data")):
+    raise IOError("Missing data directory in {}, please create one in the project folder and then"
+                   "put your data in it".format(cfg['main_directory']))
+
+  if not os.path.exists(os.path.join(cfg['main_directory'], "output")):
+    os.mkdir(os.path.join(cfg['main_directory'], "output"))
+
 def load_file(cfg, directory, filename, mode):
 
   '''

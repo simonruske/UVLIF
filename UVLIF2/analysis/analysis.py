@@ -1,3 +1,9 @@
+# HIDDEN IMPORTS
+from sklearn.tree import _utils
+from sklearn.neighbors import typedefs
+
+# IMPORTS
+
 from sklearn.model_selection import train_test_split
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 from sklearn.tree import DecisionTreeClassifier
@@ -8,16 +14,24 @@ from sklearn.svm import SVC, LinearSVC
 from sklearn.model_selection import GridSearchCV
 from sklearn.neural_network import MLPClassifier
 from UVLIF2.analysis.clustering.cluster_utils import standardise
+from UVLIF2.analysis.count import count
 from UVLIF2.utils.directories import create_directory
 import os
 import numpy as np
+from UVLIF2.analysis.clustering.proportion import proportion
+
 
 def analyse(cfg):
 
   # If analysis not requested by the user, skip this step
+
   if 'analysis' not in cfg:
     print("Analysis was not requested, so was skipped")
     return
+
+  if cfg['analysis'] == 'count':
+    data, labels = load_data(cfg)
+    return count(cfg, data, labels)
 
   if os.path.isfile(os.path.join(cfg['main_directory'], "output", "results", "results.csv")):
     print("Analysis already complete")
@@ -43,6 +57,8 @@ def analyse(cfg):
     else:
       clf, scr = basic_analysis(cfg, method, data, labels)
     
+
+
     # save everything
     create_directory(cfg, os.path.join("output", "results"))
     create_directory(cfg, os.path.join("output", "classifiers"))
@@ -56,10 +72,50 @@ def save_results(cfg, method, scr):
     
 
 def load_data(cfg):
+
   print("Reading in the data ...")
+
+  # filenames / directories
   output_directory = os.path.join(cfg['main_directory'], "output")
-  data = np.genfromtxt(os.path.join(output_directory, 'data.csv'), delimiter=',')
-  labels = np.genfromtxt(os.path.join(output_directory, 'labels.csv'), delimiter=',')
+  data_name = os.path.join(output_directory, 'data.csv')
+  labels_name = os.path.join(output_directory, 'labels.csv')
+
+
+  # get number of particles and number of data points
+  f = open(data_name)
+  N = 0 
+  for line in f:
+    N += 1
+
+  if N == 0:
+    raise ValueError("There were no particles found to be read in")
+
+  M = len(line.strip('\n').split(','))
+
+  # preallocate arrays
+  data = np.zeros((N, M), dtype = 'float')
+  labels = np.zeros(N, dtype = 'float')
+
+  # load the data
+  f = open(data_name)
+  for i, line in enumerate(f):
+    for j, item in enumerate(line.strip('\n').split(',')):
+      data[i, j] = float(item)
+
+  # load the labels
+  f = open(labels_name)
+  for i, line in enumerate(f):
+    labels[i] = float(line.strip('\n'))
+    print(line)
+
+  if 'instrument' in cfg and cfg['instrument'] == 'NEO':
+    idx = np.invert(np.any(np.isnan(data), 1))
+    data = data[idx]
+    labels = labels[idx]
+    idx = data[:, 0] > 0.8
+    data = data[idx]
+    labels = labels[idx]
+
   return data, labels
 
 def basic_analysis(cfg, method, data, labels):
@@ -72,8 +128,11 @@ def basic_analysis(cfg, method, data, labels):
   train_data, test_data, train_labels, test_labels = train_test_split(data, labels, test_size=0.5)
   clf.fit(train_data, train_labels)
   scr = clf.score(test_data, test_labels)
+
+  # matching matrix
+  print(proportion(clf.predict(test_data), test_labels, matching = True))
   
-  return cfg, scr
+  return clf, scr
 
 def support_vector_machine_analysis(cfg, method, data, labels):
 
@@ -103,6 +162,7 @@ def support_vector_machine_analysis(cfg, method, data, labels):
 
   clf = GridSearchCV(svr, parameters)
   clf.fit(train_data, train_labels)
+
   scr = clf.score(test_data, test_labels)
   print(clf.best_params_)
 

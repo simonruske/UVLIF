@@ -1,10 +1,12 @@
 // MBS
 // comma delimited, file name and time stamp specified
-list(string) valid_ext : .csv
-char delimiter : , 
-list(int) needed_cols : 1-1025, 1026-1034, 1036
-bool file_name_specified : True
-bool time_stamp_specified : True
-bool FT_blocks : True
-bool readd_background : True
-float size_threshold : 0.8
+list(string) valid_ext :: .csv
+char delimiter :: , 
+list(int) needed_cols :: 1-1025, 1026-1034, 1036
+bool file_name_specified :: True
+bool time_stamp_specified :: True
+bool FT_blocks :: True
+int FT_idx :: 1039
+bool readd_background :: True
+float size_threshold :: 0.8
+string date_format :: %d/%m/%Y %H:%M:%S

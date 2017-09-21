@@ -1,11 +1,14 @@
 from collections import Counter
 from UVLIF2.utils.filelist import load_filelist, create_filelist_ambient
-from UVLIF2.utils.files import load_file, get_date, search_for_line, any_file_exists
+from UVLIF2.utils.files import load_file, get_date, search_for_line, any_file_exists, check
 from UVLIF2.utils.directories import list_directory
+from UVLIF2.read.read_NEO import read_NEO
+from UVLIF2.read.read_PLAIR import read_PLAIR
 import numpy as np
 from datetime import datetime, timedelta
 import warnings
 import os
+import shutil
 from copy import copy
 import sys
 
@@ -366,7 +369,6 @@ def update_FT(cfg):
       cfg['FT_prev'] = copy(cfg['FT'])
 
 def readd_background(cfg, output_list):
-
   output_array = np.array(output_list, float)
   output_array[:1024] = output_array[:1024] + np.floor(cfg['cur_FT_mean'][:1024])
   return list(np.array(output_array, 'string'))
@@ -374,6 +376,25 @@ def readd_background(cfg, output_list):
 def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, time_handle = None):
 
   # Needs documentation
+
+  if 'instrument' in cfg:
+    if cfg['instrument'] == 'NEO':
+      return read_NEO(cfg, info, g, l)
+
+    elif cfg['instrument'] == 'PLAIR':
+
+      # create a temp directory in the main directory
+      if os.path.exists(os.path.join(cfg['main_directory'], "temp")):
+        shutil.rmtree(os.path.join(cfg['main_directory'], "temp"))
+      os.mkdir(os.path.join(cfg['main_directory'], "temp"))
+
+      read_PLAIR(cfg, info, g, l)
+
+      # remove the temp directory when finished
+      shutil.rmtree(os.path.join(cfg['main_directory'], "temp"))
+
+      return
+
 
   # convert information
   if cfg['ambient']:
@@ -413,8 +434,6 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
 
   for j, line in enumerate(f):
 
-
-
     #convert line
     try:
       output_list = convert_line(cfg, line)
@@ -431,6 +450,7 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
     # Get current time
     if cfg['time_stamp_specified']:
       cur_time = start + timedelta(milliseconds = int(line[0]))
+
 
     # check the output_list can be converted to floating point
     output_float = check_output_list(output_list)
@@ -457,9 +477,10 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
 
     # Write the line
     if not cfg['ambient']:
+
       write_line_laboratory(g, l, file_l, forced, output_str, label, file_label)
 
-    elif cfg['ambient'] and cfg['time_stamp_specified']: 
+    elif cfg['ambient'] and cfg['time_stamp_specified']:
       write_line_ambient(g, forced, output_str, is_FT, cur_time = cur_time, time_handle = time_handle)
 
     else:
@@ -471,6 +492,9 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
 
   f.close()
 
+
+
+
 def read_files(cfg):
 
   # If any data files exist write message suggesting deletion if user wishes to recreate them
@@ -480,13 +504,7 @@ def read_files(cfg):
           "'python UVLIF.py clean data' before running again\n")
     return
 
-  # check that data and output directories exist
-  if not os.path.exists(os.path.join(cfg['main_directory'], "data")):
-    raise IOError("Missing data directory, please create one in the project folder and then"
-                   "put your data in it")
-
-  if not os.path.exists(os.path.join(cfg['main_directory'], "output")):
-    os.mkdir(os.path.join(cfg['main_directory'], "output"))
+  check(cfg)
 
   # if in ambient mode then prepare ambient otherwise prepare for laboratory
   if cfg['ambient']:
