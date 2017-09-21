@@ -371,7 +371,9 @@ def update_FT(cfg):
 def readd_background(cfg, output_list):
   output_array = np.array(output_list, float)
   output_array[:1024] = output_array[:1024] + np.floor(cfg['cur_FT_mean'][:1024])
-  return list(np.array(output_array, 'string'))
+  list(np.array(output_array, 'str'))
+
+  return 
 
 def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, time_handle = None):
 
