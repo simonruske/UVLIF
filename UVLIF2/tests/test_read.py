@@ -277,13 +277,24 @@ class test_read(TestCase):
   def test_read_files_missing_data_directory(self):
     cfg = self.read_file_ambient_1_setup()
     cfg['main_directory'] = os.path.join(os.curdir, "test_directory", "data_missing")
+    if not os.path.exists(cfg['main_directory']):
+      os.mkdir(cfg['main_directory'])
     with self.assertRaises(IOError):
       read_files(cfg)
 
   def test_read_files_missing_output_directory(self):
     cfg = self.read_file_ambient_1_setup()
+
+
     main = os.path.join(os.curdir, "test_directory", "output_missing")
     cfg['main_directory'] = main
+
+
+    if not os.path.exists(cfg['main_directory']):
+      os.mkdir(cfg['main_directory'])
+    if not os.path.exists(os.path.join(cfg['main_directory'], "data")):
+      os.mkdir(os.path.join(cfg['main_directory'], "data"))
+
     read_files(cfg)
     shutil.rmtree(os.path.join(main, "output"))
   
