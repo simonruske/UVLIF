@@ -1,5 +1,4 @@
 *.pyc
 .eggs
-UVLIF2/tests/output/**
 htmlcov
 .coverage
