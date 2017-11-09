@@ -194,13 +194,17 @@ def load_config_files(filename=None):
 
   '''
 
-  if os.path.exists("main.proto"):
-    cfg = load_config("main.proto")
+  if not filename:
+    filename = "main.proto"
+
+  if os.path.exists(filename):
+    cfg = load_config(filename)
+
   else:
-    raise IOError("You need to create a main.proto file in the current directory.")
+    raise IOError("Could not find config file")
 
   cfg.update(load_config(cfg['instrument_filename']))
-  cfg.update(load_config(cfg['analysis_filename']))
+  #cfg.update(load_config(cfg['analysis_filename']))
 
   return(cfg)
 
