@@ -4,3 +4,5 @@ htmlcov
 .coverage
 analysis.proto
 main.proto
+UVLIF2.egg-info/PKG-INFO
+UVLIF2.egg-info/SOURCES.txt
