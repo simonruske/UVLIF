@@ -2,3 +2,5 @@
 .eggs
 htmlcov
 .coverage
+analysis.proto
+main.proto
