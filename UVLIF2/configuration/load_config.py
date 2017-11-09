@@ -43,6 +43,9 @@ def convert_line(line):
   name = str(name.replace(' ', '')) 
   value = value.replace(' ', '')
 
+  if var_type == "none":
+    return name, str(value)
+
   if var_type == 'int':
     return name, int(value)
 
