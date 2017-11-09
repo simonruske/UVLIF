@@ -1,0 +1,93 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'UVLIF2/gui/configuration.ui'
+#
+# Created by: PyQt5 UI code generator 5.9
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(793, 288)
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
+        self.groupBox.setGeometry(QtCore.QRect(10, 10, 774, 241))
+        self.groupBox.setObjectName("groupBox")
+        self.gridLayout = QtWidgets.QGridLayout(self.groupBox)
+        self.gridLayout.setObjectName("gridLayout")
+        self.comboBox = QtWidgets.QComboBox(self.groupBox)
+        self.comboBox.setObjectName("comboBox")
+        self.gridLayout.addWidget(self.comboBox, 1, 2, 1, 4)
+        self.checkBox_2 = QtWidgets.QCheckBox(self.groupBox)
+        self.checkBox_2.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.checkBox_2.setTristate(False)
+        self.checkBox_2.setObjectName("checkBox_2")
+        self.gridLayout.addWidget(self.checkBox_2, 2, 1, 1, 2)
+        self.label_3 = QtWidgets.QLabel(self.groupBox)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout.addWidget(self.label_3, 2, 3, 1, 2)
+        self.lineEdit_3 = QtWidgets.QLineEdit(self.groupBox)
+        self.lineEdit_3.setText("")
+        self.lineEdit_3.setObjectName("lineEdit_3")
+        self.gridLayout.addWidget(self.lineEdit_3, 2, 5, 1, 2)
+        self.pushButton_2 = QtWidgets.QPushButton(self.groupBox)
+        self.pushButton_2.setEnabled(False)
+        self.pushButton_2.setObjectName("pushButton_2")
+        self.gridLayout.addWidget(self.pushButton_2, 1, 6, 1, 1)
+        self.mainDirectoryLineEdit = QtWidgets.QLineEdit(self.groupBox)
+        self.mainDirectoryLineEdit.setObjectName("mainDirectoryLineEdit")
+        self.gridLayout.addWidget(self.mainDirectoryLineEdit, 0, 2, 1, 4)
+        self.mainDirectoryButton = QtWidgets.QPushButton(self.groupBox)
+        self.mainDirectoryButton.setObjectName("mainDirectoryButton")
+        self.gridLayout.addWidget(self.mainDirectoryButton, 0, 6, 1, 1)
+        self.label_2 = QtWidgets.QLabel(self.groupBox)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
+        self.checkBox = QtWidgets.QCheckBox(self.groupBox)
+        self.checkBox.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.checkBox.setTristate(False)
+        self.checkBox.setObjectName("checkBox")
+        self.gridLayout.addWidget(self.checkBox, 2, 0, 1, 1)
+        self.label = QtWidgets.QLabel(self.groupBox)
+        self.label.setObjectName("label")
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 2)
+        self.saveButton = QtWidgets.QPushButton(self.groupBox)
+        self.saveButton.setObjectName("saveButton")
+        self.gridLayout.addWidget(self.saveButton, 3, 0, 1, 7)
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+        self.actionExit = QtWidgets.QAction(MainWindow)
+        self.actionExit.setObjectName("actionExit")
+        self.actionNew_Configuration = QtWidgets.QAction(MainWindow)
+        self.actionNew_Configuration.setObjectName("actionNew_Configuration")
+        self.actionLoad_Configuration = QtWidgets.QAction(MainWindow)
+        self.actionLoad_Configuration.setObjectName("actionLoad_Configuration")
+        self.actionSave_Configuration = QtWidgets.QAction(MainWindow)
+        self.actionSave_Configuration.setObjectName("actionSave_Configuration")
+
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "New Configuration ..."))
+        self.groupBox.setTitle(_translate("MainWindow", "Configuration"))
+        self.checkBox_2.setText(_translate("MainWindow", "FT"))
+        self.label_3.setText(_translate("MainWindow", "FT Character:"))
+        self.pushButton_2.setText(_translate("MainWindow", "..."))
+        self.mainDirectoryButton.setText(_translate("MainWindow", "..."))
+        self.label_2.setText(_translate("MainWindow", "Instrument :"))
+        self.checkBox.setText(_translate("MainWindow", "Ambient :"))
+        self.label.setText(_translate("MainWindow", "Main Directory:"))
+        self.saveButton.setText(_translate("MainWindow", "Save Configuration"))
+        self.actionExit.setText(_translate("MainWindow", "Exit"))
+        self.actionNew_Configuration.setText(_translate("MainWindow", "New Configuration"))
+        self.actionLoad_Configuration.setText(_translate("MainWindow", "Load Configuration"))
+        self.actionSave_Configuration.setText(_translate("MainWindow", "Save Configuration"))
+
