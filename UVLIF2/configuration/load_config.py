@@ -177,15 +177,21 @@ def load_config(filename):
 
   return(cfg)
 
-def load_config_files():
+def load_config_files(filename=None):
 
   '''
   Function that loads the main, analysis and instrument configuration files
+
+  Parameters
+  ----------
+  filename : str 
+    The name of the main configuration file
 
   Returns 
   -------
   cfg : dict
     Configuration dictionary created from the configuration files.
+
   '''
 
   if os.path.exists("main.proto"):
