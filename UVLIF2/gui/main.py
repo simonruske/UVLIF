@@ -8,9 +8,8 @@ from UVLIF2.configuration.save_config import save_config_file
 from UVLIF2.utils.cleaner import clean
 from UVLIF2.analysis.analysis import analyse
 from UVLIF2.read.read import read_files
-import os
 
-import os
+import os, subprocess
 
 class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
@@ -200,6 +199,7 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     cfg = self.cfg
     cfg.update(self.analysis_cfg)
     analyse(cfg)
+    subprocess.call(["xdg-open", os.path.join(cfg['main_directory'], "output", "results", "results.csv")])
     self.update()
 
 
