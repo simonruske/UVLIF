@@ -1,1 +1,9 @@
 string shorthand :: KNN
+int KNN.n_neighbors :: 5
+list(string) KNN.weights :: uniform, distance
+list(string) KNN.algorithm :: auto, ball_tree, kd_tree, brute
+int KNN.leaf_size :: 30
+int KNN.p :: 2
+list(string) KNN.metric :: euclidean, manhattan, chebyshev, minkowski, wminkowski, seuclidean, mahalanobis
+int KNN.n_jobs :: 1
+

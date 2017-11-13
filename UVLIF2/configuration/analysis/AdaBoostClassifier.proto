@@ -1,1 +1,6 @@
 string shorthand :: AB
+//string AB.base_estimator :: DecisionTreeClassifier
+int AB.n_estimators :: 50
+float AB.learning_rate :: 1.0
+list(string) AB.algorithm :: SAMME.R, SAMME
+list(string) AB.random_state :: default, none, int

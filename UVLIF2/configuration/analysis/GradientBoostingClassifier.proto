@@ -1,1 +1,16 @@
 string shorthand :: GB
+list(string) GB.loss :: deviance, exponential
+float GB.learning_rate :: 0.1
+int GB.n_estimators :: 100
+int GB.max_depth :: 3
+list(string) GB.criterion :: friedman_mse, mse, mae
+float GB.min_samples :: 2
+float GB.min_samples_leaf :: 1
+int GB.min_weight_fraction_list :: 0 
+float GB.subsample :: 1.0
+list(string) GB.max_features :: none, auto, sqrt, log2
+list(string) GB.max_leaf_nodes :: default, none, int
+float GB.min_impurity_decrease :: 0.
+list(string) GB.warm_start :: False, True
+list(string) GB.random_state :: default, none, int
+list(string) GB.presort :: auto, True, False

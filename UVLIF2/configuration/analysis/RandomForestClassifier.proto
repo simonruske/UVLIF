@@ -1,1 +1,16 @@
 string shorthand :: RF
+int RF.n_estimators :: 10
+list(string) RF.criterion :: gini, entropy
+list(string) RF.max_features :: auto, sqrt, log2, None // need add functionality for float and int
+list(string) RF.max_depth :: default, none, int
+float RF.min_samples :: 2
+float RF.min_samples_leaf :: 1
+float RF.min_weight_fraction_leaf :: 0.0
+list(string) RF.max_leaf_nodes :: default, none, int
+float RF.min_impurity_decrease :: 0.
+list(string) RF.bootstrap :: True, False
+list(string) RF.oob_score :: False, True
+int RF.n_jobs :: 1
+list(string) RF.random_state :: default, none, int
+list(string) RF.warm_state :: False, True
+//class weights

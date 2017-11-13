@@ -1,1 +1,21 @@
-string shorthand :: NN
+string shorthand :: MLP
+// hidden_layers_sizes
+list(string) MLP.activation :: relu, identity, logistic, tanh, relu
+list(string) MLP.solver :: adam, lbfgs, sgd
+float MLP.alpha :: 0.0001
+list(string) MLP.batch_size :: default, auto, int
+list(string) MLP.learning_rate :: constant, invscaling, adaptive
+float MLP.learning_rate_init :: 0.001
+float MLP.power_t :: 0.5
+int MLP.max_iter :: 200
+list(string) MLP.shuffle :: True, False
+list(string) MLP.random_state :: default, none, int
+float MLP.tol :: 1e-4
+list(string) MLP.warm_start :: False, True
+float MLP.momentum :: 0.9
+list(string) MLP.nesterovs_momentum :: True, False
+list(string) MLP.early_stopping :: False, True
+float MLP.validation_fraction :: 0.1
+float MLP.beta_1 :: 0.9
+float MLP.beta_2 :: 0.999
+float MLP.epsilon :: 1e-8

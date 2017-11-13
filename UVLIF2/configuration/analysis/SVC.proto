@@ -1,1 +1,13 @@
 string shorthand :: SVC
+float SVC.C :: 1.0
+list(string) SVC.kernel :: rbf, linear, poly, sigmoid
+int SVC.degree :: 3
+list(string) SVC.gamma :: default, auto, float
+float SVC.coef0 :: 0.0
+list(string) SVC.probability :: False, True
+list(string) SVC.shrinking :: False, True
+float SVC.tol :: 1e-3
+list(string) SVC.cache_size :: default, optional, float
+int SVC.max_iter :: -1
+list(string) SVC.decision_function_shape :: ovr, ovo
+list(string) SVC.random_state :: default, none, int

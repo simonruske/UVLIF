@@ -1,1 +1,13 @@
 string shorthand :: DT
+list(string) DT.criterion :: gini, entropy
+list(string) DT.splitter :: best, random
+list(string) DT.max_depth :: default, none, int
+float DT.min_samples_split :: 2.0
+float DT.min_samples_leaf :: 1
+float DT.min_weight_fraction_leaf :: 0.
+list(string) DT.max_features :: none, auto, sqrt, log2
+list(string) DT.random_state :: default, none, int
+list(string) DT.max_leaf_nodes :: default, none, int
+float DT.min_impurity_decrease :: 0.
+// class weights need to be implemented
+list(string) DT.presort :: False, True 

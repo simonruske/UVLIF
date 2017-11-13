@@ -1,1 +1,4 @@
 string shorthand :: QDA
+list(string) QDA.reg_param :: default, optional, float
+list(string) QDA.store_covarience :: False, True
+float QDA.tol :: 1.0e-4

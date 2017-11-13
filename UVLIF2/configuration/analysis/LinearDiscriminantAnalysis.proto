@@ -1,1 +1,7 @@
 string shorthand :: LDA
+list(string) LDA.solver :: svd, lsqr, eigen
+list(string) LDA.shrinkage :: none, auto
+//priors needs implementing
+list(string) LDA.n_components :: default, optional, int
+list(string) LDA.store_covariance :: False, True
+float LDA.tol :: 1.0e-4
