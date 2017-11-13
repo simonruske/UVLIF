@@ -123,7 +123,7 @@ def basic_analysis(cfg, method, data, labels):
                  'DT':DecisionTreeClassifier(), 'RF':RandomForestClassifier(),\
                  'GB':GradientBoostingClassifier(), 'AB':AdaBoostClassifier(),\
                  'GNB':GaussianNB(), 'KNN':KNeighborsClassifier(), \
-                 'NN':MLPClassifier()}
+                 'MLP':MLPClassifier()}
   clf = classifiers[method]
   train_data, test_data, train_labels, test_labels = train_test_split(data, labels, test_size=0.5)
   clf.fit(train_data, train_labels)
