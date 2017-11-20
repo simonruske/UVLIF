@@ -20,6 +20,51 @@ import os
 import numpy as np
 from UVLIF2.analysis.clustering.proportion import proportion
 
+def load_FT(cfg, data):
+
+  '''
+  Parameters
+  ----------
+
+  cfg['main_directory'] : str
+    directory that contains the output and data directories
+  '''
+  FT_name = check_FT(cfg)
+  FT = None
+  if FT_name:
+    FT = np.genfromtxt(FT_name, delimiter=',')
+  return FT
+
+  
+
+def check_FT(cfg):
+  '''
+  Checks there is an FT.csv file in the output directory and returns
+  the location if it exists
+  '''
+  main_dir = cfg['main_directory']
+  output_dir = os.path.join(main_dir, "output")
+  if 'FT.csv' in os.listdir(output_dir):
+    return os.path.join(output_dir, 'FT.csv')
+  else:
+    return None
+
+def get_threshold(FT, number_of_std):
+  return np.mean(FT, 0) + number_of_std * np.std(FT, 0) 
+
+
+def preprocess(cfg, data):
+
+  '''
+  Function to preprocess the data before analysis
+
+  Parameters 
+  ----------
+  '''
+  FT = load_FT(cfg, data)
+  print(FT)
+  return data
+
 
 def analyse(cfg):
 
@@ -39,6 +84,7 @@ def analyse(cfg):
 
   print("Analysing ...")
   data, labels = load_data(cfg)
+  data = preprocess(cfg, data)
   print("Classifying ...")
   for method in cfg['analysis']:
     print(method + " ...")
@@ -56,8 +102,6 @@ def analyse(cfg):
 
     else:
       clf, scr = basic_analysis(cfg, method, data, labels)
-    
-
 
     # save everything
     create_directory(cfg, os.path.join("output", "results"))
@@ -106,7 +150,6 @@ def load_data(cfg):
   f = open(labels_name)
   for i, line in enumerate(f):
     labels[i] = float(line.strip('\n'))
-    print(line)
 
   if 'instrument' in cfg and cfg['instrument'] == 'NEO':
     idx = np.invert(np.any(np.isnan(data), 1))
