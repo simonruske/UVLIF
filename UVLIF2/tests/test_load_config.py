@@ -4,6 +4,13 @@ from UVLIF2.configuration.load_config import set_cfg, convert_line, load_config,
 
 class test_read_config(TestCase):
 
+  def setUp(self):
+    self.addCleanup(self.clean)
+
+  def clean(self):
+    dirname, _ = os.path.split(os.path.abspath(__file__))
+    os.remove(os.path.join(dirname, "main.proto"))
+
   def test_set_cfg(self):
 
     cfg = {}
