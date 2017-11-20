@@ -9,7 +9,8 @@ class test_read_config(TestCase):
 
   def clean(self):
     dirname, _ = os.path.split(os.path.abspath(__file__))
-    os.remove(os.path.join(dirname, "main.proto"))
+    if os.path.exists(os.path.join(dirname, "main.proto")):
+      os.remove(os.path.join(dirname, "main.proto"))
 
   def test_set_cfg(self):
 

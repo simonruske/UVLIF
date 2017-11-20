@@ -207,7 +207,7 @@ def load_config_files(filename=None):
     raise IOError("Could not find config file")
 
   cfg.update(load_config(cfg['instrument_filename']))
-  #cfg.update(load_config(cfg['analysis_filename']))
+  cfg.update(load_config(cfg['analysis_filename']))
 
   return(cfg)
 
