@@ -33,6 +33,7 @@ def load_FT(cfg, data):
   FT = None
   if FT_name:
     FT = np.genfromtxt(FT_name, delimiter=',')
+  FT = np.array(FT, 'float')
   return FT
 
   
@@ -50,10 +51,24 @@ def check_FT(cfg):
     return None
 
 def get_threshold(FT, number_of_std):
-  return np.mean(FT, 0) + number_of_std * np.std(FT, 0) 
+  # Gets the threshold fro
+  return np.mean(FT, 0) + float(number_of_std) * np.std(FT, 0)
+
+def remove_nFL(cfg, data, labels):
+
+  '''
+  Removes data which doesn't exceed a fluorescent threshold
+  '''
+  number_of_std = cfg['number_of_std']
+  FT = load_FT(cfg, data)
+  threshold = get_threshold(FT, number_of_std)
+  idx = np.any(data[:, :3] > threshold[:3], 1)
+  data = data[idx]
+  labels = labels[idx]
+  return data, labels
 
 
-def preprocess(cfg, data):
+def preprocess(cfg, data, labels):
 
   '''
   Function to preprocess the data before analysis
@@ -61,9 +76,10 @@ def preprocess(cfg, data):
   Parameters 
   ----------
   '''
-  FT = load_FT(cfg, data)
-  print(FT)
-  return data
+  if 'remove_FT' in cfg:
+    print('removing')
+    data, labels = remove_nFL(cfg, data, labels)
+  return data, labels
 
 
 def analyse(cfg):
@@ -84,12 +100,12 @@ def analyse(cfg):
 
   print("Analysing ...")
   data, labels = load_data(cfg)
-  data = preprocess(cfg, data)
+  data, labels = preprocess(cfg, data, labels)
   print("Classifying ...")
   for method in cfg['analysis']:
     print(method + " ...")
     # Do basic analysis for everything apart from support vector machines and neural networks 
-    # as they require some parameters modifying.
+    # as they refquire some parameters modifying.
 
     if method in ['SVC', 'LSVC']:
       support_vector_machine_analysis(cfg, method, data, labels)

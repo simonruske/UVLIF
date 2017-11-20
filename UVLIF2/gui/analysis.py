@@ -16,6 +16,7 @@ class analysis_window(QtWidgets.QDialog, main.Ui_Dialog):
     self.populate_list()
 
     self.analysis_configuration_window = analysis_configuration_window(self)
+    self.activate_std_box()
     self.msgBox = QtWidgets.QMessageBox()
    
 
@@ -24,9 +25,19 @@ class analysis_window(QtWidgets.QDialog, main.Ui_Dialog):
     self.checkAllButton.clicked.connect(self.check_all)
     self.uncheckAllButton.clicked.connect(self.uncheck_all)
     self.saveButton.clicked.connect(self.save)
- 
+    self.FTBox.stateChanged.connect(self.activate_std_box)
+    
 
-
+  def activate_std_box(self):
+    if self.FTBox.isChecked():
+      self.stdEdit.setVisible(True)
+      self.stdLabel.setVisible(True)
+      
+    
+    else:
+      self.stdEdit.setVisible(False)
+      self.stdLabel.setVisible(False)
+      
 
   def edit(self):
     
@@ -81,6 +92,9 @@ class analysis_window(QtWidgets.QDialog, main.Ui_Dialog):
       item = self.listWidget.item(i)
       if item.checkState() == QtCore.Qt.Checked:
         self.cfg['analysis'].append(self.shorthand[item.text()])
+      if self.FTBox.checkState() == QtCore.Qt.Checked:
+        self.cfg['remove_FT'] = True
+        self.cfg['number_of_std'] = self.stdEdit.text()
     save_config_file(self.cfg, filename)
     self.close()
     
