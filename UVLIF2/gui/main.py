@@ -9,7 +9,7 @@ from UVLIF2.utils.cleaner import clean
 from UVLIF2.analysis.analysis import analyse
 from UVLIF2.read.read import read_files
 
-import os, subprocess
+import os, subprocess, sys 
 
 class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
@@ -220,6 +220,7 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     #Get the current directory and save the settings proto there
 
     save_config_file(self.settings, filename)
+    sys.exit()
 
   def update_settings(self):
     # update the settings file to include the contents of the main configuration text box
