@@ -20,6 +20,9 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     self.analysis_cfg = {}
     self.analysis_cfg_loaded = False
 
+    # set size
+    self.resize(QtWidgets.QDesktopWidget().availableGeometry(self).size() * 0.7)
+
 
     # child windows
     self.configuration_window = configuration_window(self)
