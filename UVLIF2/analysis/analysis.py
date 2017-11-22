@@ -67,6 +67,18 @@ def remove_nFL(cfg, data, labels):
   labels = labels[idx]
   return data, labels
 
+def remove_size(cfg, data, labels):
+
+  '''
+  Removes data which does not exceed a size threshold
+  '''
+
+  size_threshold = float(cfg['size_threshold'])
+  idx = data[:, 4] > size_threshold
+  data = data[idx]
+  labels = labels[idx]
+  return data, labels
+
 
 def preprocess(cfg, data, labels):
 
@@ -77,8 +89,10 @@ def preprocess(cfg, data, labels):
   ----------
   '''
   if 'remove_FT' in cfg:
-    print('removing')
     data, labels = remove_nFL(cfg, data, labels)
+
+  if 'remove_size' in cfg:
+    data, labels = remove_size(cfg, data, labels)
   return data, labels
 
 

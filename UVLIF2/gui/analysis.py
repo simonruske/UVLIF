@@ -15,8 +15,13 @@ class analysis_window(QtWidgets.QDialog, main.Ui_Dialog):
     self.shorthand = {}
     self.populate_list()
 
-    self.analysis_configuration_window = analysis_configuration_window(self)
+    # activate boxes
     self.activate_std_box()
+    self.activate_size_box()
+
+
+    self.analysis_configuration_window = analysis_configuration_window(self)
+    
     self.msgBox = QtWidgets.QMessageBox()
    
 
@@ -26,18 +31,23 @@ class analysis_window(QtWidgets.QDialog, main.Ui_Dialog):
     self.uncheckAllButton.clicked.connect(self.uncheck_all)
     self.saveButton.clicked.connect(self.save)
     self.FTBox.stateChanged.connect(self.activate_std_box)
+    self.sizeBox.stateChanged.connect(self.activate_size_box)
     
 
-  def activate_std_box(self):
-    if self.FTBox.isChecked():
-      self.stdEdit.setVisible(True)
-      self.stdLabel.setVisible(True)
-      
-    
+  def activate_box(self, box, lineedit, label):
+    if box.isChecked():
+      lineedit.setEnabled(True)
+      label.setEnabled(True)
+       
     else:
-      self.stdEdit.setVisible(False)
-      self.stdLabel.setVisible(False)
-      
+      lineedit.setEnabled(False)
+      label.setEnabled(False)
+
+  def activate_std_box(self):
+    self.activate_box(self.FTBox, self.stdEdit, self.stdLabel)
+
+  def activate_size_box(self):
+    self.activate_box(self.sizeBox, self.sizeEdit, self.sizeLabel)
 
   def edit(self):
     
@@ -92,9 +102,12 @@ class analysis_window(QtWidgets.QDialog, main.Ui_Dialog):
       item = self.listWidget.item(i)
       if item.checkState() == QtCore.Qt.Checked:
         self.cfg['analysis'].append(self.shorthand[item.text()])
-      if self.FTBox.checkState() == QtCore.Qt.Checked:
-        self.cfg['remove_FT'] = True
-        self.cfg['number_of_std'] = self.stdEdit.text()
+    if self.FTBox.checkState() == QtCore.Qt.Checked:
+      self.cfg['remove_FT'] = True
+      self.cfg['number_of_std'] = self.stdEdit.text()
+    if self.sizeBox.checkState() == QtCore.Qt.Checked:
+      self.cfg['remove_size'] = True
+      self.cfg['size_threshold'] = self.sizeEdit.text()
     save_config_file(self.cfg, filename)
     self.close()
     
