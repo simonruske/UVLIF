@@ -1,11 +1,11 @@
-string shorthand :: LSVC
-list(string) LSVC :: l2, l1
-list(string) LSVC.loss :: square_hinge, hinge
-list(string) LSVC.dual :: True, False
-float LSVC.tol :: 1e-4
-float LSVC.C :: 1.0
-list(string) LSVC.multi_class :: ovr, crammer_singer
-list(string) LSCV.fit_intercept :: True, False
-float LSVC.intercept_scaling :: 1.0
-list(string) LSVC.random_state :: default, none, int
-int LSVC.max_iter :: 1000
+string shorthand :: LSV
+list(string) LSV :: l2, l1
+list(string) LSV.loss :: square_hinge, hinge
+list(string) LSV.dual :: True, False
+float LSV.tol :: 1e-4
+float LSV.C :: 1.0
+list(string) LSV.multi_class :: ovr, crammer_singer
+list(string) LSV.fit_intercept :: True, False
+float LSV.intercept_scaling :: 1.0
+list(string) LSV.random_state :: default, none, int
+int LSV.max_iter :: 1000
