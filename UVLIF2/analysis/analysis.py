@@ -83,7 +83,13 @@ def save_results(cfg, method, scr):
   f.close()
 
 def parameter_dict(cfg, method):
-  print(method)
+
+  parameters = {}
+  for key, value in cfg.items():
+    if key.startswith(method + '.'):
+      parameters[key.replace(method + '.', '')] = value
+
+  return parameters
   
   
     
