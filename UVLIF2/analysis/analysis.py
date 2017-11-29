@@ -4,6 +4,9 @@ from sklearn.neighbors import typedefs
 
 # IMPORTS
 
+import os
+import numpy as np
+
 from sklearn.model_selection import train_test_split
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 from sklearn.tree import DecisionTreeClassifier
@@ -16,84 +19,11 @@ from sklearn.neural_network import MLPClassifier
 from UVLIF2.analysis.clustering.cluster_utils import standardise
 from UVLIF2.analysis.count import count
 from UVLIF2.utils.directories import create_directory
-import os
-import numpy as np
+
+
+# other UVLIF analysis imports
 from UVLIF2.analysis.clustering.proportion import proportion
-
-def load_FT(cfg, data):
-
-  '''
-  Parameters
-  ----------
-
-  cfg['main_directory'] : str
-    directory that contains the output and data directories
-  '''
-  FT_name = check_FT(cfg)
-  FT = None
-  if FT_name:
-    FT = np.genfromtxt(FT_name, delimiter=',')
-  FT = np.array(FT, 'float')
-  return FT
-
-  
-
-def check_FT(cfg):
-  '''
-  Checks there is an FT.csv file in the output directory and returns
-  the location if it exists
-  '''
-  main_dir = cfg['main_directory']
-  output_dir = os.path.join(main_dir, "output")
-  if 'FT.csv' in os.listdir(output_dir):
-    return os.path.join(output_dir, 'FT.csv')
-  else:
-    return None
-
-def get_threshold(FT, number_of_std):
-  # Gets the threshold fro
-  return np.mean(FT, 0) + float(number_of_std) * np.std(FT, 0)
-
-def remove_nFL(cfg, data, labels):
-
-  '''
-  Removes data which doesn't exceed a fluorescent threshold
-  '''
-  number_of_std = cfg['number_of_std']
-  FT = load_FT(cfg, data)
-  threshold = get_threshold(FT, number_of_std)
-  idx = np.any(data[:, :3] > threshold[:3], 1)
-  data = data[idx]
-  labels = labels[idx]
-  return data, labels
-
-def remove_size(cfg, data, labels):
-
-  '''
-  Removes data which does not exceed a size threshold
-  '''
-
-  size_threshold = float(cfg['size_threshold'])
-  idx = data[:, 4] > size_threshold
-  data = data[idx]
-  labels = labels[idx]
-  return data, labels
-
-
-def preprocess(cfg, data, labels):
-
-  '''
-  Function to preprocess the data before analysis
-
-  Parameters 
-  ----------
-  '''
-  if 'remove_FT' in cfg:
-    data, labels = remove_nFL(cfg, data, labels)
-
-  if 'remove_size' in cfg:
-    data, labels = remove_size(cfg, data, labels)
-  return data, labels
+from UVLIF2.analysis.preprocess import preprocess
 
 
 def analyse(cfg):
@@ -112,12 +42,20 @@ def analyse(cfg):
     print("Analysis already complete")
     return
 
+  # begin analysis by loading and preprocessing data
   print("Analysing ...")
+  
   data, labels = load_data(cfg)
   data, labels = preprocess(cfg, data, labels)
+
+  # begin the classification
   print("Classifying ...")
   for method in cfg['analysis']:
+    # load parameters from config file
+    parameters = parameter_dict(cfg, method)
+
     print(method + " ...")
+
     # Do basic analysis for everything apart from support vector machines and neural networks 
     # as they refquire some parameters modifying.
 
@@ -143,6 +81,11 @@ def save_results(cfg, method, scr):
   f = open(os.path.join(results_directory, "results.csv"), "a+")
   f.write("{},{}\n".format(method, scr))
   f.close()
+
+def parameter_dict(cfg, method):
+  print(method)
+  
+  
     
 
 def load_data(cfg):
@@ -197,6 +140,7 @@ def basic_analysis(cfg, method, data, labels):
                  'GB':GradientBoostingClassifier(), 'AB':AdaBoostClassifier(),\
                  'GNB':GaussianNB(), 'KNN':KNeighborsClassifier(), \
                  'MLP':MLPClassifier()}
+
   clf = classifiers[method]
   train_data, test_data, train_labels, test_labels = train_test_split(data, labels, test_size=0.5)
   clf.fit(train_data, train_labels)
