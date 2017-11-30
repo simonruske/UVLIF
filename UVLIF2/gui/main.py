@@ -137,6 +137,8 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
       # check the output directory exists
       output_directory = os.path.join(main_directory, 'output')
       output_directory_exists = os.path.exists(output_directory)
+      if not output_directory_exists:
+        os.mkdir(output_directory)
       
       # if data.csv is in the output directory then set processed_data as true
       if 'data.csv' in os.listdir(output_directory):
