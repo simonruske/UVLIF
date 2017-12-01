@@ -1,6 +1,5 @@
 import os
 import warnings
-from UVLIF2.utils.print import print_message
 from datetime import datetime
 
 def check(cfg):
