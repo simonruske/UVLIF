@@ -4,36 +4,109 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
 
   def __init__(self, parent = None):
+
     super(analysis_configuration_window, self).__init__(parent)
     self.setupUi(self)
-    self.method = None
-    self.model = QtGui.QStandardItemModel()
-    self.model.setHorizontalHeaderLabels(["Parameter", "Value"])
-    self.tableView.setModel(self.model)
-    self.tableView.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Interactive)
-    self.tableView.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
 
-  def update(self):
-    self.model.clear()
-    self.model.setHorizontalHeaderLabels(["Parameter", "Value"])
+    #set up the param model 
+    self.param_model = QtGui.QStandardItemModel()
+    self.paramView.setModel(self.param_model)
+    self.paramView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+
+    # setup up value models
+    self.value_models = []
+
+    # connect the left hand parameter list view change to update the value model
+    self.paramView.selectionModel().currentChanged.connect(self.update_value_model)
+
+    # connect add button
+    self.addButton.clicked.connect(self.add)
+    self.removeButton.clicked.connect(self.remove)
+    self.saveButton.clicked.connect(self.save)
+
+  def save(self):
+    
+    cfg = {}
+    
+    # for every parameter
+    for i in range(self.param_model.rowCount()):
+      output_list = []
+      # look for values
+      for j in range(self.value_models[i].rowCount()):
+        output_list.append(self.value_models[i].item(j).text())
+
+      # if output_list is not empty put it into the cfg
+      if output_list != []:
+        cfg[self.shorthand + '.' + self.param_model.item(i).text()] = output_list
+
+    self.parent().cfg.update(cfg)
+    self.close()
+    
+      
+
+
+  def add(self):
+    nrow = self.valueView.model().rowCount()
+    self.valueView.model().setItem(nrow, QtGui.QStandardItem())
+    idx = self.paramView.selectionModel().currentIndex()
+    value = self.params[self.paramView.model().item(idx.row()).text()]
+    self.valueView.model().item(nrow).setData(value)
+    self.update_value_model()
+
+  def remove(self):      
+    idx = self.valueView.selectionModel().currentIndex()
+    self.valueView.model().removeRow(idx.row())
+    self.update_value_model()
+
+  def get_params(self):
+    # Get params from config file
     params = {}
     self.shorthand = self.parent().shorthand[self.method]
     for item, value in self.parent().analysis_options.items():
       if self.shorthand + '.' in item:
         params[item.replace(self.shorthand + '.', "")] = value
+    return params
 
-    for i, (item, value) in enumerate(params.items()):
-      self.model.setItem(i, 0, QtGui.QStandardItem())
-      self.model.setItem(i, 1, QtGui.QStandardItem())
-      self.set_delegate(i, item, value)
-      self.model.item(i, 0).setText(str(item))
-      self.model.item(i, 0).setEditable(False)
-    self.load_settings_from_parent(self.shorthand)
-      
+  def populate_model(self, model, values, set_text = False):
+
+    # populate with the parameters
+    for i, value in enumerate(values):
+      model.setItem(i, QtGui.QStandardItem()) # add new item
+      if set_text:
+        model.item(i).setText(str(value))
+
+  def showEvent(self, event):
+    params = self.get_params()
+    self.params = params
+
+    # set up the parameter model
+
+    self.populate_model(self.param_model, params.keys(), set_text = True)
+
+    # set up the value models 
+    self.value_models = []
+    for i, value in enumerate(params.values()):
+      self.value_models.append(QtGui.QStandardItemModel())
+    
+    self.valueView.setModel(self.value_models[0])
+
+    #set the current index
+    self.paramView.setCurrentIndex(self.param_model.index(0, 0))
     
 
-  def set_delegate(self, i, item, value):
-    
+  def update_value_model(self):
+
+    idx = self.paramView.selectionModel().currentIndex()
+    self.valueView.setModel(self.value_models[idx.row()])
+
+    # set delegates
+    for i in range(self.value_models[idx.row()].rowCount()):
+      self.set_delegate(self.value_models[idx.row()].item(i).data(), i, self.value_models[idx.row()])
+
+
+
+  def set_delegate(self, value, idx, model):
+
     if type(value) == list and value[0] == 'default':
       delegate = None
       if value[-1] == 'int':
@@ -41,43 +114,27 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
       elif value[-1] == 'float':
         delegate = DefaultDelegate(self, value[1], float)
       if delegate:
-        self.tableView.setItemDelegateForRow(i, delegate)
-        self.model.item(i, 1).setText(value[1])
-      
+        self.valueView.setItemDelegateForRow(idx, delegate)
+        if model.item(idx).text() == '':
+          model.item(idx).setText(value[1])
+
     elif type(value) == int:
-      self.tableView.setItemDelegateForRow(i, IntDelegate(self))
-      self.model.item(i, 1).setText(str(value))
+      self.valueView.setItemDelegateForRow(idx, IntDelegate(self))
+      if model.item(idx).text() == '':
+        model.item(idx).setText(str(value))
+      
+
     elif type(value) == float:
-      self.tableView.setItemDelegateForRow(i, FloatDelegate(self))
-      self.model.item(i, 1).setText(str(value))
+      self.valueView.setItemDelegateForRow(idx, FloatDelegate(self))
+      if model.item(idx).text() == '':
+        model.item(idx).setText(str(value))
+
     elif type(value) == list:
-      self.model.item(i, 1).setData(value)
-      self.model.item(i, 1).setText(value[0])
-      self.tableView.setItemDelegateForRow(i, ListDelegate(self))
+      model.item(idx).setData(value)
+      if model.item(idx).text() == '':
+        model.item(idx).setText(value[0])
+      self.valueView.setItemDelegateForRow(idx, ListDelegate(self))
 
-  def load_settings_from_parent(self, shorthand):
-
-    cfg = {}
-
-    for key, value in self.parent().cfg.items():
-      if self.shorthand + '.' in key:
-        cfg[key.replace(self.shorthand + '.', "")] = value
-    
-    for i in range(self.model.rowCount()):
-      parameter = self.model.item(i, 0).text()
-      if parameter in cfg:
-        self.model.item(i, 1).setText(cfg[parameter])
-
-  def closeEvent(self, event):
-    self.send_selection_to_parent()
-
-  def send_selection_to_parent(self):
-    cfg = {}    
-
-    for i in range(self.model.rowCount()):
-      cfg[self.shorthand + '.' + self.model.item(i, 0).text()] = self.model.item(i, 1).text()
-
-    self.parent().cfg.update(cfg)
     
 
 class IntDelegate(QtWidgets.QItemDelegate):

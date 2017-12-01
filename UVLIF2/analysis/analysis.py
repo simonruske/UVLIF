@@ -16,14 +16,17 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC, LinearSVC
 from sklearn.model_selection import GridSearchCV
 from sklearn.neural_network import MLPClassifier
-from UVLIF2.analysis.clustering.cluster_utils import standardise
-from UVLIF2.analysis.count import count
-from UVLIF2.utils.directories import create_directory
 
+# UVLIF imports 
+
+from UVLIF2.utils.directories import create_directory
+from UVLIF2.configuration.load_config import load_config
 
 # other UVLIF analysis imports
 from UVLIF2.analysis.clustering.proportion import proportion
 from UVLIF2.analysis.preprocess import preprocess
+from UVLIF2.analysis.clustering.cluster_utils import standardise
+from UVLIF2.analysis.count import count
 
 
 def analyse(cfg):
@@ -43,7 +46,6 @@ def analyse(cfg):
     return
 
   # begin analysis by loading and preprocessing data
-  print("Analysing ...")
   
   data, labels = load_data(cfg)
   data, labels = preprocess(cfg, data, labels)
@@ -53,20 +55,16 @@ def analyse(cfg):
   for method in cfg['analysis']:
     # load parameters from config file
     parameters = parameter_dict(cfg, method)
+    grid_search = is_grid(parameters)
+    print(grid_search)
 
     print(method + " ...")
 
     # Do basic analysis for everything apart from support vector machines and neural networks 
     # as they refquire some parameters modifying.
 
-    if method in ['SVC', 'LSVC']:
-      support_vector_machine_analysis(cfg, method, data, labels)
-
-    elif method == 'NN' and 'NN_grid_search' in cfg and cfg['NN_grid_search'] == True:
-      neural_network_analysis_grid_search(cfg, data, labels)
-
-    elif method == 'NN' and 'NN_default_param' in cfg and cfg['NN_default_param'] == False:
-      neural_network_analysis_non_default(cfg, data, labels)
+    if grid_search:
+      clf, scr = grid_analysis(cfg, method, data, labels, parameters)
 
     else:
       clf, scr = basic_analysis(cfg, method, data, labels)
@@ -84,12 +82,61 @@ def save_results(cfg, method, scr):
 
 def parameter_dict(cfg, method):
 
+  default_parameters = default_parameter_dict(method)
+  print(default_parameters)
   parameters = {}
   for key, value in cfg.items():
     if key.startswith(method + '.'):
-      parameters[key.replace(method + '.', '')] = value
+      default_parameter = default_parameters[key]
+      parameters[key.replace(method + '.', '')] = parse_value(value, default_parameter)
 
   return parameters
+
+def default_parameter_dict(method):
+    default_parameters = {}
+    current_directory = os.path.abspath(__file__).strip('analysis.py')
+    analysis_list_directory = os.path.join(current_directory + '..', 'configuration', 'analysis')
+    analysis_list_directory = os.path.abspath(analysis_list_directory) #convert .. to directory
+    for item in os.listdir(analysis_list_directory):
+      cfg = load_config(os.path.join(analysis_list_directory, item))
+      if cfg['shorthand'] == method:
+        default_parameters.update(cfg)
+        return default_parameters
+    else:
+      raise ValueError('Could not find configuration file for {}'.format(method))
+
+def parse_value(value, default_parameter):
+
+  if type(value) == list:
+    new_value = []
+    for item in value:
+
+      # if the default parameter is float
+      if type(default_parameter) == float:
+        new_value.append(float(item))
+
+      # if a default parameter has been set which is a different type to normal
+      # e.g. gamma by default may be set to 'auto', but any float is also acceptable
+      if type(default_parameter) == list and default_parameter[0] == 'default':
+         if value == default_parameter[1]:
+           new_value.append(default_parameter[1])
+         elif default_parameter[-1] == 'float':
+           new_value.append(float(item))  
+        
+
+  if len(new_value) == 0:
+    raise ValueError("Could not parse the parameter {}".format(value))
+
+  return new_value
+
+def is_grid(parameters):
+  # returns true if there are multiple entries for at least one 
+  # parameter and hence needing grid search
+  for _, value in parameters.items():
+    if len(value) > 1:
+      return True
+  else:
+    return False
   
   
     
@@ -140,12 +187,18 @@ def load_data(cfg):
 
   return data, labels
 
-def basic_analysis(cfg, method, data, labels):
+def get_classifiers():
   classifiers = {'LDA':LinearDiscriminantAnalysis(), 'QDA':QuadraticDiscriminantAnalysis(),\
                  'DT':DecisionTreeClassifier(), 'RF':RandomForestClassifier(),\
                  'GB':GradientBoostingClassifier(), 'AB':AdaBoostClassifier(),\
                  'GNB':GaussianNB(), 'KNN':KNeighborsClassifier(), \
-                 'MLP':MLPClassifier()}
+                 'MLP':MLPClassifier(), 'SVC':SVC(), 'LSV':LinearSVC()}
+  return classifiers
+
+def basic_analysis(cfg, method, data, labels):
+
+  classifiers = get_classifiers()
+
 
   clf = classifiers[method]
   train_data, test_data, train_labels, test_labels = train_test_split(data, labels, test_size=0.5)
@@ -202,6 +255,20 @@ def support_vector_machine_analysis(cfg, method, data, labels):
   scr = clf.score(test_data, test_labels)
   print(scr)
 
+def grid_analysis(cfg, method, data, labels, parameters):
+
+  print(parameters)
+  train_data, test_data, train_labels, test_labels = train_test_split(data, labels,\
+                                                                      test_size = 0.5)
+  classifiers = get_classifiers()
+  default_clf = classifiers[method]
+  clf = GridSearchCV(default_clf, parameters)
+  clf.fit(train_data, train_labels)
+  print(clf.best_params_)
+  scr = clf.score(test_data, test_labels)
+  
+  return clf, scr
+ 
 def neural_network_analysis_grid_search(cfg, data, labels):
 
   data = standardise(data, 'zscore')
@@ -211,6 +278,7 @@ def neural_network_analysis_grid_search(cfg, data, labels):
                                                                       test_size = 0.5)
 
   clf = MLPClassifier(max_iter = 1000)
+
   # set the grid space to search
   parameters = {'solver':['lbfgs', 'sgd', 'adam'], 'activation':['logistic', 'tanh', 'relu'],\
                 'hidden_layer_sizes':[(300), (500, 10)]}

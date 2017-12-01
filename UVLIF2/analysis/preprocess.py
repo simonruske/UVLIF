@@ -30,7 +30,6 @@ def check_FT(cfg):
   else:
     return None
 
-
 def get_threshold(FT, number_of_std):
   # Gets the threshold from FT
   return np.mean(FT, 0) + float(number_of_std) * np.std(FT, 0)
@@ -68,11 +67,19 @@ def preprocess(cfg, data, labels):
   Parameters 
   ----------
   '''
+
+  # open a preprocess log file
+  g = open(os.path.join(cfg['main_directory'], "output", "preprocess_log.txt"), 'w')
+
+  g.write("Initial number of particles : {}\n".format(len(data)))
+
   if 'remove_FT' in cfg:
     data, labels = remove_nFL(cfg, data, labels)
+    g.write("Particles after removal of non-fluorescent data : {}\n".format(len(data)))
 
   if 'remove_size' in cfg:
     data, labels = remove_size(cfg, data, labels)
+    g.write("Particles after removal of particles under size threshold : {}\n".format(len(data)))
   return data, labels
 
 
