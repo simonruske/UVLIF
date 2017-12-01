@@ -1,5 +1,6 @@
 import os
 import warnings
+from UVLIF2.utils.print import print_message
 from datetime import datetime
 
 def check(cfg):
@@ -43,7 +44,6 @@ def load_file(cfg, directory, filename, mode):
 
   full_filename = os.path.join(cfg['main_directory'], directory, filename)
   f = open(full_filename, mode)
-  print(f)
   return f
 
 def search_for_line(f, search_term, limit):

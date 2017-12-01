@@ -66,10 +66,16 @@ def create_filelist_ambient(cfg, input_directory, output_directory):
   filelist = []
 
   for filename in files:
-    f = load_file(cfg, input_directory, filename, 'r')
-    dates.append(get_date(cfg, f))
-    filelist.append(filename)
-    f.close()
+    
+    try:
+      f = load_file(cfg, input_directory, filename, 'r')
+      dates.append(get_date(cfg, f))
+      filelist.append(filename)
+      f.close()
+
+    except Exception:
+      print("There was a problem in loading {}".format(filename))
+      continue
 
   return sort_filelist(dates, filelist)
 

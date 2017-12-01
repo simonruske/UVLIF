@@ -4,6 +4,7 @@ from UVLIF2.utils.files import load_file, get_date, search_for_line, any_file_ex
 from UVLIF2.utils.directories import list_directory
 from UVLIF2.read.read_NEO import read_NEO
 from UVLIF2.read.read_PLAIR import read_PLAIR
+
 import numpy as np
 from datetime import datetime, timedelta
 import warnings
@@ -75,7 +76,9 @@ def prepare_ambient(cfg, input_directory, output_directory):
 
   # If time stamp is specified then create list in date order
   if cfg['time_stamp_specified']:
+
     dates, file_info = create_filelist_ambient(cfg, input_directory, output_directory)
+
     # get the earliest and latest time 
     cfg['earliest_date'] = datetime.min
     cfg['latest_date'] = datetime.max
@@ -406,11 +409,17 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
   else:
     file, label = convert_info(cfg, info)
 
+
+  if 'progress_labels' in cfg:
+    cfg['progress_labels'].emit(str(file))
+  else:
+    print(file)
+
   # skip file if extension not in valid_ext
   if os.path.splitext(file)[1] not in cfg['valid_ext']:
     return
 
-  print(file)
+  
   # open file
   f = load_file(cfg, "data", file, 'r')
 
@@ -523,7 +532,18 @@ def read_files(cfg):
   cfg['FT_prev'] = None
   cfg['FT'] = None
   cfg['cur_FT_data'] = []
+
+  # in in gui mode then set the range of the progress bar
+  if 'progress_bar' in cfg:
+    cfg['progress_bar'].setRange(0,len(file_info))  
+
   for file_num, info in enumerate(file_info):
+
+
+    if 'progress' in cfg and file_num :
+      cfg['progress'].emit(file_num)
+
+
     if cfg['ambient']:
       read_file(cfg, info, g, forced, time_handle = time_handle)
     else:

@@ -1,20 +1,34 @@
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 import UVLIF2.gui.main_ui as main
-from UVLIF2.gui.configuration import configuration_window
-from UVLIF2.gui.analysis import analysis_window
-from UVLIF2.gui.filelist import filelist_window
+
+# for redirecting the standard output
+import io
+from contextlib import redirect_stderr, redirect_stdout
+
 from UVLIF2.configuration.load_config import load_config
 from UVLIF2.configuration.save_config import save_config_file
 from UVLIF2.utils.cleaner import clean
 from UVLIF2.analysis.analysis import analyse
 from UVLIF2.read.read import read_files
 
-import os, subprocess, sys 
+# imports for dialog windows
+from UVLIF2.gui.configuration import configuration_window
+from UVLIF2.gui.analysis import analysis_window
+from UVLIF2.gui.filelist import filelist_window
+
+import os, sys
 
 class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
   def __init__(self, parent = None):
     super(main_window, self).__init__(parent)
+
+    #thread for reading 
+    self.readThread = TaskThread()
+    self.readThread.function = read_files
+    
+
+    
     self.cfg = {}
     self.cfg_loaded = False
     self.analysis_cfg = {}
@@ -23,11 +37,11 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     # set size
     self.resize(QtWidgets.QDesktopWidget().availableGeometry(self).size() * 0.7)
 
-
     # child windows
     self.configuration_window = configuration_window(self)
     self.analysis_window = analysis_window(self)
     self.filelist_window = filelist_window(self)
+
 
     # running start up functions
     self.setupUi(self)
@@ -62,7 +76,7 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     self.fileButton.clicked.connect(self.create_filelist)
     self.analyseButton.clicked.connect(self.analyse)
     self.createButton.clicked.connect(self.create)
-    
+
 
   def open_analysis_window(self):
     self.analysis_window.show()
@@ -239,12 +253,43 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     if 'instrument_filename' in self.cfg:
       self.instrument_cfg = load_config(self.cfg['instrument_filename'])
 
+  def onProgress(self, i):
+    self.progress.setValue(i)
+
+  def onProgress_labels(self, my_string):
+    self.progress.setLabelText(my_string)
+
   def create(self):
+
+    # show the error/warnings/progress dialog
+    
     cfg = {}
     cfg.update(self.cfg)
     self.load_instrument_cfg()
     cfg.update(self.instrument_cfg)
-    read_files(cfg)
+    self.progress = QtWidgets.QProgressDialog()
+
+
+    # progress bar 
+
+
+    # set the progress bar in the config so it can be changed by the underlying code
+    cfg['progress_bar'] = self.progress
+
+    # pass the config above to the read thread
+    self.readThread.cfg = cfg
+
+    # connect notifications for the bar and the label to corresponding functions
+    self.readThread.notifyProgress.connect(self.onProgress)
+    self.readThread.notifyProgress_labels.connect(self.onProgress_labels)
+
+    # show the progress bar and start the thread
+    self.progress.show()
+    self.readThread.start()
+    
+
+
+    #update everything
     self.update()
 
   def status_visibility(self, label, textbox, button, flag):
@@ -279,5 +324,15 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     if self.cfg_ok():
       clean(self.cfg, ['filelist.csv'])
       self.update()
+
+
+class TaskThread(QtCore.QThread):
+  notifyProgress = QtCore.pyqtSignal(int)
+  notifyProgress_labels = QtCore.pyqtSignal(str)
+  def run(self):
+    cfg = self.cfg
+    cfg['progress'] = self.notifyProgress
+    cfg['progress_labels'] = self.notifyProgress_labels
+    self.function(cfg)
 
 
