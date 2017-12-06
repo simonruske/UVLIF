@@ -48,7 +48,9 @@ def prepare_laboratory(cfg, input_directory, output_directory, filename):
   if sum(np.unique(labels) != 'F') != 0:
     g = load_file(cfg, output_directory, "data.csv", 'w')
     l = load_file(cfg, output_directory, "labels.csv", 'w')
-    file_l = load_file(cfg, output_directory, "file_labels.csv", 'w') 
+    file_l = load_file(cfg, output_directory, "file_labels.csv", 'w')
+
+  cfg['number_of_files'] = len(files) 
 
   return zip(files, labels), forced, g, l, file_l
 
@@ -85,6 +87,8 @@ def prepare_ambient(cfg, input_directory, output_directory):
 
   else:
     file_info = list_directory(cfg, directory)
+
+  cfg=['number_of_files'] = len(file_info)
 
   return file_info, forced, g, time_handle
 
@@ -535,7 +539,7 @@ def read_files(cfg):
 
   # in in gui mode then set the range of the progress bar
   if 'progress_bar' in cfg:
-    cfg['progress_bar'].setRange(0,len(file_info))  
+    cfg['progress_bar'].setRange(0,len(file_info[0]))  
 
   for file_num, info in enumerate(file_info):
 
