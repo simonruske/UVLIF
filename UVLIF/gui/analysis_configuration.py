@@ -121,7 +121,7 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
     if type(value) == list and type(value[0]):
       self.valueView.setItemDelegateForRow(idx, TupleDelegate(self, int))
       if model.item(idx).text() == '':
-        model.item(idx).setText(str(value[0]).strip('(').replace(',', '').strip(')'))
+        model.item(idx).setText(str(value[0]))
 
     elif type(value) == int:
       self.valueView.setItemDelegateForRow(idx, IntDelegate(self))
@@ -228,9 +228,27 @@ class TupleValidator(QtGui.QValidator):
     self.valid_type = valid_type
 
   def validate(self, input, pos):
-    input_list = input.split(',')
+
+    if input == '':
+      return QtGui.QValidator.Intermediate, input, pos
+
+    if input.count('(') > 1 or input.count(')') > 1:
+      return QtGui.QValidator.Invalid, input, pos
+
+    if ')' in input and input[-1] != ')':
+      return QtGui.QValidator.Invalid, input, pos
+
+    if input[0] != '(':
+      return QtGui.QValidator.Invalid, input, pos
+
+    elif input[-1] == ')':
+      state = QtGui.QValidator.Acceptable
+      input_list = input[1:-1].split(',')
+    else:
+      state = QtGui.QValidator.Intermediate
+      input_list = input[1:].split(',')
     
-    state = QtGui.QValidator.Acceptable
+    
 
     # if at least one of the list isn't integer then state is set to that state
 
