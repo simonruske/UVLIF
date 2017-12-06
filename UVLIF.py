@@ -1,12 +1,12 @@
 import os, sys
-from UVLIF2.configuration.load_config import load_config_files
-from UVLIF2.read.read import read_files
-from UVLIF2.plot.plot import plot
-from UVLIF2.utils.cleaner import clean
-from UVLIF2.utils.files import check
-from UVLIF2.utils.filelist import create_filelist_laboratory
-from UVLIF2.analysis.analysis import analyse
-from UVLIF2.gui.gui import run
+from UVLIF.configuration.load_config import load_config_files
+from UVLIF.read.read import read_files
+from UVLIF.plot.plot import plot
+from UVLIF.utils.cleaner import clean
+from UVLIF.utils.files import check
+from UVLIF.utils.filelist import create_filelist_laboratory
+from UVLIF.analysis.analysis import analyse
+from UVLIF.gui.gui import run
 
 
 if len(sys.argv) == 1:
