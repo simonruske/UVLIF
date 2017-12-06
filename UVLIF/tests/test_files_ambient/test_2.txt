@@ -1,0 +1,52 @@
+Filename: BUNIAACIC_02_0000.txt
+SampleFlowRate: 3.86 l/s
+Trigger Threshold: 3
+Max Meas Per o/p File: 30000
+Auto Forced Trig Burst Enabled: 1
+Auto Forced Trig Part Rate Thresh: 2 p/s
+Integrator Offset Sum_Scat: 45 (0x2D)
+Integrator Offset FL2_Scat: 45 (0x2D)
+Integrator Offset FL1_280: 45 (0x2D)
+Integrator Offset FL2_280: 45 (0x2D)
+Integrator Offset FL2_370: 45 (0x2D)
+Integrator Offset Pwr_280: 45 (0x2D)
+Integrator Offset Pwr_370: 45 (0x2D)
+Integrator Offset SCAT_EL1: 45 (0x2D)
+Integrator Offset SCAT_EL2: 45 (0x2D)
+Integrator Offset SCAT_EL3: 45 (0x2D)
+Integrator Offset SCAT_EL4: 45 (0x2D)
+Sum Scat 3um PSL: 663
+FL2 Scat 3um PSL: 148
+Scat El 2 gradient: 0.6324098
+Scat El 2 offset: -13.07254
+Scat El 3 gradient: 0.6351052
+Scat El 3 offset: -15.73498
+Scat El 4 gradient: 0.7785691
+Scat El 4 offset: -10.12646
+Minimum Mean ScatEL: 0
+Glitch time: 120 (2.50us)
+Scat integrate pulse: 160 (3.33us)
+XE1 trigger delay: 10 (0.21us)
+XE1 integrate delay: 192 (4.00us)
+XE1 integrate pulse: 336 (7.00us)
+XE2 trigger delay: 530 (11.04us)
+XE2 integrate delay: 192 (4.00us)
+XE2 integrate pulse: 336 (7.00us)
+Recharge time: 30000 (10000us)
+FL1 280nm offset: 0
+FL2 280nm offset: 0
+FL2 370nm offset: 0
+Start Date/Time: 03/07/2013 15:43:48
+Time	FL2_Scat	Scat_EL1	Scat_EL2	Scat_EL3	Scat_EL4	Sum_Scat	FL1_280	FL2_280	Pwr_280	FL2_370	Pwr_370	TOF	MPC	Size	AF	Total	Measured	FT
+2946	26	17	19	24	18	29	116	293	-5	191	-3	2.563	0	0.8625	17.93	1.4	1.4	0
+4650	17	47	45	52	41	74	131	244	-5	173	-3	3.458	0	1.067	16.68	0.4	0.4	0
+6098	14	49	31	21	18	45	101	225	-4	191	-3	2.958	0	0.8826	48.4	0	0	0
+6503	71	54	45	24	72	77	103	338	-4	188	-3	3.979	0	1.585	38.14	0	0	0
+7871	71	111	51	44	65	107	1332	446	-4	253	-4	4.438	0	1.663	26.78	0	0	0
+7903	165	148	99	79	120	180	2092	696	-4	330	-3	4.75	0	2.828	11.25	0	0	0
+8424	37	92	65	97	76	133	2092	643	-4	294	-3	4.417	0	1.424	19.45	0	0	0
+9434	21	47	42	49	45	69	91	277	-4	184	-3	3.75	0	1.063	10.63	0	0	0
+9540	13	25	18	22	20	31	150	283	-4	219	-3	2.563	0	0.7717	20	0	0	0
+9602	131	251	158	139	198	302	87	315	-4	182	-4	5.75	0	2.603	7.571	0	0	0
+10371	45	36	17	22	26	35	639	374	-4	228	-3	2.604	0	1.119	34.4	0	0	0
+10555	117	83	71	106	49	123	862	448	-4	256	-3	4.438	0	2.22	35.54	0	0	0

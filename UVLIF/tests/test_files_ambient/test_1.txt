@@ -1,0 +1,51 @@
+Filename: BUNIAACIC_01_0001.txt
+SampleFlowRate: 3.86 l/s
+Trigger Threshold: 3
+Max Meas Per o/p File: 30000
+Auto Forced Trig Burst Enabled: 1
+Auto Forced Trig Part Rate Thresh: 2 p/s
+Integrator Offset Sum_Scat: 45 (0x2D)
+Integrator Offset FL2_Scat: 45 (0x2D)
+Integrator Offset FL1_280: 45 (0x2D)
+Integrator Offset FL2_280: 45 (0x2D)
+Integrator Offset FL2_370: 45 (0x2D)
+Integrator Offset Pwr_280: 45 (0x2D)
+Integrator Offset Pwr_370: 45 (0x2D)
+Integrator Offset SCAT_EL1: 45 (0x2D)
+Integrator Offset SCAT_EL2: 45 (0x2D)
+Integrator Offset SCAT_EL3: 45 (0x2D)
+Integrator Offset SCAT_EL4: 45 (0x2D)
+Sum Scat 3um PSL: 663
+FL2 Scat 3um PSL: 148
+Scat El 2 gradient: 0.6324098
+Scat El 2 offset: -13.07254
+Scat El 3 gradient: 0.6351052
+Scat El 3 offset: -15.73498
+Scat El 4 gradient: 0.7785691
+Scat El 4 offset: -10.12646
+Minimum Mean ScatEL: 0
+Glitch time: 120 (2.50us)
+Scat integrate pulse: 160 (3.33us)
+XE1 trigger delay: 10 (0.21us)
+XE1 integrate delay: 192 (4.00us)
+XE1 integrate pulse: 336 (7.00us)
+XE2 trigger delay: 530 (11.04us)
+XE2 integrate delay: 192 (4.00us)
+XE2 integrate pulse: 336 (7.00us)
+Recharge time: 30000 (10000us)
+FL1 280nm offset: 0
+FL2 280nm offset: 0
+FL2 370nm offset: 0
+Start Date/Time: 03/07/2013 14:45:42
+Time	FL2_Scat	Scat_EL1	Scat_EL2	Scat_EL3	Scat_EL4	Sum_Scat	FL1_280	FL2_280	Pwr_280	FL2_370	Pwr_370	TOF	MPC	Size	AF	Total	Measured	FT
+2103	32	38	39	45	43	59	110	360	-5	224	-4	3.583	0	1.095	12.73	0	0	0
+2250	60	94	81	88	78	132	65	352	-5	125	-4	4.583	0	1.614	12.59	0.2	0.2	0
+2262	24	49	47	48	39	67	107	284	-5	167	-4	3.271	0	1.071	15.86	0.4	0.4	0
+2339	34	60	57	69	61	94	212	310	-5	136	-4	3.917	0	1.264	15.74	0.6	0.6	0
+2646	86	34	37	35	26	47	139	293	-5	194	-4	2.917	2	1.697	22.07	0.8	0.8	0
+2661	24	54	53	66	49	85	107	399	-5	270	-4	3.146	0	1.157	20.89	1.4	1	0
+2695	24	76	69	79	74	115	100	355	-5	221	-4	4.083	0	1.281	12.88	1.6	1.2	0
+3476	44	65	64	76	64	104	109	301	-5	190	-4	4.396	0	1.383	17.6	1.8	1.4	0
+3693	7	34	36	42	41	55	88	335	-5	140	-3	3.229	0	0.9238	13.15	2	1.6	0
+3990	19	31	26	32	26	42	127	338	-5	142	-4	3.375	0	0.8922	13.71	2.2	1.8	0
+4106	158	306	330	467	159	509	95	296	-5	192	-4	5.729	0	3.058	44.69	2.4	2	0
