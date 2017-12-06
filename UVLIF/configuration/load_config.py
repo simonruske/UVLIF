@@ -19,6 +19,57 @@ def set_cfg(cfg, name, value):
   '''
   cfg[name] = value
 
+def parse_tuple_string(string, tuple_type):
+
+  '''
+  Function that takes a string of tuples e.g. "(500, 400, 200), (300, 200, 100)"
+  and converts to a list of tuples [(500, 400, 200), (300, 200, 100)]
+  
+
+  Parameters 
+  ----------
+  string : str
+    The string to parsed
+
+  tuple_type : type
+    type of each element in the tuple
+
+  Returns 
+  -------
+  tuple_list : list
+    A list of tuples corresponding to the string entered
+  '''
+
+  tuple_list = [] # empty tuple list
+
+  for character in string:
+
+    # if character is open bracket create a new tuple
+    if character == '(':
+      new_tuple = []
+      new_element = ''
+
+    # if character is closed bracket append the new tuple
+    elif character == ')':
+      new_tuple.append(tuple_type(new_element))
+      tuple_list.append(tuple(new_tuple))
+      
+
+
+    # if character is a comma end the current element and append to the
+    # new_tuple list
+    elif character == ',':
+      new_tuple.append(tuple_type(new_element))
+      new_element = ''
+
+    else:
+      new_element += character
+
+  return tuple_list
+    
+      
+
+
 def convert_line(line):
 
   ''' 
@@ -43,10 +94,19 @@ def convert_line(line):
   name = str(name.replace(' ', '')) 
   value = value.replace(' ', '')
 
-  if var_type == "none":
+  if var_type.startswith("list(tuple"):
+    tuple_type = var_type.split(',')[1].replace(')', '') # convert var_type to the tuple type
+    type_dict = {'int':int, 'float':float, 'string':str} # dictionary from string to type
+    if tuple_type not in type_dict:
+      raise ValueError("Could not understand the tuple type in line {}".format(line))
+
+
+    return name, parse_tuple_string(value, type_dict[tuple_type])
+
+  if var_type == 'none':
     return name, str(value)
 
-  if var_type == 'int':
+  elif var_type == 'int':
     return name, int(value)
 
   elif var_type == 'float':

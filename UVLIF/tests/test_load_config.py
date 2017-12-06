@@ -18,10 +18,21 @@ class test_read_config(TestCase):
     set_cfg(cfg, 'simon', 'ruske')
     self.assertEqual(cfg, {'simon':'ruske'})
 
-  def test_convert_line_list_tuple(self):
-    name, value = convert_line('list(tuple) my_tuple_list :: (500, 400, 200), (300, 200, 100), (100, 50)')
+  def test_convert_line_list_tuple_int(self):
+    name, value = convert_line('list(tuple,int) my_tuple_list :: (500, 400, 200), (300, 200, 100), (100, 50)')
     self.assertEqual(name, 'my_tuple_list')
     self.assertEqual(value, [(500, 400, 200), (300, 200, 100), (100, 50)])
+
+
+  def test_convert_line_list_tuple_str(self):
+    name, value = convert_line("list(tuple,string) my_tuple_list :: (hello, there), (simon)")
+    self.assertEqual(name, 'my_tuple_list')
+    self.assertEqual(value, [('hello', 'there'), ('simon',)])
+
+  def test_convert_line_list_tuple_float(self):
+    name, value = convert_line('list(tuple,float) my_tuple_list :: (5., 3.5), (1.0), (1E-2)')
+    self.assertEqual(name, 'my_tuple_list')
+    self.assertEqual(value, [(5., 3.5), (1.0, ), (1E-2, )])
 
   def test_convert_line_int(self):
      
