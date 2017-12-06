@@ -118,6 +118,11 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
         if model.item(idx).text() == '':
           model.item(idx).setText(value[1])
 
+    if type(value) == list and type(value[0]):
+      self.valueView.setItemDelegateForRow(idx, TupleDelegate(self, int))
+      if model.item(idx).text() == '':
+        model.item(idx).setText(str(value[0]).strip('(').replace(',', '').strip(')'))
+
     elif type(value) == int:
       self.valueView.setItemDelegateForRow(idx, IntDelegate(self))
       if model.item(idx).text() == '':
@@ -187,6 +192,16 @@ class DefaultDelegate(QtWidgets.QItemDelegate):
     editor.setValidator(DefaultValidator(self.default, self.valid_type))
     return editor
 
+class TupleDelegate(QtWidgets.QItemDelegate):
+  def __init__(self, parent, valid_type):
+    super(TupleDelegate, self).__init__(parent)
+    self.valid_type = valid_type
+  
+  def createEditor(self, parent, option, index):
+    editor = QtWidgets.QLineEdit(parent)
+    editor.setValidator(TupleValidator(self.valid_type))
+    return editor
+
 
 class DefaultValidator(QtGui.QValidator):
 
@@ -205,8 +220,23 @@ class DefaultValidator(QtGui.QValidator):
     if self.default == input:
       state = QtGui.QValidator.Acceptable
     return state, input, pos
-          
-    
-    
 
+class TupleValidator(QtGui.QValidator):
 
+  def __init__(self, valid_type):
+    super(TupleValidator, self).__init__()
+    self.valid_type = valid_type
+
+  def validate(self, input, pos):
+    input_list = input.split(',')
+    
+    state = QtGui.QValidator.Acceptable
+
+    # if at least one of the list isn't integer then state is set to that state
+
+    for item in input_list:
+      if self.valid_type == int:
+        cur_state, _, _ = QtGui.QIntValidator().validate(item, pos)
+        if cur_state != QtGui.QValidator.Acceptable:
+          state = cur_state
+    return state, input, pos
