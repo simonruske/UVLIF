@@ -1,5 +1,5 @@
 string shorthand :: MLP
-// hidden_layers_sizes
+list(tuple,int) MLP.hidden_layer_sizes :: (100)
 list(string) MLP.activation :: relu, identity, logistic, tanh, relu
 list(string) MLP.solver :: adam, lbfgs, sgd
 float MLP.alpha :: 0.0001
