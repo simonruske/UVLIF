@@ -17,6 +17,7 @@ from UVLIF.gui.analysis import analysis_window
 from UVLIF.gui.filelist import filelist_window
 
 import os, sys
+import subprocess
 
 class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
