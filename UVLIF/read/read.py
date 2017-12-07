@@ -88,7 +88,7 @@ def prepare_ambient(cfg, input_directory, output_directory):
   else:
     file_info = list_directory(cfg, directory)
 
-  cfg=['number_of_files'] = len(file_info)
+  cfg['number_of_files'] = len(file_info)
 
   return file_info, forced, g, time_handle
 
@@ -539,7 +539,7 @@ def read_files(cfg):
 
   # in in gui mode then set the range of the progress bar
   if 'progress_bar' in cfg:
-    cfg['progress_bar'].setRange(0,len(file_info[0]))  
+    cfg['progress_bar'].setRange(0, cfg['number_of_files'])  
 
   for file_num, info in enumerate(file_info):
 
