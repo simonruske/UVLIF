@@ -14,6 +14,16 @@ def load_FT(cfg, data):
   FT = None
   if FT_name:
     FT = np.genfromtxt(FT_name, delimiter=',')
+
+  else:
+    raise ValueError("No forced trigger file was found")
+
+  # If the forced trigger file is empty raise error
+  if len(FT) == 0:
+    raise ValueError("The forced trigger file was empty")
+ 
+
+
   FT = np.array(FT, 'float')
   return FT
 
