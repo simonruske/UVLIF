@@ -218,9 +218,15 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
   def analyse(self):
     cfg = self.cfg
     cfg.update(self.analysis_cfg)
-    analyse(cfg)
-    subprocess.call(["xdg-open", os.path.join(cfg['main_directory'], "output", "results", "results.csv")])
-    self.update()
+    try:
+      analyse(cfg)
+      subprocess.call(["xdg-open", os.path.join(cfg['main_directory'], "output", "results", "results.csv")])
+      self.update()
+
+    except Exception as e:
+      dialog = QtWidgets.QMessageBox()
+      dialog.setText(str(e))
+      dialog.exec_()
 
 
   def settings_filename(self):
