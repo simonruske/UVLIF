@@ -31,6 +31,7 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
     # for every parameter
     for i in range(self.param_model.rowCount()):
       output_list = []
+
       # look for values
       for j in range(self.value_models[i].rowCount()):
         output_list.append(self.value_models[i].item(j).data())
@@ -89,6 +90,22 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
 
     #set the current index
     self.paramView.setCurrentIndex(self.param_model.index(0, 0))
+
+    self.load()
+
+  def load(self):
+    print(self.parent().cfg.items())
+    for key, value in self.parent().cfg.items():
+      if key.startswith(self.shorthand + '.'):
+        self.load_parameter(key.replace(self.shorthand +'.', ""), value)
+
+  def load_parameter(self, key, value):
+    for i in range(self.param_model.rowCount()):
+      if key == self.param_model.item(i).text():
+        for j, item in enumerate(value):
+          self.value_models[i].setItem(j, QtGui.QStandardItem())
+          self.value_models[i].item(j).setText(str(item))
+          self.value_models[i].item(j).setData(item)
     
 
   def update_value_model(self):
@@ -149,7 +166,10 @@ class IntDelegate(QtWidgets.QItemDelegate):
     editor.setValidator(QtGui.QIntValidator())
     return editor
 
-  
+  def setModelData(self, editor, model, index):
+    super(IntDelegate, self).setModelData(editor, model, index)
+    item = model.itemFromIndex(index)
+    item.setData(int(editor.text()))
 
 class FloatDelegate(QtWidgets.QItemDelegate):
 
