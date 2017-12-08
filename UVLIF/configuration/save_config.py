@@ -36,10 +36,20 @@ def convert_element(name, value):
     for item in value:
       line += item + ', '
     return line[:-2]
-    
+
+  elif type(value) == list and type(value[0]) == tuple:
+    tuple_type = str(type(value[0][0])).replace("<class '", "").replace("'>", "")
+    line = 'list(tuple,{}) {} :: '.format(tuple_type, name)
+    for tup in value:
+      line += '('
+      for item in tup:
+        line += str(item) + ', '
+      line = line[:-2] + '), '
+    return line[:-2]
+     
 
   else:
-    raise ValueError() # We catch unrecognised lines in read_config instead
+    raise ValueError("Could not write {} : {}".format(name, value)) # We catch unrecognised lines in read_config instead
 
 
 def save_config_file(cfg, filename):
