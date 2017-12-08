@@ -34,6 +34,7 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
 
       # look for values
       for j in range(self.value_models[i].rowCount()):
+        print("saving : ", self.value_models[i].item(j).data())
         output_list.append(self.value_models[i].item(j).data())
 
       # if output_list is not empty put it into the cfg
@@ -48,7 +49,6 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
     self.valueView.model().setItem(nrow, QtGui.QStandardItem())
     idx = self.paramView.selectionModel().currentIndex()
     value = self.params[self.paramView.model().item(idx.row()).text()]
-    self.valueView.model().item(nrow).setData(value)
     self.update_value_model()
 
   def remove(self):      
@@ -94,7 +94,6 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
     self.load()
 
   def load(self):
-    print(self.parent().cfg.items())
     for key, value in self.parent().cfg.items():
       if key.startswith(self.shorthand + '.'):
         self.load_parameter(key.replace(self.shorthand +'.', ""), value)
@@ -106,16 +105,18 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
           self.value_models[i].setItem(j, QtGui.QStandardItem())
           self.value_models[i].item(j).setText(str(item))
           self.value_models[i].item(j).setData(item)
-    
+          print(item)
 
   def update_value_model(self):
-
+    
+    
     idx = self.paramView.selectionModel().currentIndex()
     self.valueView.setModel(self.value_models[idx.row()])
+    value = self.params[self.paramView.model().item(idx.row()).text()]
 
     # set delegates
     for i in range(self.value_models[idx.row()].rowCount()):
-      self.set_delegate(self.value_models[idx.row()].item(i).data(), i, self.value_models[idx.row()])
+      self.set_delegate(value, i, self.value_models[idx.row()])
 
 
 
@@ -130,7 +131,9 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
       if delegate:
         self.valueView.setItemDelegateForRow(idx, delegate)
         if model.item(idx).text() == '':
-          model.item(idx).setText(value[1])
+          model.item(idx).setText(str(value[1]))
+        if model.item(idx).data() == None:
+          model.item(idx).setData(value[1])
 
     elif type(value) == list and type(value[0]) == tuple:
       self.valueView.setItemDelegateForRow(idx, TupleDelegate(self, int))
@@ -141,18 +144,23 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
       self.valueView.setItemDelegateForRow(idx, IntDelegate(self))
       if model.item(idx).text() == '':
         model.item(idx).setText(str(value))
+      if model.item(idx).data() == None:
+        model.item(idx).setData(value)
       
 
     elif type(value) == float:
       self.valueView.setItemDelegateForRow(idx, FloatDelegate(self))
       if model.item(idx).text() == '':
         model.item(idx).setText(str(value))
+      if model.item(idx).data() == None:
+        model.item(idx).setData(value)
 
     elif type(value) == list:
-      model.item(idx).setData(value)
+      self.valueView.setItemDelegateForRow(idx, ListDelegate(self, value))
       if model.item(idx).text() == '':
-        model.item(idx).setText(value[0])
-      self.valueView.setItemDelegateForRow(idx, ListDelegate(self))
+        model.item(idx).setText(str(value[0]))
+      if model.item(idx).data() == None:
+        model.item(idx).setData(value[0])
 
     
 
@@ -181,21 +189,28 @@ class FloatDelegate(QtWidgets.QItemDelegate):
     editor.setValidator(QtGui.QDoubleValidator())
     return editor
 
+  def setModelData(self, editor, model, index):
+    super(FloatDelegate, self).setModelData(editor, model, index)
+    item = model.itemFromIndex(index)
+    item.setData(float(editor.text()))
+
 class ListDelegate(QtWidgets.QItemDelegate):
 
-  def __init__(self, parent):
+  def __init__(self, parent, value):
     super(ListDelegate, self).__init__(parent)
+    self.value = value
 
   def createEditor(self, parent, option, index):
     editor = QtWidgets.QComboBox(parent)
-   
-    for item in index.model().itemFromIndex(index).data():
+    for item in self.value:
       editor.addItem(item)
     
     return editor
 
   def setModelData(self, editor, model, index):
-    model.setData(index, editor.currentText(), QtCore.Qt.EditRole)
+    super(ListDelegate, self).setModelData(editor, model, index)
+    item = model.itemFromIndex(index)
+    item.setData(editor.currentText())
 
 class DefaultDelegate(QtWidgets.QItemDelegate):
   def __init__(self, parent, default, valid_type):
@@ -207,6 +222,11 @@ class DefaultDelegate(QtWidgets.QItemDelegate):
     editor = QtWidgets.QLineEdit(parent)
     editor.setValidator(DefaultValidator(self.default, self.valid_type))
     return editor
+
+  def setModelData(self, editor, model, index):
+    super(DefaultDelegate, self).setModelData(editor, model, index)
+    item = model.itemFromIndex(index)
+    item.setData(editor.text())
 
 class TupleDelegate(QtWidgets.QItemDelegate):
   def __init__(self, parent, valid_type):
