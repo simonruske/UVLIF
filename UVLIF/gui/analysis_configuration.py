@@ -33,7 +33,7 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
       output_list = []
       # look for values
       for j in range(self.value_models[i].rowCount()):
-        output_list.append(self.value_models[i].item(j).text())
+        output_list.append(self.value_models[i].item(j).data())
 
       # if output_list is not empty put it into the cfg
       if output_list != []:
@@ -41,9 +41,6 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
 
     self.parent().cfg.update(cfg)
     self.close()
-    
-      
-
 
   def add(self):
     nrow = self.valueView.model().rowCount()
@@ -118,7 +115,7 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
         if model.item(idx).text() == '':
           model.item(idx).setText(value[1])
 
-    if type(value) == list and type(value[0]):
+    elif type(value) == list and type(value[0]) == tuple:
       self.valueView.setItemDelegateForRow(idx, TupleDelegate(self, int))
       if model.item(idx).text() == '':
         model.item(idx).setText(str(value[0]))
@@ -177,7 +174,6 @@ class ListDelegate(QtWidgets.QItemDelegate):
     
     return editor
 
-
   def setModelData(self, editor, model, index):
     model.setData(index, editor.currentText(), QtCore.Qt.EditRole)
 
@@ -201,6 +197,15 @@ class TupleDelegate(QtWidgets.QItemDelegate):
     editor = QtWidgets.QLineEdit(parent)
     editor.setValidator(TupleValidator(self.valid_type))
     return editor
+
+  def setModelData(self, editor, model, index):
+    text = editor.text()
+    tuple_list = text.replace('(', '').replace(')', '').split(',')
+    converted_tuple_list = []
+    for item in tuple_list:
+      converted_tuple_list.append(self.valid_type(item))
+    
+    model.setData(index, tuple(converted_tuple_list), QtCore.Qt.EditRole)
 
 
 class DefaultValidator(QtGui.QValidator):
