@@ -83,12 +83,11 @@ def save_results(cfg, method, scr):
 def parameter_dict(cfg, method):
 
   default_parameters = default_parameter_dict(method)
-  print(default_parameters)
   parameters = {}
   for key, value in cfg.items():
     if key.startswith(method + '.'):
       default_parameter = default_parameters[key]
-      parameters[key.replace(method + '.', '')] = parse_value(value, default_parameter)
+      parameters[key.replace(method + '.', '')] = parse_value(value, default_parameter, key.replace(method + '.', ""))
 
   return parameters
 
@@ -105,12 +104,12 @@ def default_parameter_dict(method):
     else:
       raise ValueError('Could not find configuration file for {}'.format(method))
 
-def parse_value(value, default_parameter):
+def parse_value(value, default_parameter, parameter_name):
 
   if type(value) == list:
     new_value = []
     for item in value:
-
+      
       # if the default parameter is float
       if type(default_parameter) == float:
         new_value.append(float(item))
@@ -121,11 +120,14 @@ def parse_value(value, default_parameter):
          if value == default_parameter[1]:
            new_value.append(default_parameter[1])
          elif default_parameter[-1] == 'float':
-           new_value.append(float(item))  
+           new_value.append(float(item)) 
+
+      if type(default_parameter) == list and type(default_parameter[0]) == tuple:
+        new_value.append(tuple(item))
         
 
   if len(new_value) == 0:
-    raise ValueError("Could not parse the parameter {}".format(value))
+    raise ValueError("Could not parse the parameter {}".format(parameter_name))
 
   return new_value
 
@@ -257,14 +259,15 @@ def support_vector_machine_analysis(cfg, method, data, labels):
 
 def grid_analysis(cfg, method, data, labels, parameters):
 
-  print(parameters)
+  print('Multiple Options for a Single Parameter Detected Performing Grid Search')
+
   train_data, test_data, train_labels, test_labels = train_test_split(data, labels,\
                                                                       test_size = 0.5)
   classifiers = get_classifiers()
   default_clf = classifiers[method]
   clf = GridSearchCV(default_clf, parameters)
   clf.fit(train_data, train_labels)
-  print(clf.best_params_)
+  print("Best parameters found : ", clf.best_params_)
   scr = clf.score(test_data, test_labels)
   
   return clf, scr
