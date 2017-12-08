@@ -95,22 +95,27 @@ class analysis_window(QtWidgets.QDialog, main.Ui_Dialog):
       item.setCheckState(QtCore.Qt.Unchecked)
 
   def save(self):
-    filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Saving Analysis Config")
+
+    try:
+      filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Saving Analysis Config")
       
-    self.cfg['analysis'] = []
-    for i in range(self.listWidget.count()):
-      item = self.listWidget.item(i)
-      if item.checkState() == QtCore.Qt.Checked:
-        self.cfg['analysis'].append(self.shorthand[item.text()])
-    if self.FTBox.checkState() == QtCore.Qt.Checked:
-      self.cfg['remove_FT'] = True
-      self.cfg['number_of_std'] = self.stdEdit.text()
-    if self.sizeBox.checkState() == QtCore.Qt.Checked:
-      self.cfg['remove_size'] = True
-      self.cfg['size_threshold'] = self.sizeEdit.text()
-    save_config_file(self.cfg, filename)
-    self.close()
-    
+      self.cfg['analysis'] = []
+      for i in range(self.listWidget.count()):
+        item = self.listWidget.item(i)
+        if item.checkState() == QtCore.Qt.Checked:
+          self.cfg['analysis'].append(self.shorthand[item.text()])
+      if self.FTBox.checkState() == QtCore.Qt.Checked:
+        self.cfg['remove_FT'] = True
+        self.cfg['number_of_std'] = self.stdEdit.text()
+      if self.sizeBox.checkState() == QtCore.Qt.Checked:
+        self.cfg['remove_size'] = True
+        self.cfg['size_threshold'] = self.sizeEdit.text()
+      save_config_file(self.cfg, filename)
+      self.close()
+    except Exception as e:
+      self.msgBox.setText(str(e))
+      self.msgBox.exec_()
+     
 
 
 
