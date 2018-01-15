@@ -297,8 +297,11 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     self.progress.setLabelText(my_string)
 
   def onError(self, error_string):
+    self.progress.close()
+    self.clean_data()
     self.msgBox.setText(error_string)
     self.msgBox.exec_()
+    
 
   def create(self):
 
