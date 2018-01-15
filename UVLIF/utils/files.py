@@ -99,7 +99,7 @@ def str2date(cfg, string, strip):
 
   '''
   date_format = cfg['date_format']
-  date = string.strip(strip).strip('\n').strip(',').replace(' ', '')
+  date = string.strip(strip).strip('\n').strip(',')
 
   # The length of the date may be 18, 17 or 16 characters, try each
   for i in [18, 17, 16]:
@@ -110,7 +110,7 @@ def str2date(cfg, string, strip):
     except Exception:
       continue
   else:
-    raise ValueError("Could not recognise date")
+    raise ValueError("The date could not be recognised. Expected {} but got {}".format(cfg['date_format'], string))
 
   return date_output
   
