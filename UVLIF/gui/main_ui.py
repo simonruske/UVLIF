@@ -138,8 +138,11 @@ class Ui_MainWindow(object):
         self.actionCleanProcessedData.setObjectName("actionCleanProcessedData")
         self.actionCleanFilelist = QtWidgets.QAction(MainWindow)
         self.actionCleanFilelist.setObjectName("actionCleanFilelist")
+        self.actionEditConfiguration = QtWidgets.QAction(MainWindow)
+        self.actionEditConfiguration.setObjectName("actionEditConfiguration")
         self.menuFile.addAction(self.actionExit)
         self.menuConfiguration.addAction(self.actionNewConfiguration)
+        self.menuConfiguration.addAction(self.actionEditConfiguration)
         self.menuAnalysis.addAction(self.actionNewAnalysis)
         self.menuClean.addAction(self.actionCleanAll)
         self.menuClean.addAction(self.actionCleanFilelist)
@@ -181,4 +184,5 @@ class Ui_MainWindow(object):
         self.actionCleanResults.setText(_translate("MainWindow", "Clean Results"))
         self.actionCleanProcessedData.setText(_translate("MainWindow", "Clean Data"))
         self.actionCleanFilelist.setText(_translate("MainWindow", "Clean Filelist"))
+        self.actionEditConfiguration.setText(_translate("MainWindow", "Edit Configuration"))
 

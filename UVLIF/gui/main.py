@@ -24,11 +24,17 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
   def __init__(self, parent = None):
     super(main_window, self).__init__(parent)
 
+
+ 
     #thread for reading 
-    self.readThread = TaskThread()
+    self.readThread = TaskThread(self)
     self.readThread.function = read_files
     
+    # fix for mac menubar
+    self.menuBar().setNativeMenuBar(False)
 
+    #msgbox
+    self.msgBox = QtWidgets.QMessageBox()
     
     self.cfg = {}
     self.cfg_loaded = False
@@ -65,8 +71,9 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     self.actionCleanFilelist.triggered.connect(self.clean_filelist)
 
     self.actionExit.triggered.connect(self.close)
-    self.actionNewConfiguration.triggered.connect(self.open_configuration_window)
+    self.actionNewConfiguration.triggered.connect(self.new_configuration_window)
     self.actionNewAnalysis.triggered.connect(self.open_analysis_window)
+    self.actionEditConfiguration.triggered.connect(self.open_configuration_window)
 
     
     self.analysisLineEdit.textChanged.connect(self.update_analysis_config)
@@ -77,6 +84,7 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     self.fileButton.clicked.connect(self.create_filelist)
     self.analyseButton.clicked.connect(self.analyse)
     self.createButton.clicked.connect(self.create)
+   
 
 
   def open_analysis_window(self):
@@ -98,10 +106,17 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     self.update_buttons()
 
   def update_buttons(self):
-    if not self.cfg_loaded:
-      self.set_buttons_enabled([False, False, False])
-    elif not self.filelist_exists and self.cfg['ambient'] == False:
-      self.set_buttons_enabled([True, False, False])
+    try:
+      if not self.cfg_loaded or 'ambient' not in self.cfg:
+        self.set_buttons_enabled([False, False, False])
+      elif not self.filelist_exists and self.cfg['ambient'] == False:
+        self.set_buttons_enabled([True, False, False])
+
+    except Exception as e:
+      self.msgBox.setText("Error loading buttons : " + str(e))
+      self.msgBox.exec_()
+    
+      
 
   def set_buttons_enabled(self, status):
     self.fileButton.setEnabled(status[0])
@@ -202,7 +217,17 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
       self.analysisLineEdit.setText(self.settings['analysis_directory'])
       self.update_analysis_config()
 
+  def load_configuration(self):
+    config_filename, _ = QtWidgets.QFileDialog.getOpenFileName()
+    cfg = load_config(config_filename)
+    self.configuration_window.load_config(cfg)
+
   def open_configuration_window(self):
+    self.load_configuration()
+    self.configuration_window.show()
+    self.update()
+
+  def new_configuration_window(self):
     self.configuration_window.show()
     self.update()
 
@@ -240,11 +265,15 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     super(QtWidgets.QMainWindow, self).closeEvent(*args, **kwargs)
     filename = self.settings_filename()
 
+    # if no filename specified then close
+    if filename == '':
+      return
+
+
     #update the settings dictionary
     self.update_settings()
 
     #Get the current directory and save the settings proto there
-    print(self.settings)
 
     save_config_file(self.settings, filename)
     sys.exit()
@@ -267,38 +296,48 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
   def onProgress_labels(self, my_string):
     self.progress.setLabelText(my_string)
 
+  def onError(self, error_string):
+    self.msgBox.setText(error_string)
+    self.msgBox.exec_()
+
   def create(self):
 
-    # show the error/warnings/progress dialog
+    try:
+
+      # show the error/warnings/progress dialog
     
-    cfg = {}
-    cfg.update(self.cfg)
-    self.load_instrument_cfg()
-    cfg.update(self.instrument_cfg)
-    self.progress = QtWidgets.QProgressDialog()
+      cfg = {}
+      cfg.update(self.cfg)
+      self.load_instrument_cfg()
+      cfg.update(self.instrument_cfg)
+      self.progress = QtWidgets.QProgressDialog()
 
 
-    # progress bar 
+      # progress bar 
 
 
-    # set the progress bar in the config so it can be changed by the underlying code
-    cfg['progress_bar'] = self.progress
+      # set the progress bar in the config so it can be changed by the underlying code
+      cfg['progress_bar'] = self.progress
 
-    # pass the config above to the read thread
-    self.readThread.cfg = cfg
+      # pass the config above to the read thread
+      self.readThread.cfg = cfg
 
-    # connect notifications for the bar and the label to corresponding functions
-    self.readThread.notifyProgress.connect(self.onProgress)
-    self.readThread.notifyProgress_labels.connect(self.onProgress_labels)
+      # connect notifications for the bar and the label to corresponding functions
+      self.readThread.notifyProgress.connect(self.onProgress)
+      self.readThread.notifyProgress_labels.connect(self.onProgress_labels)
+      self.readThread.notifyError.connect(self.onError)
 
-    # show the progress bar and start the thread
-    self.progress.show()
-    self.readThread.start()
-    
+      # show the progress bar and start the thread
+      self.progress.show()
+      self.readThread.start()
+      self.readThread.wait()
 
+      #update everything
+      self.update()
 
-    #update everything
-    self.update()
+    except Exception as e:
+      self.msgBox.setText("Error while creating data : {}".format(e))
+      self.msgBox.exec_()
 
   def status_visibility(self, label, textbox, button, flag):
     label.setVisible(flag)
@@ -337,10 +376,17 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 class TaskThread(QtCore.QThread):
   notifyProgress = QtCore.pyqtSignal(int)
   notifyProgress_labels = QtCore.pyqtSignal(str)
+  notifyError = QtCore.pyqtSignal(str)
+  
+
+  def __init__(self, parent):
+    QtCore.QThread.__init__(self)
+
   def run(self):
     cfg = self.cfg
     cfg['progress'] = self.notifyProgress
     cfg['progress_labels'] = self.notifyProgress_labels
-    self.function(cfg)
-
-
+    try:
+      self.function(cfg)
+    except Exception as e:
+      self.notifyError.emit(str(e))

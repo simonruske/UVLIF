@@ -25,7 +25,8 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
     self.saveButton.clicked.connect(self.save)
 
   def save(self):
-    
+
+    print(self.value_models)
     cfg = {}
     
     # for every parameter
@@ -35,10 +36,12 @@ class analysis_configuration_window(QtWidgets.QDialog, main.Ui_Dialog):
       # look for values
       for j in range(self.value_models[i].rowCount()):
         output_list.append(self.value_models[i].item(j).data())
+      
 
       # if output_list is not empty put it into the cfg
       if output_list != []:
         cfg[self.shorthand + '.' + self.param_model.item(i).text()] = output_list
+
 
     self.parent().cfg.update(cfg)
     self.close()

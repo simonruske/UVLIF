@@ -13,6 +13,35 @@ import shutil
 from copy import copy
 import sys
 
+def read_FT(cfg, filenames):
+
+  # function used to read a forced trigger file
+  FT = []
+  for filename in filenames:
+    f = open(filename)
+    if cfg['time_stamp_specified']:
+      start = get_date(cfg, f)
+    header = f.readline()
+    for line in f:
+      FT.append(line.strip('\n').split(cfg['delimiter']))
+
+  FT = np.array(FT, 'float')
+
+  if 'FL_cols' in cfg.keys():
+    idx = cfg['FL_cols']
+  else:
+    raise ValueError("Could not find the fluorescent columns in configuration given")
+
+  FT = FT[:, idx]
+
+  minimum = np.min(FT, 0)
+  mean = np.mean(FT, 0)
+  std = np.std(FT, 0)
+  maximum = np.max(FT, 0)
+
+  return minimum, mean, std, maximum
+
+
 def prepare_laboratory(cfg, input_directory, output_directory, filename):
 
   '''
@@ -539,7 +568,7 @@ def read_files(cfg):
 
   # in in gui mode then set the range of the progress bar
   if 'progress_bar' in cfg:
-    cfg['progress_bar'].setRange(0, cfg['number_of_files'])  
+    cfg['progress_bar'].setRange(0, cfg['number_of_files']-1)  
 
   for file_num, info in enumerate(file_info):
 

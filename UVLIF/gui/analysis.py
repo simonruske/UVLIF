@@ -15,26 +15,45 @@ class analysis_window(QtWidgets.QDialog, main.Ui_Dialog):
     self.shorthand = {}
     self.populate_list()
 
-    # activate boxes
-    self.activate_std_box()
-    self.activate_size_box()
+    FT_group = self.check_group(self.FTBox, self.stdEdit, self.stdLabel)
+    size_group = self.check_group(self.sizeBox, self.sizeEdit, self.sizeLabel)
+    kfold_group = self.check_group(self.kfoldBox, self.kfoldEdit, self.kfoldLabel)
 
+    # activate boxes
+    self.activate_box(FT_group)
+    self.activate_box(size_group)
+    self.activate_box(kfold_group)
 
     self.analysis_configuration_window = analysis_configuration_window(self)
-    
     self.msgBox = QtWidgets.QMessageBox()
-   
-
+    
     # connecting buttons
     self.editButton.clicked.connect(self.edit)
     self.checkAllButton.clicked.connect(self.check_all)
     self.uncheckAllButton.clicked.connect(self.uncheck_all)
     self.saveButton.clicked.connect(self.save)
-    self.FTBox.stateChanged.connect(self.activate_std_box)
-    self.sizeBox.stateChanged.connect(self.activate_size_box)
-    
 
-  def activate_box(self, box, lineedit, label):
+    # lambda functions for turning off and on text edits for size, FT and kfold
+    FT_function = lambda: self.activate_box(FT_group)
+    size_function = lambda: self.activate_box(size_group)
+    #kfold_function = lambda: self.activate_box(self.si
+    
+    # connect the lambda functions to the checkboxes
+    self.FTBox.stateChanged.connect(FT_function)
+    self.sizeBox.stateChanged.connect(size_function)
+    #self.kfoldBox.stateChanged.connect(kfold_function)
+
+  def check_group(self, box, edit, label):
+    return {'box':box, 'edit':edit, 'label':label}
+
+  def lambda_activate_box(group):
+    return lambda: self.activate_box(group['box'], group['edit'], group['label'])
+
+  def activate_box(self, group):
+    box = group['box']
+    lineedit = group['edit']
+    label = group['label']
+
     if box.isChecked():
       lineedit.setEnabled(True)
       label.setEnabled(True)
@@ -42,12 +61,6 @@ class analysis_window(QtWidgets.QDialog, main.Ui_Dialog):
     else:
       lineedit.setEnabled(False)
       label.setEnabled(False)
-
-  def activate_std_box(self):
-    self.activate_box(self.FTBox, self.stdEdit, self.stdLabel)
-
-  def activate_size_box(self):
-    self.activate_box(self.sizeBox, self.sizeEdit, self.sizeLabel)
 
   def edit(self):
     
@@ -112,6 +125,7 @@ class analysis_window(QtWidgets.QDialog, main.Ui_Dialog):
         self.cfg['size_threshold'] = self.sizeEdit.text()
       save_config_file(self.cfg, filename)
       self.close()
+
     except Exception as e:
       self.msgBox.setText(str(e))
       self.msgBox.exec_()

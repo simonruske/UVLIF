@@ -223,6 +223,7 @@
      <string>Configuration</string>
     </property>
     <addaction name="actionNewConfiguration"/>
+    <addaction name="actionEditConfiguration"/>
    </widget>
    <widget class="QMenu" name="menuAnalysis">
     <property name="title">
@@ -277,6 +278,11 @@
   <action name="actionCleanFilelist">
    <property name="text">
     <string>Clean Filelist</string>
+   </property>
+  </action>
+  <action name="actionEditConfiguration">
+   <property name="text">
+    <string>Edit Configuration</string>
    </property>
   </action>
  </widget>
