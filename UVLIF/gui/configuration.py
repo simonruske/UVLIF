@@ -148,9 +148,10 @@ class configuration_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
       self.ftView.setFocusPolicy(QtCore.Qt.NoFocus)
 
     def get_instrument_filename(self):
-       return os.path.join(self.instrument_dir, self.instrumentBox.currentText() + '.proto')
+      return os.path.join(self.instrument_dir, self.instrumentBox.currentText() + '.proto')
 
     def save_configuration(self):
+      try:
 
         #If main directory does not exist then display error otherwise store it in the config
         main_directory = os.path.abspath(self.mainDirectoryLineEdit.text())
@@ -159,12 +160,12 @@ class configuration_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
         self.mainDirectoryLineEdit.setText(main_directory) 
 
         if not os.path.exists(main_directory) or main_directory == '':
-            dialog = QtWidgets.QMessageBox()
-            dialog.setText("The main directory entered does not exist.")
-            dialog.exec_()
-            return
+          dialog = QtWidgets.QMessageBox()
+          dialog.setText("The main directory entered does not exist.")
+          dialog.exec_()
+          return
         else:
-            self.cfg['main_directory'] = main_directory
+          self.cfg['main_directory'] = main_directory
 
         # Output the selection from the instrument combobox to the config
         instrument_fname = self.get_instrument_filename()
@@ -181,3 +182,7 @@ class configuration_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
         config_filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save Configuration")
         save_config_file(self.cfg, config_filename)
         self.close()
+      except Exception as e:
+        dialog = QtWidgets.QMessageBox()
+        dialog.setText("There was an error in saving the configuration : {}".format(str(e)))
+        dialog.exec_()
