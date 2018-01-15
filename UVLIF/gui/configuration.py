@@ -181,6 +181,9 @@ class configuration_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
         #Save this to file
         config_filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save Configuration")
         save_config_file(self.cfg, config_filename)
+        self.parent().update()
+
+
         self.close()
       except Exception as e:
         dialog = QtWidgets.QMessageBox()
