@@ -30,7 +30,7 @@ def read_FT(cfg, filenames):
   if 'FL_cols' in cfg.keys():
     idx = cfg['FL_cols']
   else:
-    raise ValueError("Could not find the fluorescent columns in configuration given")
+    raise ValueError("Could not find the indices of the columns for the fluorescent channels in the instrument configuration file.")
 
   FT = FT[:, idx]
 
