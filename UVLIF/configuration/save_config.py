@@ -1,3 +1,4 @@
+import numpy as np
 def convert_element(name, value):
 
   ''' 
@@ -46,6 +47,20 @@ def convert_element(name, value):
         line += str(item) + ', '
       line = line[:-2] + '), '
     return line[:-2]
+
+  elif type(value) == list and type(value[0]) == int:
+    line = 'list(int) {} :: '.format(name)
+    for item in value:
+      line += str(item) + ', '
+    return line[:-2]
+
+  elif type(value) == list and (type(value[0]) == float or type(value[0]) == np.float64):
+    line = 'list(float) {} :: '.format(name)
+    for item in value:
+      line += str(item) + ', '
+    return line[:-2]
+
+
      
 
   else:
