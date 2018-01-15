@@ -92,7 +92,10 @@ def convert_line(line):
   var_type, name = rest.split(' ')[:2]
   
   name = str(name.replace(' ', '')) 
-  value = value.replace(' ', '')
+
+
+  if var_type != 'string':
+    value = value.replace(' ', '')
 
   if var_type.startswith("list(tuple"):
     tuple_type = var_type.split(',')[1].replace(')', '') # convert var_type to the tuple type
@@ -113,7 +116,7 @@ def convert_line(line):
     return name, float(value)
 
   elif var_type == 'string':
-    return name, str(value)
+    return name, str(value[1:])
 
   elif var_type == 'char':
     return name, bytes(value.encode()).decode('unicode_escape')

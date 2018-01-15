@@ -244,6 +244,7 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     self.update_settings()
 
     #Get the current directory and save the settings proto there
+    print(self.settings)
 
     save_config_file(self.settings, filename)
     sys.exit()
