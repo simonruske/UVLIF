@@ -6,4 +6,4 @@ bool file_name_specified :: True
 bool time_stamp_specified :: True
 bool FT_blocks :: False
 string date_format :: %d/%m/%Y %H:%M:%S
-
+list(int) FL_cols :: 7, 8, 10
