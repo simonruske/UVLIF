@@ -1,4 +1,4 @@
-# HIDDEN IMPORTS
+# HIDDEN IMPORTS (for packaging as .exe etc)
 from sklearn.tree import _utils
 from sklearn.neighbors import typedefs
 
@@ -6,6 +6,8 @@ from sklearn.neighbors import typedefs
 
 import os
 import numpy as np
+from collections import Counter
+
 
 from sklearn.model_selection import train_test_split
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
@@ -24,9 +26,16 @@ from UVLIF.configuration.load_config import load_config
 
 # other UVLIF analysis imports
 from UVLIF.analysis.clustering.proportion import proportion
+from UVLIF.analysis.clustering.cluster_utils import extract
+from UVLIF.analysis.clustering.validation import validation
 from UVLIF.analysis.preprocess import preprocess
 from UVLIF.analysis.clustering.cluster_utils import standardise
 from UVLIF.analysis.count import count
+
+try:
+  from fastcluster import linkage_vector
+except Exception:
+  print('Fastcluster not installed')
 
 
 def analyse(cfg):
@@ -56,18 +65,15 @@ def analyse(cfg):
     # load parameters from config file
     parameters = parameter_dict(cfg, method)
     grid_search = is_grid(parameters)
-    print(grid_search)
+    
 
     print(method + " ...")
-
-    # Do basic analysis for everything apart from support vector machines and neural networks 
-    # as they refquire some parameters modifying.
 
     if grid_search:
       clf, scr = grid_analysis(cfg, method, data, labels, parameters)
 
     else:
-      clf, scr = basic_analysis(cfg, method, data, labels)
+      clf, scr = basic_analysis(cfg, method, data, labels, parameters)
 
     # save everything
     create_directory(cfg, os.path.join("output", "results"))
@@ -124,6 +130,9 @@ def parse_value(value, default_parameter, parameter_name):
 
       if type(default_parameter) == list and type(default_parameter[0]) == tuple:
         new_value.append(tuple(item))
+
+      if type(default_parameter) == list and type(default_parameter[0]) == str:
+        new_value.append(str(item))
         
 
   if len(new_value) == 0:
@@ -190,19 +199,40 @@ def load_data(cfg):
   return data, labels
 
 def get_classifiers():
-  classifiers = {'LDA':LinearDiscriminantAnalysis(), 'QDA':QuadraticDiscriminantAnalysis(),\
-                 'DT':DecisionTreeClassifier(), 'RF':RandomForestClassifier(),\
-                 'GB':GradientBoostingClassifier(), 'AB':AdaBoostClassifier(),\
-                 'GNB':GaussianNB(), 'KNN':KNeighborsClassifier(), \
-                 'MLP':MLPClassifier(), 'SVC':SVC(), 'LSV':LinearSVC()}
+  classifiers = {'LDA':LinearDiscriminantAnalysis, 'QDA':QuadraticDiscriminantAnalysis,\
+                 'DT':DecisionTreeClassifier, 'RF':RandomForestClassifier,\
+                 'GB':GradientBoostingClassifier, 'AB':AdaBoostClassifier,\
+                 'GNB':GaussianNB, 'KNN':KNeighborsClassifier, \
+                 'MLP':MLPClassifier, 'SVC':SVC, 'LSV':LinearSVC}
   return classifiers
 
-def basic_analysis(cfg, method, data, labels):
+def basic_analysis(cfg, method, data, labels, parameters):
+  clf = None
+  if method in get_classifiers().keys():
+    clf, scr = basic_analysis_supervised(cfg, method, data, labels, parameters)
+  elif method in ['HCA']:
+    scr = basic_analysis_HCA(cfg, method, data, labels, parameters)
+  return clf, scr
+
+
+def basic_analysis_HCA(cfg, method, data, labels, parameters):
+  l = linkage_vector(data, parameters['linkage'][0])
+  e = extract(l, 1, 20)
+  v = validation(data, e)
+
+  print('{} clusters found'.format(v))
+  print(Counter(e[v-1]))
+
+  return proportion(e[v-1], labels)
+  
+  
+
+
+
+def basic_analysis_supervised(cfg, method, data, labels):
 
   classifiers = get_classifiers()
-
-
-  clf = classifiers[method]
+  clf = classifiers[method](parameters)
   train_data, test_data, train_labels, test_labels = train_test_split(data, labels, test_size=0.5)
   clf.fit(train_data, train_labels)
   scr = clf.score(test_data, test_labels)
@@ -264,7 +294,7 @@ def grid_analysis(cfg, method, data, labels, parameters):
   train_data, test_data, train_labels, test_labels = train_test_split(data, labels,\
                                                                       test_size = 0.5)
   classifiers = get_classifiers()
-  default_clf = classifiers[method]
+  default_clf = classifiers[method]()
   clf = GridSearchCV(default_clf, parameters)
   clf.fit(train_data, train_labels)
   print("Best parameters found : ", clf.best_params_)
