@@ -1,9 +1,13 @@
 import os
 import numpy as np
+from UVLIF.analysis.clustering.cluster_utils import standardise
 
 def load_FT(cfg, data):
 
   '''
+  Function to be depreciated to be replaced with FT mean, std to be loaded from
+  the main.proto
+
   Parameters
   ----------
 
@@ -12,10 +16,14 @@ def load_FT(cfg, data):
   '''
   FT_name = check_FT(cfg)
   FT = None
+
+  # try to load in the forced trigger from a forced trigger file (to be depreciated)
   if FT_name:
     FT = np.genfromtxt(FT_name, delimiter=',')
 
   else:
+
+
     raise ValueError("No forced trigger file was found")
 
   # If the forced trigger file is empty raise error
@@ -50,8 +58,23 @@ def remove_nFL(cfg, data, labels):
   Removes data which doesn't exceed a fluorescent threshold
   '''
   number_of_std = cfg['number_of_std']
-  FT = load_FT(cfg, data)
-  threshold = get_threshold(FT, number_of_std)
+
+  try:
+    FT = load_FT(cfg, data)
+    threshold = get_threshold(FT, number_of_std)
+  
+  except ValueError:
+    pass
+
+  if 'FT.mean' in cfg and 'FT.std' in cfg:
+    threshold = np.array(cfg['FT.mean'], 'float') + float(number_of_std) * np.array(cfg['FT.std'], 'float')
+
+  else:
+    raise ValueError('Could not load FT data')
+
+
+
+
   idx = np.any(data[:, :3] > threshold[:3], 1)
   data = data[idx]
   labels = labels[idx]
@@ -64,7 +87,7 @@ def remove_size(cfg, data, labels):
   '''
 
   size_threshold = float(cfg['size_threshold'])
-  idx = data[:, 4] > size_threshold
+  idx = data[:, -2] > size_threshold
   data = data[idx]
   labels = labels[idx]
   return data, labels
@@ -90,6 +113,15 @@ def preprocess(cfg, data, labels):
   if 'remove_size' in cfg:
     data, labels = remove_size(cfg, data, labels)
     g.write("Particles after removal of particles under size threshold : {}\n".format(len(data)))
+
+
+  # take logs of last two cols
+  data[:, -2:] = np.log(data[:, -2:])
+
+  # standardise the data
+  data = standardise(data, 'zscore')
+
+
   return data, labels
 
 

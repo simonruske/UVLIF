@@ -58,6 +58,7 @@ def analyse(cfg):
   
   data, labels = load_data(cfg)
   data, labels = preprocess(cfg, data, labels)
+  print(len(data))
 
   # begin the classification
   print("Classifying ...")
