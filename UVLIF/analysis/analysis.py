@@ -3,7 +3,7 @@ from sklearn.tree import _utils
 from sklearn.neighbors import typedefs
 
 # IMPORTS
-
+import subprocess
 import os
 import numpy as np
 from collections import Counter
@@ -217,19 +217,44 @@ def basic_analysis(cfg, method, data, labels, parameters):
 
 
 def basic_analysis_HCA(cfg, method, data, labels, parameters):
+
+  print('Clustering ...')
   l = linkage_vector(data, parameters['linkage'][0])
+
+  print('Extracting Cluster results ...')
   e = extract(l, 1, 20)
+
+  print('Saving extracted clusters to file ...')
+  ext = os.path.join(cfg['main_directory'], "output", 'extract.csv')
+  f = open(ext, 'w')
+  e = np.array(e, 'str')
+  for line in e:
+    f.write(','.join(line) + '\n')
+  f.close()
+
   v = validation(data, e)
+
+  print('Saving processed data to file')
+  pdata = os.path.join(cfg['main_directory'], "output", 'processed_data.csv')
+  f = open(pdata, 'w')
+  data = np.array(data, 'str')
+  for line in data:
+    f.write(','.join(line) + '\n')
+  f.close()
+
+
+  # index analysis
+
+  print('Running index analysis')
+  index_log = os.path.join(cfg['main_directory'], "output", "indices.txt")
+  with open(index_log, 'w') as outfile:
+    subprocess.call(["Rscript", os.path.join(os.path.dirname(__file__),  "indices.R"), ext, pdata, str(len(data)), str(len(data[0])), str(len(e)), str(len(e[0]))], stdout=outfile)
 
   print('{} clusters found'.format(v))
   print(Counter(e[v-1]))
 
   return proportion(e[v-1], labels)
   
-  
-
-
-
 def basic_analysis_supervised(cfg, method, data, labels):
 
   classifiers = get_classifiers()
