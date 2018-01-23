@@ -233,6 +233,7 @@ def basic_analysis_HCA(cfg, method, data, labels, parameters):
   f.close()
 
   v = validation(data, e)
+  print(validation(data, e, index = True))
 
   print('Saving processed data to file')
   pdata = os.path.join(cfg['main_directory'], "output", 'processed_data.csv')
