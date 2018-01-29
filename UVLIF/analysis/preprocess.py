@@ -115,6 +115,11 @@ def preprocess(cfg, data, labels):
     g.write("Particles after removal of particles under size threshold : {}\n".format(len(data)))
 
 
+  # check that there are no negative values for size and AF
+  idx = np.all(data[:, -2:] > 0, 1)
+  data = data[idx]
+  labels = labels[idx]
+
   # take logs of last two cols
   data[:, -2:] = np.log(data[:, -2:])
 
