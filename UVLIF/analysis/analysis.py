@@ -18,6 +18,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC, LinearSVC
 from sklearn.model_selection import GridSearchCV
 from sklearn.neural_network import MLPClassifier
+from sklearn.cluster import KMeans
 
 # UVLIF imports 
 
@@ -213,8 +214,20 @@ def basic_analysis(cfg, method, data, labels, parameters):
     clf, scr = basic_analysis_supervised(cfg, method, data, labels, parameters)
   elif method in ['HCA']:
     scr = basic_analysis_HCA(cfg, method, data, labels, parameters)
+  elif method == 'KMeans':
+    scr = basis_analysis_kmeans(cfg, method, data, labels, parameters)
   return clf, scr
 
+def basis_analysis_kmeans(cfg, method, data, labels, parameters):
+  print('Performing kmeans analysis')
+  res = []
+  for i in range(1,11):
+    clf = KMeans(n_clusters=i).fit(data)
+    res.append(proportion(clf.labels_, labels))
+    print(i, res[-1])
+    
+
+  return -1
 
 def basic_analysis_HCA(cfg, method, data, labels, parameters):
 
