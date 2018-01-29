@@ -39,8 +39,6 @@ error = function(e){print(clust_idx)})
 # load the data and flat clusterings
 data <- load_file(args[2], as.integer(args[3]), as.integer(args[4]), byrow = TRUE)
 cl <- load_file(args[1], as.integer(args[6]), as.integer(args[5]), byrow = FALSE)
-print(data[1,])
-print(cl[,1])
 
 # get the names of the different clustering indices
 names <- getCriteriaNames(isInternal = TRUE)

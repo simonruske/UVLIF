@@ -243,23 +243,27 @@ def basic_analysis_HCA(cfg, method, data, labels, parameters):
     f.write(','.join(line) + '\n')
   f.close()
 
-
+  '''
   # index analysis
-
   print('Running index analysis')
   index_log = os.path.join(cfg['main_directory'], "output", "indices.txt")
   with open(index_log, 'w') as outfile:
     subprocess.call(["Rscript", os.path.join(os.path.dirname(__file__),  "indices.R"), ext, pdata, str(len(data)), str(len(data[0])), str(len(e)), str(len(e[0]))], stdout=outfile)
+  '''
+
+  # Compare first 10 clusters to optimal
+  for i in range(10):
+    print(i+1, proportion(e[i], labels))
 
   print('{} clusters found'.format(v))
   print(Counter(e[v-1]))
 
   return proportion(e[v-1], labels)
   
-def basic_analysis_supervised(cfg, method, data, labels):
+def basic_analysis_supervised(cfg, method, data, labels, parameters):
 
   classifiers = get_classifiers()
-  clf = classifiers[method](parameters)
+  clf = classifiers[method](**parameters)
   train_data, test_data, train_labels, test_labels = train_test_split(data, labels, test_size=0.5)
   clf.fit(train_data, train_labels)
   scr = clf.score(test_data, test_labels)
