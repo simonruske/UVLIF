@@ -50,11 +50,11 @@ class test_analysis(TestCase):
 
   def test_neural_network_analysis_non_default(self):
     cfg, data, labels = self.prepare()
-    cfg['analysis'] = ['NN']
+    cfg['analysis'] = ['MLP']
     cfg['NN_default_param'] = False
     analyse(cfg)
 
   def test_load_params(self):
-    cfg = {'NN.activation':'relu', 'other_param':'junk'}
-    params = load_params(cfg, 'NN.')
+    cfg = {'MLP.activation':'relu', 'other_param':'junk'}
+    params = load_params(cfg, 'MLP.')
     self.assertEqual(params, {'activation':'relu'})

@@ -226,7 +226,7 @@ class test_read(TestCase):
   def read_file_ambient_1_setup(self):
 
     cfg = self.cfg
-    cfg['date_format'] = "%d/%m/%Y%H:%M:%S"
+    cfg['date_format'] = "%d/%m/%Y %H:%M:%S"
     cfg['ambient'] = True
     cfg['FT_char'] = 'FT'
     cfg['valid_ext'] = ['.txt', '.csv']
@@ -261,11 +261,13 @@ class test_read(TestCase):
     g = open('data.csv', 'w')
     forced = open('FT.csv', 'w')
     read_file(cfg, info, g, forced)
+    g.close()
     close_files([g, forced])
     g = open('data.csv')
     self.assertEqual(g.readline(), '11,33,211,0.5256,8.381\n')
     self.assertEqual(g.readline(), '25,51,184,0.7496,8.42\n')
     self.assertEqual(g.readline(), '26,58,219,0.6367,7.684\n')
+    g.close()
 
   def test_read_files_ambient(self):
     cfg = self.read_file_ambient_1_setup()

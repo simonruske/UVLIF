@@ -93,7 +93,7 @@ class test_read_config(TestCase):
   def test_convert_line_date(self):
     name, value = convert_line('string date_format :: %d/%m/%Y %H:%M:%S')
     self.assertEqual(name, 'date_format')
-    self.assertEqual(value, '%d/%m/%Y%H:%M:%S')
+    self.assertEqual(value, '%d/%m/%Y %H:%M:%S')
 
   def test_convert_line_list_unknown(self):
     with self.assertRaises(ValueError):
