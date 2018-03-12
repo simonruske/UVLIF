@@ -571,7 +571,7 @@ def read_files(cfg):
     cfg['progress_bar'].setRange(0, cfg['number_of_files']-1)  
 
   for file_num, info in enumerate(file_info):
-
+    
 
     if 'progress' in cfg and file_num :
       cfg['progress'].emit(file_num)

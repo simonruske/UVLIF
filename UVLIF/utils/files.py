@@ -99,11 +99,10 @@ def str2date(cfg, string, strip):
 
   '''
   date_format = cfg['date_format']
-  print(date_format)
   date = string.strip(strip).strip('\n').strip(',')
 
   # The length of the date may be 18, 17, 16, or 15 characters, try each
-  for i in [18, 17, 16]:
+  for i in [19, 18, 17]:
     try:  
       date_output = datetime.strptime(date[:i], date_format)
       break
