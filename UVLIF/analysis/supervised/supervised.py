@@ -1,6 +1,11 @@
-def basic_analysis_supervised_KFold(cfg, method, data, labels, parameters):
-  classifiers = get_classifiers()
-  clf = classifiers[method](**parameters)
+import os
+import numpy as np
+from sklearn.model_selection import KFold, StratifiedKFold
+from sklearn.externals import joblib
+from ...analysis.clustering.proportion import proportion
+
+
+def basic_analysis_supervised_KFold(cfg, data, labels, clf):
   K = len(np.unique(labels))
   print(K)
   overall_matching = np.zeros((K, K))
@@ -19,12 +24,11 @@ def basic_analysis_supervised_KFold(cfg, method, data, labels, parameters):
   clf.fit(data, labels)
 
   joblib.dump(clf, os.path.join(cfg['main_directory'], 'output', 'GB.pkl'))
-  
 
   return clf, clf.score(data, labels)
 
-def basic_analysis_supervised(cfg, method, data, labels, parameters):
-  clf, scr = basic_analysis_supervised_KFold(cfg, method, data, labels, parameters)
+def basic_analysis_supervised(cfg, data, labels, clf):
+  clf, scr = basic_analysis_supervised_KFold(cfg, data, labels, clf)
   '''
   classifiers = get_classifiers()
   clf = classifiers[method](**parameters)

@@ -1,7 +1,7 @@
 from collections import Counter
 import os
 from UVLIF.utils.filelist import load_filelist
-from UVLIF.analysis.preprocess import preprocess
+from UVLIF.analysis.utilities.preprocess import preprocess
 import numpy as np
 
 def count(cfg, data, labels):

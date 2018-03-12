@@ -21,7 +21,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.neural_network import MLPClassifier
 from sklearn.cluster import KMeans, DBSCAN
 from sklearn.metrics import adjusted_rand_score
-from sklearn.model_selection import KFold, StratifiedKFold
+
 
 # UVLIF imports 
 
@@ -32,10 +32,11 @@ from UVLIF.configuration.load_config import load_config
 from UVLIF.analysis.clustering.proportion import proportion
 from UVLIF.analysis.clustering.cluster_utils import extract
 from UVLIF.analysis.clustering.validation import validation
-from UVLIF.analysis.preprocess import preprocess
 from UVLIF.analysis.clustering.cluster_utils import standardise
-from UVLIF.analysis.count import count
-from sklearn.externals import joblib
+from UVLIF.analysis.supervised.supervised import basic_analysis_supervised
+from UVLIF.analysis.utilities.preprocess import preprocess
+from UVLIF.analysis.basic.count import count
+
 
 try:
   from fastcluster import linkage_vector
@@ -230,7 +231,9 @@ def get_classifiers():
 def basic_analysis(cfg, method, data, labels, parameters):
   clf = None
   if method in get_classifiers().keys():
-    clf, scr = basic_analysis_supervised(cfg, method, data, labels, parameters)
+    classifiers = get_classifiers()
+    clf = classifiers[method](**parameters)
+    clf, scr = basic_analysis_supervised(cfg, data, labels, clf)
   elif method in ['HCA']:
     scr = basic_analysis_HCA(cfg, method, data, labels, parameters)
   elif method == 'KMeans':
