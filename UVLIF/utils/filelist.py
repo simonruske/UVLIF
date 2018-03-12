@@ -75,6 +75,10 @@ def create_filelist_ambient(cfg, input_directory, output_directory):
 
     except Exception:
       print("There was a problem in loading {}".format(filename))
+      # if there is an error in opening the file and the file 
+      # handle exists close it
+      if 'f' in locals():
+        f.close()
       continue
 
   return sort_filelist(dates, filelist)
