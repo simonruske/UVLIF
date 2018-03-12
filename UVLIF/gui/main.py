@@ -23,8 +23,6 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
   def __init__(self, parent = None):
     super(main_window, self).__init__(parent)
-
-
  
     #thread for reading 
     self.readThread = TaskThread(self)
@@ -75,7 +73,6 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     self.actionNewAnalysis.triggered.connect(self.open_analysis_window)
     self.actionEditConfiguration.triggered.connect(self.open_configuration_window)
 
-    
     self.analysisLineEdit.textChanged.connect(self.update_analysis_config)
     self.configurationPushButton.clicked.connect(self.configurationPushButtonClicked)
     self.analysisPushButton.clicked.connect(self.analysisPushButtonClicked)
@@ -292,6 +289,7 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
   def onProgress(self, i):
     self.progress.setValue(i)
+    self.readThread.quit()
 
   def onProgress_labels(self, my_string):
     self.progress.setLabelText(my_string)
@@ -307,8 +305,7 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
     try:
 
-      # show the error/warnings/progress dialog
-    
+      # show the error/warnings/progress dialog    
       cfg = {}
       cfg.update(self.cfg)
       self.load_instrument_cfg()
@@ -317,7 +314,6 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
 
       # progress bar 
-
 
       # set the progress bar in the config so it can be changed by the underlying code
       cfg['progress_bar'] = self.progress
@@ -333,10 +329,6 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
       # show the progress bar and start the thread
       self.progress.show()
       self.readThread.start()
-      self.readThread.wait()
-
-      #update everything
-      self.update()
 
     except Exception as e:
       self.msgBox.setText("Error while creating data : {}".format(e))

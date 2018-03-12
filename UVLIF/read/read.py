@@ -478,6 +478,9 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
 
   for j, line in enumerate(f):
 
+    if 'progress_bar' in cfg and cfg['progress_bar'].wasCanceled():
+      return
+  
     #convert line
     try:
       output_list = convert_line(cfg, line)
@@ -568,15 +571,18 @@ def read_files(cfg):
 
   # in in gui mode then set the range of the progress bar
   if 'progress_bar' in cfg:
-    cfg['progress_bar'].setRange(0, cfg['number_of_files']-1)  
+    cfg['progress_bar'].setRange(0, cfg['number_of_files']-1)     
 
   for file_num, info in enumerate(file_info):
-    
-
+  
+    if 'progress_bar' in cfg and cfg['progress_bar'].wasCanceled():
+      print('canceled')
+      return
+  
+    # if progress exists then update it
     if 'progress' in cfg and file_num :
       cfg['progress'].emit(file_num)
-
-
+    
     if cfg['ambient']:
       read_file(cfg, info, g, forced, time_handle = time_handle)
     else:
