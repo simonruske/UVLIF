@@ -348,13 +348,17 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     button.setVisible(flag)
 
   def create_filelist(self):
-    self.load_instrument_cfg()
-    self.filelist_window.show()
-    self.filelist_window.update()
-    self.update()
+    try:
+      self.load_instrument_cfg()
+      self.filelist_window.show()
+      self.filelist_window.update()
+      self.update()
+    except Exception as e:
+      self.msgBox.setText("Error while creating filelist : {}".format(e))
+      self.msgBox.exec_()
 
   # cleaning functions
-
+  
   def clean_all(self):
     if self.cfg_ok():
       clean(self.cfg, ['all'])
