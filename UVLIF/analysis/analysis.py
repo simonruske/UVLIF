@@ -8,6 +8,7 @@ import os
 import numpy as np
 from collections import Counter
 
+# sklearn
 
 from sklearn.model_selection import train_test_split
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
@@ -18,7 +19,9 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC, LinearSVC
 from sklearn.model_selection import GridSearchCV
 from sklearn.neural_network import MLPClassifier
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, DBSCAN
+from sklearn.metrics import adjusted_rand_score
+from sklearn.model_selection import KFold, StratifiedKFold
 
 # UVLIF imports 
 
@@ -32,22 +35,41 @@ from UVLIF.analysis.clustering.validation import validation
 from UVLIF.analysis.preprocess import preprocess
 from UVLIF.analysis.clustering.cluster_utils import standardise
 from UVLIF.analysis.count import count
+from sklearn.externals import joblib
 
 try:
   from fastcluster import linkage_vector
 except Exception:
   print('Fastcluster not installed')
 
-
 def analyse(cfg):
-
-  # If analysis not requested by the user, skip this step
+  # If analysis not requested by the user, skip this ste
 
   if 'analysis' not in cfg:
     print("Analysis was not requested, so was skipped")
     return
 
-  if cfg['analysis'] == 'count':
+  if cfg['analysis'] == ['HCA_all']:
+    data, labels = load_data(cfg)
+    analyse_HCA_all(cfg, data, labels)
+
+  if cfg['analysis'] == ['HCA_all_index']:
+    data, labels = load_data(cfg)
+    analyse_HCA_all_index(cfg, data, labels)
+
+  if cfg['analysis'] == ['KM_all']:
+    data, labels = load_data(cfg)
+    analyse_KM_all(cfg, data, labels)
+
+  if cfg['analysis'] == ['GB_all']:
+    data, labels = load_data(cfg)
+    analyse_GB_all(cfg, data, labels)
+
+  if cfg['analysis'] == ['DBSCAN_all']:
+    data, labels = load_data(cfg)
+    analyse_DBSCAN_all(cfg, data, labels)
+	
+  if cfg['analysis'] == ['count']:
     data, labels = load_data(cfg)
     return count(cfg, data, labels)
 
@@ -149,10 +171,7 @@ def is_grid(parameters):
     if len(value) > 1:
       return True
   else:
-    return False
-  
-  
-    
+    return False 
 
 def load_data(cfg):
 
@@ -216,173 +235,9 @@ def basic_analysis(cfg, method, data, labels, parameters):
     scr = basic_analysis_HCA(cfg, method, data, labels, parameters)
   elif method == 'KMeans':
     scr = basis_analysis_kmeans(cfg, method, data, labels, parameters)
+  elif method == 'DBSCAN':
+    scr = dbscan_analysis(cfg, method, data, labels, parameters)
   return clf, scr
-
-def basis_analysis_kmeans(cfg, method, data, labels, parameters):
-  print('Performing kmeans analysis')
-  res = []
-  for i in range(1,11):
-    clf = KMeans(n_clusters=i).fit(data)
-    res.append(proportion(clf.labels_, labels))
-    print(i, res[-1])
-    
-
-  return -1
-
-def basic_analysis_HCA(cfg, method, data, labels, parameters):
-
-  print('Clustering ...')
-  l = linkage_vector(data, parameters['linkage'][0])
-
-  print('Extracting Cluster results ...')
-  e = extract(l, 1, 20)
-
-  print('Saving extracted clusters to file ...')
-  ext = os.path.join(cfg['main_directory'], "output", 'extract.csv')
-  f = open(ext, 'w')
-  e = np.array(e, 'str')
-  for line in e:
-    f.write(','.join(line) + '\n')
-  f.close()
-
-  v = validation(data, e)
-  print(validation(data, e, index = True))
-
-  print('Saving processed data to file')
-  pdata = os.path.join(cfg['main_directory'], "output", 'processed_data.csv')
-  f = open(pdata, 'w')
-  data = np.array(data, 'str')
-  for line in data:
-    f.write(','.join(line) + '\n')
-  f.close()
-
-  '''
-  # index analysis
-  print('Running index analysis')
-  index_log = os.path.join(cfg['main_directory'], "output", "indices.txt")
-  with open(index_log, 'w') as outfile:
-    subprocess.call(["Rscript", os.path.join(os.path.dirname(__file__),  "indices.R"), ext, pdata, str(len(data)), str(len(data[0])), str(len(e)), str(len(e[0]))], stdout=outfile)
-  '''
-
-  # Compare first 10 clusters to optimal
-  for i in range(10):
-    print(i+1, proportion(e[i], labels))
-
-  print('{} clusters found'.format(v))
-  print(Counter(e[v-1]))
-
-  return proportion(e[v-1], labels)
-  
-def basic_analysis_supervised(cfg, method, data, labels, parameters):
-
-  classifiers = get_classifiers()
-  clf = classifiers[method](**parameters)
-  train_data, test_data, train_labels, test_labels = train_test_split(data, labels, test_size=0.5)
-  clf.fit(train_data, train_labels)
-  scr = clf.score(test_data, test_labels)
-
-  # matching matrix
-  print(proportion(clf.predict(test_data), test_labels, matching = True))
-  
-  return clf, scr
-
-def support_vector_machine_analysis(cfg, method, data, labels):
-
-  # support vector classifiers
-  classifiers = {'SVC':SVC(), 'LSVC':LinearSVC()}
-  
-
-  # standardise the data using z-score
-  s_data = standardise(data, 'zscore')
-
-  # get a sample of say 10%
-  s = np.random.randint(len(s_data), size = len(s_data)//10)
-  data_sample = s_data[s]
-  label_sample = labels[s]
-
-  # split into training and testing data
-  train_data, test_data, train_labels, test_labels = train_test_split(data_sample, label_sample,\
-                                                                      test_size = 0.5)
-
-  # set the grid space to search
-  if method == 'SVC':
-    parameters = {'gamma':[1, 10, 100, 1000], 'C':[1, 10, 100, 1000]}
-  elif method == 'LSVC':
-    parameters = {'C':[1, 10, 100, 1000]}
-
-  svr = classifiers[method]
-
-  clf = GridSearchCV(svr, parameters)
-  clf.fit(train_data, train_labels)
-
-  scr = clf.score(test_data, test_labels)
-  print(clf.best_params_)
-
-  # Select the best classifiers for the support vector machine method selected
-  if method == 'SVC':
-    best_C, best_gamma = clf.best_params_['C'], clf.best_params_['gamma']
-    clf = SVC(C = best_C, gamma = best_gamma)
-
-  elif method == 'LSVC':
-    best_C = clf.best_params_['C']
-    clf = LinearSVC(C = best_C)
-
-  clf.fit(train_data, train_labels)
-  scr = clf.score(test_data, test_labels)
-  print(scr)
-
-def grid_analysis(cfg, method, data, labels, parameters):
-
-  print('Multiple Options for a Single Parameter Detected Performing Grid Search')
-
-  train_data, test_data, train_labels, test_labels = train_test_split(data, labels,\
-                                                                      test_size = 0.5)
-  classifiers = get_classifiers()
-  default_clf = classifiers[method]()
-  clf = GridSearchCV(default_clf, parameters)
-  clf.fit(train_data, train_labels)
-  print("Best parameters found : ", clf.best_params_)
-  scr = clf.score(test_data, test_labels)
-  
-  return clf, scr
- 
-def neural_network_analysis_grid_search(cfg, data, labels):
-
-  data = standardise(data, 'zscore')
-
-  # split into training and testing data
-  train_data, test_data, train_labels, test_labels = train_test_split(data, labels,\
-                                                                      test_size = 0.5)
-
-  clf = MLPClassifier(max_iter = 1000)
-
-  # set the grid space to search
-  parameters = {'solver':['lbfgs', 'sgd', 'adam'], 'activation':['logistic', 'tanh', 'relu'],\
-                'hidden_layer_sizes':[(300), (500, 10)]}
-
-  # test the space
-  mlp_classifier = MLPClassifier(max_iter=1000)
-  clf = GridSearchCV(mlp_classifier, parameters)
-  clf.fit(train_data, train_labels)
-  scr = clf.score(test_data, test_labels)
-  print(clf.best_params_)
-  print(scr)
-
-def neural_network_analysis_non_default(cfg, data, labels):
-  data = standardise(data, 'zscore')
-  # split into training and testing data
-  train_data, test_data, train_labels, test_labels = train_test_split(data, labels,\
-                                                                      test_size = 0.5)
-  params = load_params(cfg, 'NN.')
-  clf = MLPClassifier(**params)
-  print(clf)
-  clf.fit(train_data, train_labels)
-  scr = clf.score(test_data, test_labels)
-  print(scr)
-
-'''
-This definitely needs to be moved to utils
-'''
 
 def load_params(cfg, root):
   params = {}
