@@ -1,2 +1,3 @@
 string shorthand :: HCA
 list(string) HCA.linkage :: single, complete, average, weighted, ward, centroid
+list(string) HCA.indices :: True, False
