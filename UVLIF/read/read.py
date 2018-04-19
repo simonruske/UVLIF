@@ -496,7 +496,8 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
 
     # Get current time
     if cfg['time_stamp_specified']:
-      cur_time = start + timedelta(milliseconds = int(line[0]))
+      milliseconds = int(line.split(',')[0])
+      cur_time = start + timedelta(milliseconds = milliseconds)
 
 
     # check the output_list can be converted to floating point
@@ -594,6 +595,4 @@ def read_files(cfg):
     write_start_end_date(cfg, 'output')
     time_handle.close()
 
-  if cfg['ambient']:
-    close_files([g, forced])
-
+  if c
