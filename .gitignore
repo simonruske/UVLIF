@@ -7,3 +7,4 @@ main.proto
 UVLIF.egg-info/PKG-INFO
 UVLIF.egg-info/SOURCES.txt
 UVLIF/gui/settings.proto
+UVLIF/gui/gui.log
