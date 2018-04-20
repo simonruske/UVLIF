@@ -1,8 +1,64 @@
 import os
 import h5py
 import numpy as np
+import logging
 
+def read_FT_NEO(cfg):
+  '''
+  Function that loads forced trigger data from the
+  main directory specified
+  '''
+  logging.basicConfig(filename=cfg['log_filename'],level=logging.DEBUG)
+  logging.info("Loading forced trigger files from directory")
+  FT_files = find_FT_files(cfg)
+  FT = load_FT_files(FT_files)
+  
+  return FT_files, FT
+  
+def load_FT_files(FT_files):
+  '''
+  Loads a list of forced trigger files
+  '''
+  
+  FT = []
+  
+  logging.info("Loading in forced trigger files")
+  for filename in FT_files:
+    FT.append(load_FT_file(filename))
+    
+  # stack FT array
+  FT = np.vstack(FT)
 
+  return FT
+
+def load_FT_file(filename):
+  logging.info("Loading forced trigger file {}".format(filename))
+  f = h5py.File(filename) # load file
+  N = len(f['NEO']['ParticleData']['Xe1_FluorPeak']) # number of particles in file
+  cur_X = np.zeros((N, 3)) # empty array
+  
+  # load in FL data only
+  cur_X[:, 0] = f['NEO']['ParticleData']['Xe1_FluorPeak'][:, 1]
+  cur_X[:, 1:] = f['NEO']['ParticleData']['Xe2_FluorPeak']
+  
+  return cur_X
+
+  
+def find_FT_files(cfg):
+  '''
+  Loops through main directory searching for FT files
+  '''
+  logging.info("Searching directory for forced trigger files")
+  
+  FT_files = []
+  # loop through directory looking for folders called FT
+  for dirpath, dirnames, filenames in os.walk(cfg['main_directory']):
+    dirpath = os.path.join(dirpath) # fix slashes
+    if os.path.split(dirpath)[-1] == 'FT': # if folder is called FT
+      FT_files += [os.path.join(dirpath, filename) for filename in filenames] # append files to list
+  return FT_files
+      
+  
 def split_info(info):
 
   '''

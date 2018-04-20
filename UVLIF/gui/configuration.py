@@ -4,11 +4,18 @@ import UVLIF.gui.configuration_ui as main
 from UVLIF.configuration.save_config import save_config_file
 from UVLIF.configuration.load_config import load_config
 from UVLIF.read.read import read_FT
+from UVLIF.read.read_NEO import read_FT_NEO
 import os
+import numpy as np
+
+import logging
 
 class configuration_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     
     def __init__(self, parent = None):
+        self.log_filename = parent.log_filename # get log filename from parent
+        logging.basicConfig(filename=parent.log_filename,level=logging.DEBUG)
+    
         super(configuration_window, self).__init__(parent)
         self.cfg = {}
         self.instrument_cfg = {}
@@ -20,6 +27,10 @@ class configuration_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
         self.saveButton.clicked.connect(self.save_configuration)
         self.ftButton.clicked.connect(self.load_ft)
         self.msgbox = QtWidgets.QMessageBox()
+        
+        # connect a change in the instrument box to the logging function
+        self.instrumentBox.currentTextChanged.connect(self.on_instrument_box_changed)
+        
 
     def load_config(self, cfg):
 
@@ -28,7 +39,7 @@ class configuration_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
        they click open config. When they click open config this function will be 
        used to load the configuration file that they select
        '''
-       
+       logging.info("Loading Configuration file")    
        self.cfg = cfg
 
        if 'main_directory' in cfg:
@@ -54,17 +65,12 @@ class configuration_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
       else:
         return True
           
-        
-        
-    
-
     def set_table(self, minimum, mean, std, maximum):
         for i, stat in enumerate([minimum, mean, std, maximum]):
           for j, value in enumerate(stat):
             self.ftModel.item(i, j).setText(str(value))
 
     def load_ft(self):
-
       try:
 
         # load the instrument configuration
@@ -90,14 +96,24 @@ class configuration_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
 
     def directory_browse_main(self):
+        '''
+        Function that requests the main directory from the user
+        when they press '...' next to the main directory field.
+        '''
+        
+        logging.info("Requesting main directory from user")
         message = "Please navigate to the main directory"
         directory = QtWidgets.QFileDialog.getExistingDirectory()
 
+        
         if directory:
             self.mainDirectoryLineEdit.setText(directory)
-
+            logging.info("Main directory successfully set : {}".format(directory))
+        else:
+            logging.info("Directory was not recognised")
+            
     def load_instrument_names(self):
-
+    
         # get the instrument directory (should be root/configuration/instrument)
         # which we can get to from the directory of the following file (root/gui)
         file_dir = os.path.dirname(__file__)
@@ -108,6 +124,67 @@ class configuration_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
         for filename in os.listdir(instrument_dir):
           self.instrumentBox.addItem(filename.strip('.proto'))
 
+    def on_instrument_box_changed(self, value):
+    
+      '''
+      Function that logs changes in the instrument box
+      and disables FT for the MBS
+      '''
+      logging.info("Instrument set to {}".format(self.instrumentBox.currentText()))
+      
+      # If configuration file has specified that FT is stored in the
+      # file then disable loading of FT
+      cfg = load_config(self.get_instrument_filename()) # instrument config
+      if 'FT_blocks' in cfg and cfg['FT_blocks'] == True:
+        self.ftButton.setEnabled(False)
+      
+      # otherwise enable the button
+      else:
+        self.ftButton.setEnabled(True)
+        
+      # if currently set to NEO then automatically load the FT data
+      if self.instrumentBox.currentText() == 'WIBSNEO':
+        self.load_FT_NEO()
+            
+    def load_FT_NEO(self):
+      '''
+      Function for loading neo forced trigger files
+      '''
+      
+      logging.info("Attempting to load NEO FT")
+      main_directory = self.mainDirectoryLineEdit.text()
+      
+      if os.path.isdir(main_directory):
+        logging.info("Main directory found")
+        cfg = {}
+        cfg['log_filename'] = self.log_filename
+        cfg['main_directory'] = main_directory
+        FT_files, FT = read_FT_NEO(cfg)
+        
+        minimum = np.min(FT, 0)
+        mean = np.mean(FT, 0)
+        std = np.std(FT, 0)
+        maximum = np.max(FT, 0)
+         
+        # set the table and the configation
+        logging.info("Updating the table with the forced trigger info")
+        self.set_table(minimum, mean, std, maximum)
+        self.cfg['FT.minimum'] = list(minimum)
+        self.cfg['FT.mean'] = list(mean)
+        self.cfg['FT.std'] = list(std)
+        self.cfg['FT.maximum'] = list(maximum)  
+        
+      
+        
+      
+      # if main directory has not been set then request this
+      else:
+        logging.info("Main directory not specified : notifying user")
+        dialog = QtWidgets.QMessageBox()
+        dialog.setText("Main directory not recognised. Forced trigger files not loaded")
+        dialog.exec_()
+        
+        
     def load_modes(self):
 
       # function for loading the different modes available in the software into the
@@ -150,6 +227,7 @@ class configuration_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     def get_instrument_filename(self):
       return os.path.join(self.instrument_dir, self.instrumentBox.currentText() + '.proto')
 
+      
     def save_configuration(self):
       try:
 
@@ -189,3 +267,4 @@ class configuration_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
         dialog = QtWidgets.QMessageBox()
         dialog.setText("There was an error in saving the configuration : {}".format(str(e)))
         dialog.exec_()
+    
