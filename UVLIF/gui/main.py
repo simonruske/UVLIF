@@ -21,12 +21,13 @@ import subprocess
 
 class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
-  def __init__(self, parent = None):
+  def __init__(self, log_filename = None, parent = None):
     super(main_window, self).__init__(parent)
- 
+    self.log_filename = log_filename
     #thread for reading 
     self.readThread = TaskThread(self)
     self.readThread.function = read_files
+    
     
     # fix for mac menubar
     self.menuBar().setNativeMenuBar(False)

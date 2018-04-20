@@ -70,8 +70,7 @@ def run():
     
     time.sleep(1)
     app.setWindowIcon(icon)
-    main = main_window()
-    main.log_filename = log_filename
+    main = main_window(log_filename = log_filename)
     main.show()
         
     splash.finish(main)
