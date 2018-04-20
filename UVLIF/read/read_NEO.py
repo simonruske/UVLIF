@@ -127,8 +127,9 @@ def list_files(cfg, date, folder, description):
 
 def read_NEO(cfg, info, g, l):
 
+  logging.basicConfig(filename=cfg['log_filename'],level=logging.DEBUG)
+  
 
-  print(info)
   # split the info into date and description
   date, folder, description, label = split_info(info)
 
