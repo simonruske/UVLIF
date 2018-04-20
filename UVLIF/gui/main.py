@@ -16,8 +16,7 @@ from UVLIF.gui.configuration import configuration_window
 from UVLIF.gui.analysis import analysis_window
 from UVLIF.gui.filelist import filelist_window
 
-import os, sys
-import subprocess
+import os, sys, subprocess, logging
 
 class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
@@ -341,12 +340,24 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     button.setVisible(flag)
 
   def create_filelist(self):
+  
+    '''
+    Function that allows user to create a filelist when 
+    they press the corresponding button.
+    '''
+    logging.info("Attempting to create a filelist.")
+    
     try:
       self.load_instrument_cfg()
       self.filelist_window.show()
       self.filelist_window.update()
       self.update()
+      
+    
     except Exception as e:
+      logging.info("There was an error in creating the filelist"
+                   ", notifying the user")
+    
       self.msgBox.setText("Error while creating filelist : {}".format(e))
       self.msgBox.exec_()
 
