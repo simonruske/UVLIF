@@ -552,7 +552,7 @@ def read_files(cfg):
           "'python UVLIF.py clean data' before running again\n")
     return
 
-  check(cfg)
+  #check(cfg)
 
   # if in ambient mode then prepare ambient otherwise prepare for laboratory
   if cfg['ambient']:
@@ -594,5 +594,3 @@ def read_files(cfg):
   if cfg['ambient'] and cfg['time_stamp_specified']:
     write_start_end_date(cfg, 'output')
     time_handle.close()
-
-  if c
