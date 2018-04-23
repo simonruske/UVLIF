@@ -165,12 +165,27 @@ def load_filelist_PLAIR(cfg, directory, filename):
 
   return files, labels
 
-
+def load_filelist_NEO(cfg, directory, filename):
+  
+  '''
+  Function that loads a previously created filelist
+  '''
+  
+  f = load_file(cfg, directory, filename, 'r')
+  
+  files, labels = [], []
+  
+  for line in f:
+    line = line.strip('\n').split(',') # convert to list
+    directory, filename, label = line[0], line[1], line[-1]
+    full_name = os.path.join(directory, filename)
+    files.append(full_name)
+    labels.append(label)
+    
+  return files, labels
     
   
-  
-
-
+  raise ValueError(directory)
            
 def load_filelist(cfg, directory, filename):
 
@@ -193,6 +208,10 @@ def load_filelist(cfg, directory, filename):
 
   if 'instrument' in cfg and cfg['instrument'] == 'PLAIR':
     return load_filelist_PLAIR(cfg, directory, filename)
+  
+  # if the instrument is a neo then load neo filelist
+  if 'instrument' in cfg and cfg['instrument'] == 'NEO':
+    return load_filelist_NEO(cfg, directory, filename)
     
 
   f = load_file(cfg, directory, filename, 'r')
@@ -211,7 +230,7 @@ def load_filelist(cfg, directory, filename):
       files.append(file)
       labels.append(label.strip())
 
-  # Check the lists are not of length '0'
+  # Check the lists are not of length 0
   if len(files) == 0 or len(labels) == 0:
     raise IOError("There are no files or labels to be read.")
 

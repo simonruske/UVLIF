@@ -128,19 +128,18 @@ def list_files(cfg, date, folder, description):
 def read_NEO(cfg, info, g, l):
 
   logging.basicConfig(filename=cfg['log_filename'],level=logging.DEBUG)
-  
+  filename, label = info[0], info[1]
 
   # split the info into date and description
-  date, folder, description, label = split_info(info)
-
+  logging.info("Attempting to read {}".format(filename))
   try:
     X = []
-    y = []
-    for filename in list_files(cfg, date, folder, description):
-      flag = read_NEO_file(cfg, filename, X, y, label)
-      if flag == -1:
-        return
+    y = []  
+    flag = read_NEO_file(cfg, filename, X, y, label)
+    if flag == -1:
+      return
 
+    logging.info("Finished reading files, saving")
     g = open(os.path.join(cfg['main_directory'], "output", "data.csv"), 'a')
     l = open(os.path.join(cfg['main_directory'], "output", "labels.csv"), 'a')
     X = np.vstack(X)
