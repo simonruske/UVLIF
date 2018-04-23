@@ -263,7 +263,7 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
       lineStatus.setStyleSheet("QLineEdit {background-color:green}")
       lineStatus.setText(current_status)
   
-    elif current_status in ['NOT FOUND', 'NO']: # red for not found
+    elif current_status in ['NOT FOUND', 'NO', 'INVALID']: # red for not found
       lineStatus.setStyleSheet("QLineEdit {background-color:red}")
       lineStatus.setText(current_status)
         
@@ -318,6 +318,7 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
       Set to true to update the analysis, and false to update main
     
     '''
+    logging.info("=== begining update of the status box ===")
   
     cfg = {}
     
@@ -330,10 +331,23 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     filename = lineEdit.text() # text from line edit`
     
     #if the configuration file exists load it and set the status to loaded and green
-    if os.path.exists(filename):
+    if os.path.isfile(filename):
       logging.info("Found the file specified")
       cfg = load_config(filename)
-      flag = 'LOADED'
+      
+      # check that parameters required are in the config
+      if not analysis:
+        for item in ['main_directory', 'instrument_filename', 'ambient']:
+          if item not in cfg:
+            message = "Could not find {} in the configuration file".format(item)
+            logging.info(message)
+            cfg = {}
+            flag = 'INVALID'
+            break 
+        else:
+          flag = 'LOADED'
+      else:
+        flag = 'LOADED'
 
     else:
       logging.info("File is not found")
@@ -359,6 +373,8 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
       self.analysis_state = flag
     else:
       self.main_state = flag
+      
+    logging.info("=== finished update of the status box ===")
     
   def update_status(self):
     logging.info("Updating status box")
