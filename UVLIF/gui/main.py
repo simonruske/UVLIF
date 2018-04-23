@@ -338,6 +338,8 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     # update cfg
     if flag == 'LOADED' and analysis:
       self.analysis_cfg = cfg
+      self.analysis_cfg_loaded = True
+      
     elif flag == 'LOADED' and not analysis:
       self.main_cfg = cfg
       self.cfg_loaded = True
