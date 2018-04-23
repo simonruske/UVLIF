@@ -7,11 +7,11 @@ from UVLIF.read.read_PLAIR import read_PLAIR
 
 import numpy as np
 from datetime import datetime, timedelta
-import warnings
-import os
-import shutil
 from copy import copy
-import sys
+import warnings
+import shutil
+
+import os, sys, logging
 
 def read_FT(cfg, filenames):
 
@@ -417,6 +417,8 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
 
   if 'instrument' in cfg:
     if cfg['instrument'] == 'NEO':
+      logging.info("NEO detected, reading NEO files")
+    
       return read_NEO(cfg, info, g, l)
 
     elif cfg['instrument'] == 'PLAIR':
@@ -545,6 +547,9 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
 
 def read_files(cfg):
 
+  logging.basicConfig(filename=cfg['log_filename'],level=logging.DEBUG)
+  logging.info("Loading the files")
+
   # If any data files exist write message suggesting deletion if user wishes to recreate them
   if any_file_exists(cfg, 'output', ['data.csv', 'FT.csv', 'times.csv']):
     print("Data files have been found in the output directory, hence creation of the "
@@ -577,7 +582,7 @@ def read_files(cfg):
   for file_num, info in enumerate(file_info):
   
     if 'progress_bar' in cfg and cfg['progress_bar'].wasCanceled():
-      print('canceled')
+      logging.info("Loading of files cancelled")
       return
   
     # if progress exists then update it
