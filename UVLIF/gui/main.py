@@ -22,7 +22,10 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
   def __init__(self, log_filename = None, parent = None):
     super(main_window, self).__init__(parent)
+    
+    #set logging file
     self.log_filename = log_filename
+    
     #thread for reading 
     self.readThread = TaskThread(self)
     self.readThread.function = read_files
@@ -36,6 +39,10 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     
     self.cfg = {}
     self.cfg_loaded = False
+    self.main_cfg = {}
+    self.analysis_cfg = {}
+    
+    
     self.analysis_cfg = {}
     self.analysis_cfg_loaded = False
 
@@ -47,17 +54,24 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     self.analysis_window = analysis_window(self)
     self.filelist_window = filelist_window(self)
 
-
     # running start up functions
     self.setupUi(self)
+    
+    self.set_initial_form_configuration()
     self.settings = load_config(self.settings_filename())
     self.setup_configuration()
+
+    self.connect_buttons()
+    
     self.update()
-
-    # ===============================
-    # connecting buttons to functions
-    # ===============================
-
+    
+  def connect_buttons(self):
+  
+    '''
+    This function will be called on initialisation to connect
+    all of the buttons to their corresponding functions
+    '''
+    
     # textboxes changed
     self.mainLineEdit.textChanged.connect(self.update)
     self.analysisLineEdit.textChanged.connect(self.update)
@@ -73,17 +87,182 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     self.actionNewAnalysis.triggered.connect(self.open_analysis_window)
     self.actionEditConfiguration.triggered.connect(self.open_configuration_window)
 
-    self.analysisLineEdit.textChanged.connect(self.update_analysis_config)
+    
+    self.analysisLineEdit.textChanged.connect(self.update)
     self.configurationPushButton.clicked.connect(self.configurationPushButtonClicked)
     self.analysisPushButton.clicked.connect(self.analysisPushButtonClicked)
 
     # action buttons
     self.fileButton.clicked.connect(self.create_filelist)
     self.analyseButton.clicked.connect(self.analyse)
-    self.createButton.clicked.connect(self.create)
+    self.createButton.clicked.connect(self.create)  
    
+  def set_initial_form_configuration(self):
+  
+    '''
+    This function will be called upon initialisation of
+    the main form and will set the parameters for each of the
+    elements to their default characteristics
+    
+    Elements
+    --------
+    main configuration line
+      state - loaded or not found
+      
+    analysis_configuration line
+      state - loaded or not found
+      
+    filelist status
+      state - yes or no
+      visibility - visible or invisible
+      enabled - enabled or disabled
+      
+    data status
+      state - yes or no
+      visibility - visible or invisible
+      enabled - enabled or disabled
+      
+    results status
+      state - yes or no
+      visibility - should always be visible
+      enabled - enabled or disabled
+      
+    '''
+    
+    # =============
+    # CONFIGURATION
+    # =============
+    
+    self.main_state = 'NOT FOUND'
+    self.analysis_state = 'NOT FOUND'
+    
+    # ======
+    # STATUS
+    # ======
+    
+    # filelist
+    self.filelist_state = 'NO'
+    self.filelist_visible = True
+    self.filelist_enabled = False
+    
+    # data
+    self.data_state = 'NO'
+    self.data_visible = True
+    self.data_enabled = False
+    
+    # results
+    self.result_state = 'NO'
+    self.result_visible = True
+    self.result_enabled = False
 
+  def display_form(self):
+  
+    '''
+    Function that displays the form using current
+    state elements
+    '''
+    
+    self.display_configuration()
+    self.display_status()
+    
+  def display_configuration(self):
+  
+    '''
+    Function that displays the configuration
+    using current state elements
+    '''
+    
+    self.display_status_box(self.lineEditMainStatus, self.main_state)
+    self.display_status_box(self.lineEditAnalysisStatus, self.analysis_state)
+    
+  def display_status(self):
 
+    '''
+    Function that displays the status using the current 
+    state elements
+    '''
+    
+    # displays the status boxes
+    self.display_status_box(self.dataStatus, self.data_state)
+    self.display_status_box(self.resultsStatus, self.result_state)
+    self.display_status_box(self.fileStatus, self.filelist_state)
+    
+    # sets to visible or invisible
+    self.set_status_visibility(self.filelistLabel, self.fileStatus, self.fileButton, self.filelist_visible)
+    self.set_status_visibility(self.dataLabel, self.dataStatus, self.createButton, self.data_visible)
+    self.set_status_visibility(self.resultsLabel, self.resultsStatus, self.analyseButton, self.result_visible)
+    
+    
+    # sets to enabled or not enabled
+    self.set_status_enabled(self.filelistLabel, self.fileStatus, self.fileButton, self.filelist_enabled)
+    self.set_status_enabled(self.dataLabel, self.dataStatus, self.createButton, self.data_enabled)
+    self.set_status_enabled(self.resultsLabel, self.resultsStatus, self.analyseButton, self.result_enabled)
+    
+    
+    return
+    
+  def set_status_enabled(self, label, textbox, button, flag):
+
+      '''
+      Function that sets a status line to either enabled or disabled
+      
+      Paramters
+      ---------
+      label, textbox, button
+        objects that form part of the line to set visibility for
+        
+      flag : bool
+        True for enabled, false for disabled
+      '''  
+      button.setEnabled(flag)   
+    
+  def set_status_visibility(self, label, textbox, button, flag):
+
+    '''
+    Function that sets a status line to either visible
+    or invisible
+    
+    Paramters
+    ---------
+    label, textbox, button
+      objects that form part of the line to set visibility for
+      
+    flag : bool
+      True for visible, false for invisible
+    '''    
+  
+    label.setVisible(flag)
+    textbox.setVisible(flag)
+    button.setVisible(flag)
+    
+    
+   
+    
+    
+  def display_status_box(self, lineStatus, current_status):
+  
+    '''
+    Function that displays a status box
+    
+    Parameter
+    ---------
+    lineStatus : 
+      the line status to be updated
+      
+    current_status:
+      the current status of the line : 
+        loaded or yes as positive
+        not found or no as negative
+    '''
+    
+    if current_status in ['LOADED', 'YES']: # green for loaded
+      lineStatus.setStyleSheet("QLineEdit {background-color:green}")
+      lineStatus.setText(current_status)
+  
+    elif current_status in ['NOT FOUND', 'NO']: # red for not found
+      lineStatus.setStyleSheet("QLineEdit {background-color:red}")
+      lineStatus.setText(current_status)
+        
   def open_analysis_window(self):
     self.analysis_window.show()
     self.update()    
@@ -91,83 +270,104 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
   def configurationPushButtonClicked(self):
     filename, _ = QtWidgets.QFileDialog.getOpenFileName(self)
     self.mainLineEdit.setText(filename)
+    self.update()
 
   def analysisPushButtonClicked(self):
     filename, _ = QtWidgets.QFileDialog.getOpenFileName(self)
     self.analysisLineEdit.setText(filename)
+    self.update()
 
   def update(self):
-    self.update_main_config()
-    self.update_analysis_config()
-    self.update_status()
-    self.update_buttons()
-
-  def update_buttons(self):
-    try:
-      if not self.cfg_loaded or 'ambient' not in self.cfg:
-        self.set_buttons_enabled([False, False, False])
-      elif not self.filelist_exists and self.cfg['ambient'] == False:
-        self.set_buttons_enabled([True, False, False])
-
-    except Exception as e:
-      self.msgBox.setText("Error loading buttons : " + str(e))
-      self.msgBox.exec_()
+    '''
+    Function that updates the form
+    '''
+    logging.info("updating the form")
+    self.update_form()
+    logging.info("displaying the form")
+    self.display_form() 
+    self.cfg.update(self.main_cfg)
+    self.cfg.update(self.analysis_cfg)
     
-      
-
-  def set_buttons_enabled(self, status):
-    self.fileButton.setEnabled(status[0])
-    self.createButton.setEnabled(status[1])
-    self.analyseButton.setEnabled(status[2])
-
-  def update_configuration_status(self, lineEdit, lineStatus):
-    # get the filename from the textbox
+  
+  def update_form(self):
+  
+    '''
+    Function for updating the form
+    '''
+    logging.info("updating the analysis line")
+    self.update_configuration_status(analysis = True)
+    logging.info("updating the main line")
+    self.update_configuration_status(analysis = False)
+    
+    # update the status box
+    self.update_status()
+    
+  def update_configuration_status(self, analysis = False):
+  
+    '''
+    Function for updating either the main or analysis configuration
+    status
+    
+    Parameters 
+    ----------
+    analysis : bool
+      Set to true to update the analysis, and false to update main
+    
+    '''
+  
     cfg = {}
-    filename = lineEdit.text()
-
+    
+    # if analysis is true set up to change analysis boxes
+    if analysis:
+      lineEdit = self.analysisLineEdit
+    else:
+      lineEdit = self.mainLineEdit
+    
+    filename = lineEdit.text() # text from line edit`
+    
     #if the configuration file exists load it and set the status to loaded and green
     if os.path.exists(filename):
+      logging.info("Found the file specified")
       cfg = load_config(filename)
-      flag = True
-      lineStatus.setStyleSheet("QLineEdit {background-color:green}")
-      lineStatus.setText('LOADED')
+      flag = 'LOADED'
 
     else:
-      flag = False
-      lineStatus.setStyleSheet("QLineEdit {background-color:red}")
-      lineStatus.setText('NOT FOUND')
-    return cfg, flag
-
-  def update_main_config(self):
-    parameters = {
-      'lineEdit' : self.mainLineEdit,
-      'lineStatus' : self.lineEditMainStatus,
-    }
-    self.cfg, self.cfg_loaded = self.update_configuration_status(**parameters)
-    if 'ambient' in self.cfg:
-      flag = self.cfg['ambient']
-      self.status_visibility(self.filelistLabel, self.fileStatus, self.fileButton, not flag)
-
-  def update_analysis_config(self):
-    parameters = {
-      'lineEdit' : self.analysisLineEdit,
-      'lineStatus' : self.lineEditAnalysisStatus,
-    }
-    self.analysis_cfg, self.analysis_cfg_loaded = self.update_configuration_status(**parameters)
-
+      logging.info("File is not found")
+      flag = 'NOT FOUND'
+      
+    # update cfg
+    if flag == 'LOADED' and analysis:
+      self.analysis_cfg = cfg
+    elif flag == 'LOADED' and not analysis:
+      self.main_cfg = cfg
+      self.cfg_loaded = True
+      logging.info(self.main_cfg)
+      
+    # update flags
+    if analysis:
+      self.analysis_state = flag
+    else:
+      self.main_state = flag
+    
   def update_status(self):
+    logging.info("Updating status box")
 
     # check if the main directory is in the cfg and exists
+    logging.info("Checing the main directory exists")
     if 'main_directory' in self.cfg and os.path.exists(self.cfg['main_directory']):
       main_directory = self.cfg['main_directory']
       
+      logging.info("Checking the output directory exists")
       # check the output directory exists
       output_directory = os.path.join(main_directory, 'output')
       output_directory_exists = os.path.exists(output_directory)
+      
       if not output_directory_exists:
+        logging.info("Creating output directory")
         os.mkdir(output_directory)
       
       # if data.csv is in the output directory then set processed_data as true
+      logging.info("Checking the output directory for files")
       if 'data.csv' in os.listdir(output_directory):
         self.processed_data_exists = True
       else:
@@ -190,29 +390,78 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
       self.processed_data_exists = False
       self.results_exists = False
       self.filelist_exists = False
-
-    self.display_status(self.processed_data_exists, self.dataStatus, self.createButton)
-    self.display_status(self.results_exists, self.resultsStatus, self.analyseButton)
-    self.display_status(self.filelist_exists, self.fileStatus, self.fileButton)
-
-  def display_status(self, flag, statusbox, button):
-    if flag == True:
-      statusbox.setText("YES")
-      statusbox.setStyleSheet("QLineEdit {background-color:green}")
-      button.setEnabled(False)
+      
+    logging.info("Filelist button")
+    # conditions for filelist button to be enabled
+    # 1) main proto to be loaded
+    # 2) filelist doesn't already exists
+    # 3) in laboratory mode
+    
+    if self.main_state == 'LOADED' and\
+       not self.filelist_exists and\
+       self.main_cfg['ambient'] == False:
+         
+         self.filelist_enabled = True
     else:
-      statusbox.setText("NO")
-      statusbox.setStyleSheet("QLineEdit {background-color:red}")
-      button.setEnabled(True)
+         self.filelist_enabled = False   
+
+    logging.info("Data button")
+    # conditions for data button to be enabled
+    # 1) main proto to be loaded
+    # 2) filelist already exists unless in ambient mode
+    # 3) data doesn't already exist
+    if self.main_state == 'LOADED' and not self.processed_data_exists:
+      if self.main_cfg['ambient']:
+        self.data_enabled = True
+      elif not self.main_cfg['ambient'] and self.filelist_exists:
+        self.data_enabled = True
+      else:
+        self.data_enabled = False
+    else:
+      self.data_enabled = False
+
+    # conditions for results button to be enabled
+    # 1) data exists
+    # 2) analysis and main proto exist
+    # 3) results don't already exist
+    logging.info("Result button")
+    if self.main_state == 'LOADED' and\
+       self.analysis_state == 'LOADED' and\
+      self.processed_data_exists and\
+      not self.results_exists:
+        self.result_enabled = True
+    else:
+      self.result_enabled = False
+    
+    if self.filelist_exists:
+      self.filelist_state = 'YES'
+    else:
+      self.filelist_state = 'NO'
+
+    if self.processed_data_exists:
+      self.data_state = 'YES'
+
+    else: 
+      self.data_state = 'NO'
+
+    if self.results_exists:
+      self.result_state = 'YES'
+
+    else:
+      self.result_state = 'NO'    
+    
+    logging.info("Filelist exists : {}".format(self.filelist_exists))
+    logging.info("Processed data exists : {}".format(self.processed_data_exists))
+    logging.info("Results exists : {}".format(self.results_exists))
 
   def setup_configuration(self):
     
     if 'main_directory' in self.settings:
       self.mainLineEdit.setText(self.settings['main_directory'])
-      self.update_main_config()
+      self.update()
     if 'analysis_directory' in self.settings:
       self.analysisLineEdit.setText(self.settings['analysis_directory'])
-      self.update_analysis_config()
+      self.update()
 
   def load_configuration(self):
     config_filename, _ = QtWidgets.QFileDialog.getOpenFileName()
@@ -289,7 +538,10 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
   def onProgress(self, i):
     self.progress.setValue(i)
-    self.readThread.quit()
+    
+    # on completion update the form
+    if i == self.progress.maximum():
+      self.update()
 
   def onProgress_labels(self, my_string):
     self.progress.setLabelText(my_string)
@@ -305,9 +557,16 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
     try:
 
+      # log creation
+      logging.info("Attempting to create data")
+    
       # show the error/warnings/progress dialog    
       cfg = {}
+      cfg['log_filename'] = self.log_filename
       cfg.update(self.cfg)
+      
+      # loading instrument config
+      logging.info("loading instrument coniguration")
       self.load_instrument_cfg()
       cfg.update(self.instrument_cfg)
       self.progress = QtWidgets.QProgressDialog()
@@ -328,16 +587,14 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
       # show the progress bar and start the thread
       self.progress.show()
+      
+      # start process of reading
+      logging.info("Starting to read the files")
       self.readThread.start()
 
     except Exception as e:
       self.msgBox.setText("Error while creating data : {}".format(e))
       self.msgBox.exec_()
-
-  def status_visibility(self, label, textbox, button, flag):
-    label.setVisible(flag)
-    textbox.setVisible(flag)
-    button.setVisible(flag)
 
   def create_filelist(self):
   
@@ -367,6 +624,7 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     if self.cfg_ok():
       clean(self.cfg, ['all'])
       self.update()
+      
 
   def clean_data(self):
     if self.cfg_ok():
@@ -382,7 +640,10 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     if self.cfg_ok():
       clean(self.cfg, ['filelist.csv'])
       self.update()
+      
+      
 
+    
 
 class TaskThread(QtCore.QThread):
   notifyProgress = QtCore.pyqtSignal(int)
@@ -392,7 +653,7 @@ class TaskThread(QtCore.QThread):
 
   def __init__(self, parent):
     QtCore.QThread.__init__(self)
-
+    
   def run(self):
     cfg = self.cfg
     cfg['progress'] = self.notifyProgress
