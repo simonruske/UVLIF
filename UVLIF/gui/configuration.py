@@ -72,12 +72,18 @@ class configuration_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
     def load_ft(self):
       try:
-
+      
+        # get the current directory if it exists
+        main_directory = os.path.abspath(self.mainDirectoryLineEdit.text())
+        if not os.path.isdir(main_directory): 
+          main_directory = ""
+      
         # load the instrument configuration
         self.instrument_cfg.update(load_config(self.get_instrument_filename()))
 
         # get the filenames from the user
-        self.cfg['filenames'], _ = QtWidgets.QFileDialog.getOpenFileNames()
+        self.cfg['filenames'], _ = QtWidgets.QFileDialog.getOpenFileNames(\
+                                     self, "Select FT files", main_directory)
         minimum, mean, std, maximum = read_FT(self.instrument_cfg, self.cfg['filenames'])
 
         # set the table view model data
@@ -259,6 +265,11 @@ class configuration_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
         #Save this to file
         config_filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save Configuration")
         save_config_file(self.cfg, config_filename)
+        
+        
+        # update the main form with the new config
+        self.parent().mainLineEdit.setText(config_filename)
+        
         self.parent().update()
 
 
