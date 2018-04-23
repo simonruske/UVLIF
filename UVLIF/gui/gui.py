@@ -20,8 +20,14 @@ def run():
     log_filename = os.path.join(cur_dir, "gui.log")
     
     logging.basicConfig(filename = log_filename, level = logging.DEBUG)
-    logging.info('New session : {}'.format(str(datetime.now())))
-
+    
+    
+    #starting log for new session 
+    output = 'New session : {}'.format(str(datetime.now()))
+    logging.info('=' * len(output))    
+    logging.info(output)
+    logging.info('=' * len(output))
+    
     # Set application id in windows
     logging.info("Setting application id for windows")
     myappid = 'SimonRuske.UVBAT.0.1' # arbitrary string
