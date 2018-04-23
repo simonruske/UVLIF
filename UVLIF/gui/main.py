@@ -347,7 +347,12 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     elif flag == 'LOADED' and not analysis:
       self.main_cfg = cfg
       self.cfg_loaded = True
-      logging.info(self.main_cfg)
+      if 'WIBSNEO.proto' in self.main_cfg['instrument_filename']:
+        self.data_visible = False
+        
+      else:
+        self.data_visible = True
+      
       
     # update flags
     if analysis:
@@ -427,18 +432,20 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
       self.data_enabled = False
 
     # conditions for results button to be enabled
-    # 1) data exists
+    # 1) data exists or isn't needed
     # 2) analysis and main proto exist
     # 3) results don't already exist
     logging.info("Result button")
     if self.main_state == 'LOADED' and\
        self.analysis_state == 'LOADED' and\
-      self.processed_data_exists and\
+      (self.processed_data_exists or self.data_visible == False) and\
       not self.results_exists:
         self.result_enabled = True
     else:
       self.result_enabled = False
     
+    
+    # update statuses
     if self.filelist_exists:
       self.filelist_state = 'YES'
     else:
