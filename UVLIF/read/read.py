@@ -32,6 +32,7 @@ def read_FT(cfg, filenames):
   else:
     raise ValueError("Could not find the indices of the columns for the fluorescent channels in the instrument configuration file.")
 
+    
   FT = FT[:, idx]
 
   minimum = np.min(FT, 0)
@@ -444,21 +445,26 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
   else:
     file, label = convert_info(cfg, info)
 
+  logging.info("Loading file {}".format(file))
 
+  logging.info("Updating progress bar")
   if 'progress_labels' in cfg:
     cfg['progress_labels'].emit(str(file))
   else:
     print(file)
 
   # skip file if extension not in valid_ext
+  
   if os.path.splitext(file)[1] not in cfg['valid_ext']:
+    logging.info("File skipped as it does not have a valid extention")
     return
 
-  
   # open file
+  logging.info("Opening the file")
   f = load_file(cfg, "data", file, 'r')
 
   # search for line containing filename
+  logging.info("Searching for filename")
   if cfg['file_name_specified']:
     try:
       filename = search_for_line(f, "Filename:", 100)
@@ -468,7 +474,7 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
       return
 
   # Search for a time stamp
-
+  logging.info("Searching for timestamp")
   if cfg['time_stamp_specified']:
     start = get_date(cfg, f)
     if cfg['ambient'] and not is_FT:
@@ -477,13 +483,15 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
   header = f.readline()
 
 
-
+  logging.info("loading bulk of file")
   for j, line in enumerate(f):
 
     if 'progress_bar' in cfg and cfg['progress_bar'].wasCanceled():
+      logging.info("loading cancelled")
       return
   
     #convert line
+    #logging.info("Converting the line")
     try:
       output_list = convert_line(cfg, line)
 
@@ -497,35 +505,45 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
       continue
 
     # Get current time
+    #logging.info("Getting time")
     if cfg['time_stamp_specified']:
       milliseconds = int(line.split(',')[0])
       cur_time = start + timedelta(milliseconds = milliseconds)
 
 
     # check the output_list can be converted to floating point
+    #logging.info("Checking output list for errors")
     output_float = check_output_list(output_list)
-
+    
     # If we are using the MBS we need to add the background back in (especially for 
     # supervised analysis)
     if 'readd_background' in cfg and cfg['readd_background'] == True:
+      #logging.info("Readding background")
       output_list = readd_background(cfg, output_list)
 
     # remove particles that are too small
+    #logging.info("Removing particles too small")
+    
+    '''
     if 'size_threshold' in cfg and float(output_list[-1]) < cfg['size_threshold']:
       continue
-      
+    '''
 
     # If we cannot convert the output to float then warn user and move onto the next line
+    #logging.info("Converting to string")
     if not output_float:
       warnings.warn("We found a particle on line {} in {} that had measurements that could"\
                   "not be converted to float. We have skipped this line, {}.".format(j, file))
       continue
 
     # Otherwise convert list to string
+
+    
     else:
       output_str = output_list2str(output_list)
 
     # Write the line
+    # logging.info("Writing line")
     if not cfg['ambient']:
 
       write_line_laboratory(g, l, file_l, forced, output_str, label, file_label)
@@ -548,11 +566,12 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
 def read_files(cfg):
 
   logging.basicConfig(filename=cfg['log_filename'],level=logging.DEBUG)
-  logging.info("Loading the files")
+  logging.info(" === Loading the files ===")
 
   # If any data files exist write message suggesting deletion if user wishes to recreate them
+  logging.info("Checking data doesn't already exist")
   if any_file_exists(cfg, 'output', ['data.csv', 'FT.csv', 'times.csv']):
-    print("Data files have been found in the output directory, hence creation of the "
+    raise ValueError("Data files have been found in the output directory, hence creation of the "
           "data files has been skipped, if you wish to recreate them please run "
           "'python UVLIF.py clean data' before running again\n")
     return
@@ -560,22 +579,30 @@ def read_files(cfg):
   #check(cfg)
 
   # if in ambient mode then prepare ambient otherwise prepare for laboratory
+  logging.info("Preparing the output files")
   if cfg['ambient']:
+    logging.info("Ambient Mode detected")
     file_info, forced, g, time_handle = prepare_ambient(cfg, 'data', 'output')
 
   else:
+    logging.info("Laboratory Mode detected")
     file_info, forced, g, l, file_l = prepare_laboratory(cfg, 'data', 'output', 'filelist.csv')
 
+    
+    
   # =========================
   # MAIN LOOP : Read in files
   # =========================
 
+  logging.info("Commencing loading of files")
   particle = 0
   cfg['FT_prev'] = None
   cfg['FT'] = None
   cfg['cur_FT_data'] = []
 
   # in in gui mode then set the range of the progress bar
+  logging.info("Displaying progress bar")
+  
   if 'progress_bar' in cfg:
     cfg['progress_bar'].setRange(0, cfg['number_of_files']-1)     
 
@@ -588,14 +615,31 @@ def read_files(cfg):
     # if progress exists then update it
     if 'progress' in cfg and file_num :
       cfg['progress'].emit(file_num)
+      
+      
     
     if cfg['ambient']:
-      read_file(cfg, info, g, forced, time_handle = time_handle)
+      try:    
+        read_file(cfg, info, g, forced, time_handle = time_handle)
+      except Exception:
+        file, is_FT = convert_info(cfg, info)
+        logging.info(" === File loading failed ===")
+        raise ValueError("There was a problem in loading {}".format(i))
+        
+      
     else:
-      read_file(cfg, info, g, forced, l = l, file_label = file_num, file_l = file_l)
+      try:
+        read_file(cfg, info, g, forced, l = l, file_label = file_num, file_l = file_l)
+      except Exception:
+        file, label = convert_info(cfg, info)
+        logging.info(" === File loading failed ===")
+        raise ValueError("There was a problem in loading {}".format(file))
+        
     
-
+  logging.info("Closing files")
   # Save the earliest and latest date
   if cfg['ambient'] and cfg['time_stamp_specified']:
     write_start_end_date(cfg, 'output')
     time_handle.close()
+    
+  logging.info(" === File loading complete ===")  
