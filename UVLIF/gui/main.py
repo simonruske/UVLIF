@@ -30,6 +30,10 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     self.readThread = TaskThread(self)
     self.readThread.function = read_files
     
+    #thread for analysing 
+    self.analysisThread = TaskThread(self)
+    self.analysisThread.function = analyse
+    
     
     # fix for mac menubar
     self.menuBar().setNativeMenuBar(False)
@@ -490,10 +494,24 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
   def analyse(self):
     cfg = self.cfg
-    cfg.update(self.analysis_cfg)
+
+    # update the configuration with the log filename
+    cfg['log_filename'] = self.log_filename
+    
     try:
+      logging.info("Analysis button pressed: conducting analysis")
       analyse(cfg)
-      subprocess.call(["xdg-open", os.path.join(cfg['main_directory'], "output", "results", "results.csv")])
+      
+      
+      logging.info("Attempting to open the results file")
+      
+      #open the file
+      results_file = os.path.join(cfg['main_directory'], "output", "results", "results.csv")
+      os.startfile(results_file)
+
+      
+      
+      #subprocess.call(["xdg-open", )])
       self.update()
 
     except Exception as e:
