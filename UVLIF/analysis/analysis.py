@@ -4,7 +4,7 @@ from sklearn.neighbors import typedefs
 
 # IMPORTS
 import subprocess
-import os
+import os, logging
 import numpy as np
 from collections import Counter
 
@@ -44,6 +44,13 @@ except Exception:
   print('Fastcluster not installed')
 
 def analyse(cfg):
+
+  # begin logging of file
+  logging.basicConfig(filename= cfg['log_filename'], level=logging.DEBUG)
+  logging.info('=== begining analysis ===')
+
+  # start logging
+
   # If analysis not requested by the user, skip this ste
 
   if 'analysis' not in cfg:
@@ -176,8 +183,27 @@ def is_grid(parameters):
       return True
   else:
     return False 
+    
+    
+def load_data_NEO(cfg):
+
+  '''
+    idx = np.invert(np.any(np.isnan(data), 1))
+    data = data[idx]
+    labels = labels[idx]
+    idx = data[:, 0] > 0.8
+    data = data[idx]
+    labels = labels[idx]
+  '''
+
+  raise NotImplementedError("Not currently implemented analysis of NEO")
 
 def load_data(cfg):
+  logging.info(cfg)
+
+  if 'instrument_filename' in cfg and 'WIBSNEO' in cfg['instrument_filename']:
+    load_data_NEO(cfg)
+ 
 
   print("Reading in the data ...")
 
@@ -213,13 +239,6 @@ def load_data(cfg):
   for i, line in enumerate(f):
     labels[i] = float(line.strip('\n'))
 
-  if 'instrument' in cfg and cfg['instrument'] == 'NEO':
-    idx = np.invert(np.any(np.isnan(data), 1))
-    data = data[idx]
-    labels = labels[idx]
-    idx = data[:, 0] > 0.8
-    data = data[idx]
-    labels = labels[idx]
 
   return data, labels
 
