@@ -1,6 +1,7 @@
 import UVLIF.gui.filelist_ui as main
 from PyQt5 import QtWidgets, QtGui, QtCore
 import os, logging
+from UVLIF.gui.plot import plot_window
 
 class filelist_window(QtWidgets.QDialog, main.Ui_Dialog):
 
@@ -13,6 +14,9 @@ class filelist_window(QtWidgets.QDialog, main.Ui_Dialog):
 
     # set up the tableView
     self.initialise()
+    
+    # plot window
+    self.plot_window = plot_window(self)
 
     # connect the save button
     self.pushButton.pressed.connect(self.save)
@@ -197,3 +201,22 @@ class filelist_window(QtWidgets.QDialog, main.Ui_Dialog):
     else:
       self.msgBox.setText("At least one file must be placed into a group")
       self.msgBox.exec_()
+
+      
+  def contextMenuEvent(self, event):
+    self.menu = QtWidgets.QMenu(self) # create a menu
+    # action for plotting fluorescence
+    plot_fluorescence_action = QtWidgets.QAction('Plot fluorescence', self)
+    plot_fluorescence_action.triggered.connect(lambda: self.plot_fluorescence(event))
+    self.menu.addAction(plot_fluorescence_action)
+    self.menu.popup(QtGui.QCursor.pos())
+    
+  def plot_fluorescence(self, event):
+    logging.info("Plotting fluorescence")
+    self.plot_window.show()
+    
+    
+    
+  
+  
+  
