@@ -37,6 +37,8 @@ from UVLIF.analysis.supervised.supervised import basic_analysis_supervised
 from UVLIF.analysis.utilities.preprocess import preprocess
 from UVLIF.analysis.basic.count import count
 
+# neo reading imports
+from UVLIF.read.read_NEO import read_NEO_new
 
 try:
   from fastcluster import linkage_vector
@@ -184,25 +186,16 @@ def is_grid(parameters):
   else:
     return False 
     
-    
-def load_data_NEO(cfg):
 
-  '''
-    idx = np.invert(np.any(np.isnan(data), 1))
-    data = data[idx]
-    labels = labels[idx]
-    idx = data[:, 0] > 0.8
-    data = data[idx]
-    labels = labels[idx]
-  '''
-
-  raise NotImplementedError("Not currently implemented analysis of NEO")
 
 def load_data(cfg):
-  logging.info(cfg)
 
   if 'instrument_filename' in cfg and 'WIBSNEO' in cfg['instrument_filename']:
-    load_data_NEO(cfg)
+    data, labels = read_NEO_new(cfg)
+    #raise ValueError("Not yet implemented")
+    return data, labels
+    
+    
  
 
   print("Reading in the data ...")

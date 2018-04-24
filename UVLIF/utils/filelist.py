@@ -183,9 +183,7 @@ def load_filelist_NEO(cfg, directory, filename):
     labels.append(label)
     
   return files, labels
-    
-  
-  raise ValueError(directory)
+
            
 def load_filelist(cfg, directory, filename):
 

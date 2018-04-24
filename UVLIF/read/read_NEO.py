@@ -2,6 +2,7 @@ import os
 import h5py
 import numpy as np
 import logging
+from UVLIF.utils.filelist import load_filelist_NEO
 
 def read_FT_NEO(cfg):
   '''
@@ -124,6 +125,82 @@ def list_files(cfg, date, folder, description):
 
   return(files)
   
+def read_NEO_new(cfg):
+ 
+  # get the output directory which should contain the filelist
+  output_directory = os.path.join(cfg['main_directory'], "output")
+  
+  # check the output directory exists
+  if not os.path.isdir(output_directory):
+    logging.info("Could not find the output directory when loading the filelist for the NEO"
+                 "notifying the user")
+    raise ValueError("The output directory could not be found")
+    
+    
+  # load in the filelist
+  files, labels = load_filelist_NEO(cfg, output_directory, "filelist.csv")
+  
+  data_list = [] # each item will be an array of each file
+  label_list = []
+
+  for file, label in zip(files, labels): # load in every file
+    logging.info("Reading {}".format(file))
+    try:
+      X, y = read_NEO_file_new(cfg, file, label)
+    
+    except ValueError:
+      logging.info("There was a problem in loading {}".format(file))
+      continue 
+    
+
+    data_list.append(X)
+    label_list.append(y)
+    
+  # stack the data and labels into a single array
+  data = np.vstack(data_list)
+  labels = np.concatenate(label_list)
+  
+  
+
+  # remove infinity or nans (consider moving this to preprocessing function
+  logging.info("Removing nans and infinities")
+  idx = ~np.isnan(data).any(axis = 1)
+  data = data[idx]
+  labels = labels[idx]
+  idx = ~np.isinf(data).any(axis = 1)
+  data = data[idx]
+  labels = labels[idx]
+  return data, labels
+  
+def read_NEO_file_new(cfg, file, label):
+  f = h5py.File(file, 'r')
+  
+  # check the file is not empty
+  N = number_of_particles(f)
+
+  if N == 0:
+    logging.info("Empty file")
+    return [], []
+    
+    
+  cur_X = np.zeros((N, 5)) # preallocate array 
+  load_data(cur_X, f) # load in the data
+  y = [label] * N # create a list of labels
+
+  return cur_X, y  
+  
+def read_NEO_file(cfg, filename, X, y, label):
+  f = h5py.File(filename)
+  if len(f['NEO']['ParticleData']['Size_um']) == 0:
+    print('Empty file : {}'.format(filename))
+    return -1
+  N = number_of_particles(f)
+  cur_X = np.zeros((N, 5))
+  load_data(cur_X, f)
+  X.append(cur_X)
+  y += [label] * len(cur_X)
+  return 0
+  
 
 def read_NEO(cfg, info, g, l):
 
@@ -136,8 +213,7 @@ def read_NEO(cfg, info, g, l):
     X = []
     y = []  
     flag = read_NEO_file(cfg, filename, X, y, label)
-    if flag == -1:
-      return
+
 
     logging.info("Finished reading files, saving")
     g = open(os.path.join(cfg['main_directory'], "output", "data.csv"), 'a')
@@ -149,7 +225,15 @@ def read_NEO(cfg, info, g, l):
   except ValueError:
     print("Skipping {}, {}, {}".format(date, folder, description))
 
+    
+def check_file(f):
+  if 'NEO' not in f.keys():
+    raise ValueError("Could not find NEO data in file")
+    
 def number_of_particles(f):
+  check_file(f)
+    
+
   total = 0
   for line in f['NEO']['ParticleData']['Size_um']:
     total += 1
