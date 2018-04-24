@@ -547,7 +547,21 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     # gets the settings filename
     current_directory = os.path.abspath(__file__.replace('main.py', ''))
     filename = os.path.join(current_directory, 'settings.proto')
+    
+	# if it doesn't already exist then create it
+    if not os.path.isfile(filename):
+      self.create_settings_file(filename)
+	
     return filename
+	
+  def create_settings_file(self, filename):
+    f = open(filename, 'w')
+    f.close()
+	
+	
+	
+	
+	
 
   def closeEvent(self, *args, **kwargs):
     # overwrite the closeEvent function to save the settings file
