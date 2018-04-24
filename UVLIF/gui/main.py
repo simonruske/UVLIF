@@ -590,6 +590,7 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
       self.settings['analysis_directory'] = self.analysisLineEdit.text()
 
   def load_instrument_cfg(self):
+    logging.info("Loading the instrument configuration")
     if 'instrument_filename' in self.cfg:
       self.instrument_cfg = load_config(self.cfg['instrument_filename'])
 
@@ -659,19 +660,21 @@ class main_window(QtWidgets.QMainWindow, main.Ui_MainWindow):
     Function that allows user to create a filelist when 
     they press the corresponding button.
     '''
-    logging.info("Attempting to create a filelist.")
+    logging.info("=== Attempting to create a filelist. === ")
     
     try:
       self.load_instrument_cfg()
       self.filelist_window.show()
       self.filelist_window.update()
       self.update()
+      logging.info("=== Successfully created filelist. === ")
+	  
       
     
     except Exception as e:
       logging.info("There was an error in creating the filelist"
                    ", notifying the user")
-    
+      logging.info("=== Failed to create filelist. === ")
       self.msgBox.setText("Error while creating filelist : {}".format(e))
       self.msgBox.exec_()
 
