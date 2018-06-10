@@ -1,7 +1,8 @@
+import os, logging
 import UVLIF.gui.analysis_ui as main
 from UVLIF.gui.analysis_configuration import analysis_configuration_window
 from PyQt5 import QtWidgets, QtCore
-import os
+
 from UVLIF.configuration.load_config import load_config
 from UVLIF.configuration.save_config import save_config_file
 
@@ -18,11 +19,15 @@ class analysis_window(QtWidgets.QDialog, main.Ui_Dialog):
     FT_group = self.check_group(self.FTBox, self.stdEdit, self.stdLabel)
     size_group = self.check_group(self.sizeBox, self.sizeEdit, self.sizeLabel)
     kfold_group = self.check_group(self.kfoldBox, self.kfoldEdit, self.kfoldLabel)
+    log_group = self.check_group(self.logBox, self.logCombo, self.logLabel)
 
-    # activate boxes
+
+    
+    # activate boxes 
     self.activate_box(FT_group)
     self.activate_box(size_group)
     self.activate_box(kfold_group)
+    self.activate_box(log_group)
 
     self.analysis_configuration_window = analysis_configuration_window(self)
     self.msgBox = QtWidgets.QMessageBox()
@@ -36,12 +41,14 @@ class analysis_window(QtWidgets.QDialog, main.Ui_Dialog):
     # lambda functions for turning off and on text edits for size, FT and kfold
     FT_function = lambda: self.activate_box(FT_group)
     size_function = lambda: self.activate_box(size_group)
-    #kfold_function = lambda: self.activate_box(self.si
+    kfold_function = lambda: self.activate_box(kfold_group)
+    log_function = lambda:self.activate_box(log_group)
     
     # connect the lambda functions to the checkboxes
     self.FTBox.stateChanged.connect(FT_function)
     self.sizeBox.stateChanged.connect(size_function)
-    #self.kfoldBox.stateChanged.connect(kfold_function)
+    self.kfoldBox.stateChanged.connect(kfold_function)
+    self.logBox.stateChanged.connect(log_function)
 
   def check_group(self, box, edit, label):
     return {'box':box, 'edit':edit, 'label':label}
@@ -51,9 +58,10 @@ class analysis_window(QtWidgets.QDialog, main.Ui_Dialog):
 
   def activate_box(self, group):
     box = group['box']
-    lineedit = group['edit']
-    label = group['label']
 
+    lineedit = group['edit']
+
+    label = group['label']
     if box.isChecked():
       lineedit.setEnabled(True)
       label.setEnabled(True)
@@ -120,9 +128,25 @@ class analysis_window(QtWidgets.QDialog, main.Ui_Dialog):
       if self.FTBox.checkState() == QtCore.Qt.Checked:
         self.cfg['remove_FT'] = True
         self.cfg['number_of_std'] = self.stdEdit.text()
+        
       if self.sizeBox.checkState() == QtCore.Qt.Checked:
         self.cfg['remove_size'] = True
         self.cfg['size_threshold'] = self.sizeEdit.text()
+        
+        
+      # save option for logs
+      if self.logBox.checkState() == QtCore.Qt.Checked:
+        if self.logCombo.currentText() == 'Size and shape':
+          self.cfg['take_logs'] = 'size/shape'
+          
+        elif self.logCombo.currentText() == 'All':
+          self.cfg['take_logs'] = 'all'
+          
+        else:
+          raise ValueError('{} not recognised'.format(self.logCombo.currentText()))
+          
+      
+      
       save_config_file(self.cfg, filename)
       self.close()
 

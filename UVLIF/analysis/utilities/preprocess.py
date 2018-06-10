@@ -1,4 +1,4 @@
-import os
+import os, logging
 import numpy as np
 from UVLIF.analysis.clustering.cluster_utils import standardise
 
@@ -100,6 +100,7 @@ def preprocess(cfg, data, labels):
   Parameters 
   ----------
   '''
+  logging.info("preprocess : {}".format(cfg))
 
   # open a preprocess log file
   g = open(os.path.join(cfg['main_directory'], "output", "preprocess_log.txt"), 'w')
@@ -122,8 +123,16 @@ def preprocess(cfg, data, labels):
   labels = labels[idx]
 
   # take logs of last two cols
-  if 'take_logs' in cfg and cfg['take_logs'] == True:
-    data[:, -2:] = np.log(data[:, -2:])
+  if 'take_logs' in cfg:
+    if cfg['take_logs'] == 'size/shape':
+      logging.info('Taking size/shape logs')
+      data[:, -2:] = np.log(data[:, -2:])
+    elif cfg['take_logs'] == 'all':
+      logging.info('taking all logs')
+      data[:, -2:] = np.log(data[:, -2:])
+      data[:, :3] = np.log(data[:, :3] - np.min(data[:, :3], 0) + 1)
+    else:
+      raise ValueError(cfg['take_logs'])
 
   # standardise the data
   if 'standardise_method' in cfg:
