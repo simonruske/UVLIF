@@ -1,3 +1,12 @@
+import os
+import numpy as np
+from sklearn.metrics import adjusted_rand_score
+from fastcluster import linkage_vector
+
+from ...clustering.cluster_utils import extract 
+from ...clustering.validation import validation
+from ...clustering.proportion import proportion
+
 def analyse_HCA_all(cfg, data, labels):
   f = open(os.path.join(cfg['main_directory'], "output", "overall_HCA_results.csv"), 'w')
   i = 0

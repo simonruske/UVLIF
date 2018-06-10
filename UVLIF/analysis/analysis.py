@@ -34,6 +34,7 @@ from UVLIF.analysis.clustering.cluster_utils import extract
 from UVLIF.analysis.clustering.validation import validation
 from UVLIF.analysis.clustering.cluster_utils import standardise
 from UVLIF.analysis.supervised.supervised import basic_analysis_supervised
+from UVLIF.analysis.unsupervised.HCA.HCA import basic_analysis_HCA
 from UVLIF.analysis.utilities.preprocess import preprocess
 from UVLIF.analysis.basic.count import count
 
