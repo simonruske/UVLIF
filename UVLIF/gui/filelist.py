@@ -213,6 +213,20 @@ class filelist_window(QtWidgets.QDialog, main.Ui_Dialog):
     
   def plot_fluorescence(self, event):
     logging.info("Plotting fluorescence")
+    selection = self.tableView.selectionModel().selectedRows()
+    filenames = []
+    notes = []
+    for item in selection:
+      directory = self.model.item(item.row(), 0).text()
+      filename = self.model.item(item.row(), 1).text()
+      notes.append(self.model.item(item.row(), 2).text())
+      fullname = os.path.join(directory, filename)
+      filenames.append(fullname)
+    self.plot_window.filenames = filenames
+    self.plot_window.cfg = self.parent().cfg
+    self.plot_window.notes = notes
+    logging.info("Computing figure")
+    self.plot_window.sc.compute_initial_figure()
     self.plot_window.show()
     
     

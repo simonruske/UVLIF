@@ -153,6 +153,8 @@ def read_NEO_new(cfg):
       continue 
     
 
+    if len(X) == 0:
+      continue
     data_list.append(X)
     label_list.append(y)
     
