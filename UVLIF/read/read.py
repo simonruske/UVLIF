@@ -506,7 +506,7 @@ def read_file(cfg, info, g, forced, file_label = None, file_l = None, l = None, 
 
     # Get current time
     #logging.info("Getting time")
-    if cfg['time_stamp_specified']:
+    if cfg['ambient'] and cfg['time_stamp_specified']:
       milliseconds = int(line.split(',')[0])
       cur_time = start + timedelta(milliseconds = milliseconds)
 
