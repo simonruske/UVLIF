@@ -10,29 +10,32 @@ def run():
 
     '''
     Function to run the gui
-    
     '''
-    
+
     # start the log file
     cur_dir = os.path.dirname(__file__) # directory of current file
     sys.stderr = open(os.path.join(cur_dir, "gui.log"), "a")
     sys.stdout = open(os.path.join(cur_dir, "gui.log"), "a")
     log_filename = os.path.join(cur_dir, "gui.log")
-    
+
     logging.basicConfig(filename = log_filename, level = logging.DEBUG)
-    
-    
-    #starting log for new session 
+
+
+    #starting log for new session
     output = 'New session : {}'.format(str(datetime.now()))
-    logging.info('=' * len(output))    
+    logging.info('=' * len(output))
     logging.info(output)
     logging.info('=' * len(output))
-    
+
     # Set application id in windows
-    logging.info("Setting application id for windows")
-    myappid = 'SimonRuske.UVBAT.0.1' # arbitrary string
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-    
+
+    # the following stack overflow question was helpful in 
+    # determining how to find out what platform is being used
+    # https://stackoverflow.com/questions/8220108/how-do-i-check-the-operating-system-in-python
+    if sys.platform == 'win32':
+      logging.info("Setting application id for windows")
+      myappid = 'SimonRuske.UVBAT.0.1' # arbitrary string
+      ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     # starting application
     logging.info("Starting Application")
