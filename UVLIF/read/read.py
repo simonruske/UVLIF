@@ -569,6 +569,11 @@ def read_files(cfg):
   logging.basicConfig(filename=cfg['log_filename'],level=logging.DEBUG)
   logging.info(" === Loading the files ===")
 
+  # raise IO error is input directory does not exist
+  if not os.path.exists(os.path.join(cfg['main_directory'], "data")):
+    raise IOError('Missing data directory')
+
+
   # If any data files exist write message suggesting deletion if user wishes to recreate them
   logging.info("Checking data doesn't already exist")
   if any_file_exists(cfg, 'output', ['data.csv', 'FT.csv', 'times.csv']):
