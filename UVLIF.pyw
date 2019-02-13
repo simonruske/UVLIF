@@ -32,6 +32,3 @@ elif sys.argv[1] == 'gui':
 
 else:
   print("Did not recognise that command")
-
-
-
