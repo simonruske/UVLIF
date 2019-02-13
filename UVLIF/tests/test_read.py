@@ -16,8 +16,8 @@ class test_read(TestCase):
     self.cfg = {}
     self.cfg['FT_blocks'] = False
     self.cfg['main_directory'] = os.path.split(os.path.abspath(UVLIF.__file__))[0]
-    self.input_dir = os.path.join("tests", "test_files") # input from testfiles
-    self.output_dir = os.path.join("tests", "test_files")
+    self.input_dir = os.path.join(self.cfg['main_directory'], "test_files") # input from testfiles
+    self.output_dir = os.path.join(self.cfg['main_directory'], "tests", "test_files")
     self.cfg['log_filename'] = os.path.join(self.input_dir, "log.txt")
 
     self.addCleanup(self.clean)
@@ -290,6 +290,7 @@ class test_read(TestCase):
 
     main = os.path.join(os.curdir, "test_directory", "output_missing")
     cfg['main_directory'] = main
+    cfg['output_directory'] = os.path.join(main, "output")
 
 
     if not os.path.exists(cfg['main_directory']):

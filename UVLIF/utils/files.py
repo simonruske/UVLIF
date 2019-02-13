@@ -41,7 +41,15 @@ def load_file(cfg, directory, filename, mode):
     object for the file that can be looped over
   '''
 
-  full_filename = os.path.join(cfg['main_directory'], directory, filename)
+  # join output full directory
+  output_full = os.path.join(cfg['main_directory'], directory)
+  
+  # create it if it does not already exist
+  if not os.path.exists(output_full):
+    os.mkdir(output_full)
+
+  # join full filename
+  full_filename = os.path.join(output_full, filename)
   f = open(full_filename, mode)
   return f
 

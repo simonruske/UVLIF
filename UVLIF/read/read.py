@@ -68,11 +68,12 @@ def prepare_laboratory(cfg, input_directory, output_directory, filename):
   files, labels = load_filelist(cfg, output_directory, filename)
 
   file_types = Counter(labels)
+    
 
   # If we have forced trigger files then create FT.csv
   if 'F' in file_types:
     forced = load_file(cfg, output_directory, "FT.csv", 'w')
-
+  logging.info(output_directory)
   # If we have at least one file that isn't forced trigger file create data
   # and labels
   if sum(np.unique(labels) != 'F') != 0:
@@ -572,8 +573,7 @@ def read_files(cfg):
   logging.info("Checking data doesn't already exist")
   if any_file_exists(cfg, 'output', ['data.csv', 'FT.csv', 'times.csv']):
     raise ValueError("Data files have been found in the output directory, hence creation of the "
-          "data files has been skipped, if you wish to recreate them please run "
-          "'python UVLIF.py clean data' before running again\n")
+          "data files has been skipped.\n")
     return
 
   #check(cfg)
