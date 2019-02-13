@@ -60,7 +60,7 @@ def analyse(cfg):
     print("Analysis was not requested, so was skipped")
     return
     
-  if cfg['ambient'] == True:
+  if 'ambient' in cfg and cfg['ambient'] == True:
     raise NotImplementedError('Ambient Mode not yet implemented')
 
   if cfg['analysis'] == ['HCA_all']:
