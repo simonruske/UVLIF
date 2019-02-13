@@ -35,7 +35,8 @@ class test_analysis(TestCase):
 
     # set up config 
     cfg = {}
-    cfg['main_directory'] = main_directory 
+    cfg['main_directory'] = main_directory
+    cfg['log_filename'] = os.path.join(main_directory, "log.txt")
 
     # Save the test data
     np.savetxt(os.path.join(main_directory, "output", 'data.csv'), data, delimiter=',')

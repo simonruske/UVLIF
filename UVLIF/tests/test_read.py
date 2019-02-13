@@ -18,7 +18,7 @@ class test_read(TestCase):
     self.cfg['main_directory'] = os.path.split(os.path.abspath(UVLIF.__file__))[0]
     self.input_dir = os.path.join("tests", "test_files") # input from testfiles
     self.output_dir = os.path.join("tests", "test_files")
-
+    self.cfg['log_filename'] = os.path.join(self.input_dir, "log.txt")
 
     self.addCleanup(self.clean)
     self.addCleanup(self.clean_write_line_test)
